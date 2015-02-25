@@ -1,14 +1,14 @@
 module.exports = function (config) {
   config.set({
-    basePath : '',
-    autoWatch : true,
+    basePath: '',
+    autoWatch: true,
     frameworks: ['jasmine', 'browserify'],
-    browsers : ['PhantomJS'],
+    browsers: ['PhantomJS'],
     preprocessors: {
-      'test/*.js': [ 'browserify' ]
+      'test/*.js': ['browserify', 'coverage']
     },
     files: [
-      'test/*.js',
+      'test/*.js'
     ],
     //plugins : [
     //  'karma-spec-reporter',
@@ -18,7 +18,7 @@ module.exports = function (config) {
     browserify: {
       debug: true
     },
-    reporters : ['progress'], // old spec
+    reporters: ['progress', 'coverage'], // old spec
     colors: true,
     captureTimeout: 60000,
     singleRun: true

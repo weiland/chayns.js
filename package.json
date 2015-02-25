@@ -1,11 +1,10 @@
 {
-  "name": "helper.js",
+  "name": "chayns.js",
   "version": "1.0.0",
-  "description": "helper.js",
+  "description": "chayns.js",
   "bugs": {
-    "url": "https://github.com/weiland/helper.js/issues"
+    "url": "https://github.com/weiland/chayns.js/issues"
   },
-  "main": "helper.js",
   "devDependencies": {
     "gulp": "^3.8.11",
     "gulp-jscs": "^1.4.0",
@@ -15,10 +14,10 @@
     "jshint": "^2.6.0",
     "karma": "^0.12.31",
     "karma-browserify": "^3.0.3",
+    "karma-coverage": "^0.2.7",
     "karma-jasmine": "^0.3.5",
     "karma-phantomjs-launcher": "^0.1.4",
-    "karma-spec-reporter": "0.0.16",
-    "tape": "^3.5.0"
+    "karma-spec-reporter": "0.0.16"
   },
   "dependencies": {},
   "scripts": {
