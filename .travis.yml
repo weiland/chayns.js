@@ -6,7 +6,7 @@ node_js:
 addons:
   code_climate:
     repo_token: 2e20e70286c6cf7c61c9b5ce8d1be66c717e18e00eed0d94e241c2c569ed8ce9
-before_install: npm install -g karma-cli codeclimate-test-reporter
+before_install: npm install -g karma karma-cli codeclimate-test-reporter
 install: npm install
 script: npm run test
 after_script:

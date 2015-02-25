@@ -21,7 +21,7 @@
   },
   "dependencies": {},
   "scripts": {
-    "test": "./node_modules/.bin/karma start --single-run",
+    "test": "karma start --single-run",
     "validate": "jshint src test && jscs src test"
   },
   "author": "Pascal Weiland",
