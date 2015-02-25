@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/weiland/chayns.js.svg?branch=master)](https://travis-ci.org/weiland/chayns.js)
 [![Code Climate](https://codeclimate.com/github/weiland/chayns.js/badges/gpa.svg)](https://codeclimate.com/github/weiland/chayns.js)
 [![devDependency Status](https://david-dm.org/weiland/chayns.js/dev-status.svg)](https://david-dm.org/weiland/chayns.js#info=devDependencies)
+[![Test Coverage](https://codeclimate.com/github/weiland/chayns.js/badges/coverage.svg)](https://codeclimate.com/github/weiland/chayns.js)
 
 # chayns.js - the most powerful cross platform app building framework
 
