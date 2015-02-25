@@ -1,14 +1,14 @@
-[![browser support](https://ci.testling.com/weiland/chayns.js.png)
-](https://ci.testling.com/weiland/chayns.js)
 [![Build Status](https://travis-ci.org/weiland/chayns.js.svg?branch=master)](https://travis-ci.org/weiland/chayns.js)
 [![Code Climate](https://codeclimate.com/github/weiland/chayns.js/badges/gpa.svg)](https://codeclimate.com/github/weiland/chayns.js)
+[![devDependency Status](https://david-dm.org/weiland/chayns.js/dev-status.svg)](https://david-dm.org/weiland/chayns.js#info=devDependencies)
 
 # chayns.js - the most powerful cross platform app building framework
 
 > currently wip
 
 ## Prerequisites
-make sure to have installed node.js and npm
+make sure to have installed node.js and npm  
+`karma` and `gulp` should be installed globally!
 
 ## Installation
 ```bash
@@ -33,6 +33,25 @@ validating js code via jshint and jscs
 
     $ npm run validate
 
+### Conventions
+* BDD TDD (unit and e2e)
+* ES6 modules (transpiled to CommonJS ES5 + browserify)
+* Mobile First (viewport, touch, offline appcache/sw)
+* IE >= 9
+* conventions over configuration
+* no dependency on jQuery
+* ponyfills over polyfills
+* feature detection over browser detection 
+* own modular helpers (james)
+* obj param instead of arguments
+* default values for obj param
+* frameworkless js
+* promises over "normal callbacks"
+* karma jasmine
+* travis ci
+* jsdoc & markdown & english
+* git & gitHub (& local GitBlit)
+* independent, must work with AngularJS, React, Ember, Ampersand/Backbone, jQuery, Web components, coffeescript and TypeScript
 
 ## Technologies
 
@@ -93,3 +112,5 @@ code style linter. ensures that the code follows our conventions
 3. Commit all your changes `git commit -am 'add fancy feature'`
 4. Push to the branch `git push origin cool-feature`
 5. Create a new Pull Request on GitHub
+
+[![browser support](https://ci.testling.com/weiland/chayns.js.png)](https://ci.testling.com/weiland/chayns.js)

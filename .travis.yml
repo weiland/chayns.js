@@ -3,5 +3,6 @@ node_js:
   - "0.10"
 #  - "0.12"
 #  - "iojs"
-install: npm install -g karma
+before_install: npm install -g karma
+install: npm install
 script: npm run test
