@@ -10,4 +10,4 @@ before_install: npm install -g karma karma-cli codeclimate-test-reporter
 install: npm install
 script: npm run test
 after_script:
-  - cat ./coverage/lcov.info | codeclimate && rm -rf ./coverage
+  - cat ./coverage/PhantomJS*/lcov.info | codeclimate && rm -rf ./coverage
