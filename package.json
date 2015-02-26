@@ -6,6 +6,7 @@
     "url": "https://github.com/weiland/chayns.js/issues"
   },
   "devDependencies": {
+    "babelify": "^5.0.3",
     "gulp": "^3.8.11",
     "gulp-jscs": "^1.4.0",
     "gulp-karma": "0.0.4",

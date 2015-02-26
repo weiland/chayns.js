@@ -10,13 +10,9 @@ module.exports = function (config) {
     files: [
       'test/*.js'
     ],
-    //plugins : [
-    //  'karma-spec-reporter',
-    //  'karma-phantomjs-launcher',
-    //  'karma-jasmine'
-    //],
     browserify: {
-      debug: true
+      debug: true,
+      transform: ['babelify']
     },
     reporters: ['progress', 'coverage'], // old spec
     colors: true,
@@ -24,7 +20,7 @@ module.exports = function (config) {
     singleRun: true,
 
     coverageReporter: {
-      type : 'lcovonly',
+      type: 'lcovonly',
       dir: 'coverage'
     }
   });

@@ -5,14 +5,13 @@ var chayns = (function() {
 
   'use strict';
 
-  var james = require('./lib');
+  let james = require('./lib');
 
-  var chayns = {};
+  let chayns = {};
 
   chayns.VERSION = '1.0.0';
 
   james.extend(chayns, {core:require('./core')});
-
 
   return chayns;
 
