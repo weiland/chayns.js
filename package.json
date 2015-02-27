@@ -23,7 +23,10 @@
   "dependencies": {},
   "scripts": {
     "test": "karma start --single-run",
-    "validate": "jshint src test && jscs src test"
+    "validate": "jshint src test && jscs src test",
+    "bundle-umd": "rm -rf dist && mkdir dist && browserify -d --require ./src/chayns-umd.js:chayns -t babelify > dist/bundle.js",
+    "build-umd": "npm run bundle-umd && cat src/umd-head.js.txt dist/bundle.js src/umd-foot.js.txt > dist/chayns.js",
+    "build": "rm -rf dist && mkdir dist && browserify -d -e src/chayns.js -t babelify --outfile dist/chayns.js"
   },
   "author": "Pascal Weiland",
   "license": "MIT",

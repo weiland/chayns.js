@@ -17,7 +17,7 @@ module.exports = function (config) {
     reporters: ['progress', 'coverage'], // old spec
     colors: true,
     captureTimeout: 60000,
-    singleRun: true,
+    singleRun: false,
 
     coverageReporter: {
       type: 'lcovonly',

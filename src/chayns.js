@@ -1,20 +1,42 @@
 /**
  * @name chayns API
  */
-var chayns = (function() {
 
-  'use strict';
+// helper
+import {extend} from './utils';
 
-  let james = require('./lib');
+// basic config
+import {config} from './chayns/config';
 
-  let chayns = {};
+// environment
+import {environment} from './chayns/environment';
 
-  chayns.VERSION = '1.0.0';
+// (current) user
+import {user} from './chayns/user';
 
-  james.extend(chayns, {core:require('./core')});
+// prepare function
+import {ready, register, prepare} from './chayns/core';
 
-  return chayns;
+import {chaynsCallsEnum, chaynsCalls, chaynsCall} from './chayns/chayns_calls';
 
-})();
 
-module.exports = chayns;
+
+export var chayns = {};
+
+// TODO write extra extend method to simplify the extend below
+extend(chayns, {VERSION: '0.1.0'});
+extend(chayns, {config});
+
+extend(chayns, {environment});
+extend(chayns, {user});
+
+extend(chayns, {register});
+extend(chayns, {ready});
+
+extend(chayns, {chaynsCalls: chaynsCalls});
+
+// only for testing
+extend(chayns, {chaynsCall});
+
+// start chayns
+prepare(chayns);

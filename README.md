@@ -78,7 +78,7 @@ documenting the js code with **jsDoc**
 continuous integration with travis ci
 
 ### code climate
-check and verify code with codeclimate
+check and verify code with codeclimate (code style and coverage)
 
 ### testling
 unfortunately, testling is broken since a few months :(  
@@ -97,15 +97,27 @@ code quality and detects potential errors and problems
 code style linter. ensures that the code follows our conventions
 
 ### For Sublime
+- package control
+- enhanced sidebar
 - jshint gutter plugin
 - git gutter plugin
 - jscs plugin
+- a nice theme
 
 ### For Webstorm
-- jshint: code quality: enable jshint, check `config file` option which inlcudes the project's .jshintrc
+- jshint: code quality: enable jshint, check `config file` option which includes the project's .jshintrc
 - jscs: make sure to have `jscs` globally installed `npm install -g jscs`
-- Settings -> Javascript -> Libraries -> Donwload change to `TypeScript Community stubs` and look for `karma-jasmine` (for testing)
-- alt + F13 to open console
+- Settings -> Javascript -> Libraries -> Download and change to `TypeScript Community stubs` and look for `karma-jasmine` (for testing)
+- alt + F12 to open console
+
+## ToDo
+- [ ] Find name for helpers/utils (sug: help, james, tobi, bit, hit)
+- [ ] Separate helpers/utils from the chayns core
+- [ ] module solution (ES6 -> CommonJS -> Browserify bundle, AMD requirejs, ES6 + SystemJS)
+- [ ] good solution to documentation (jsDoc, dgeni, jsdoc, doccu)
+- [ ] semantic version
+- [ ] minify build (uglify-js) and external source maps exorcist
+- [ ] publish to: npm, bower, (component), (ruby gems?)
 
 ## Contributing
 1. Fork the repository [https://github.com/weiland/chayns.js/fork](https://github.com/weiland/chayns.js/fork)

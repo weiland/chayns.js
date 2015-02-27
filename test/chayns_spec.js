@@ -1,18 +1,21 @@
-'use strict';
+/* global describe, it, expect */
 
-var chayns = require('../src/chayns');
+import {chayns} from '../src/chayns';
 
-
+// chayns spec
+// verify that the main modules exist
 describe('chayns', function() {
+
+  it('should exist', function() {
+    expect(chayns).toBeDefined();
+  });
 
   it('should have a VERSION', function() {
     expect(chayns.VERSION).toBeDefined();
   });
 
-  it('should have the core module', function() {
-    expect(chayns.core).toBeDefined();
+  it('should have chaynsCall.', function() {
+    expect(chayns.chaynsCall).toBeDefined();
   });
-
-
 
 });
