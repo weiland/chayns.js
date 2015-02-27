@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>chayns test</title>
+  </head>
+  <body>
+    <h1>chayns</h1>
+    <script src="../build/chayns.js"></script>
+    <script>
+      (function() {
+
+        chayns.register({
+          appName: 'Pascals',
+          debugMode: true
+        });
+
+        chayns.ready(function(data) {
+          console.log('i am running!', data);
+        });
+
+      })();
+    </script>
+  </body>
+</html>
+
