@@ -1,6 +1,6 @@
 /* global describe, it, expect, afterEach */
 
-import {cmd as chaynsCallsEnum, chaynsCall, chaynsCalls} from '../src/chayns/chayns_calls';
+import {cmd as chaynsCallsEnum, chaynsCall, chaynsCalls} from '../../src/chayns/chayns_calls';
 
 describe('chayns calls enum', function() {
 

@@ -3,7 +3,7 @@
  */
 
 // helper
-import {extend} from './utils';
+import {extend, getLogger} from './utils';
 
 // basic config
 import {config} from './chayns/config';
@@ -15,17 +15,23 @@ import {environment} from './chayns/environment';
 import {user} from './chayns/user';
 
 // prepare function
-import {ready, register, prepare} from './chayns/core';
+import {ready, register, setup} from './chayns/core';
 
-import {chaynsCallsEnum, chaynsCalls, chaynsCall} from './chayns/chayns_calls';
+import {chaynsCall} from './chayns/chayns_calls';
 
+import {chaynsCallsInterface} from './chayns/chayns_calls_interface';
 
 
 export var chayns = {};
 
+function extendChayns(value) {
+  extend(chayns, value);
+}
+
+extend(chayns, {getLogger});
 // TODO write extra extend method to simplify the extend below
 extend(chayns, {VERSION: '0.1.0'});
-extend(chayns, {config});
+extendChayns({config});
 
 extend(chayns, {environment});
 extend(chayns, {user});
@@ -33,10 +39,11 @@ extend(chayns, {user});
 extend(chayns, {register});
 extend(chayns, {ready});
 
-extend(chayns, {chaynsCalls: chaynsCalls});
-
-// only for testing
+// TODO: should be hidden
 extend(chayns, {chaynsCall});
 
-// start chayns
-prepare(chayns);
+// add all chayns calls directly to the `chayns` Object
+extend(chayns, chaynsCallsInterface);
+
+// setup chayns
+setup(chayns);

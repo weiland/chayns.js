@@ -1,19 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html class="page page--home">
   <head>
     <meta charset="UTF-8">
     <title>chayns test</title>
   </head>
-  <body>
+  <body class="no-js chayns-cloak">
     <h1>chayns</h1>
-    <script src="../build/chayns.js"></script>
+    <script src="../dist/chayns.js"></script>
     <script>
       (function() {
 
+        /**
+         * @name preChayns
+         * @module window
+         *
+         * @description
+         * global object which contains information about chayns configuration
+         * which will be available before any chayns service starts
+         *
+         * @type {{}}
+         */
+        // or call it toChayns
+        window.preChayns = {
+          debugMode: true, // enables debugMode and sets logging to 4 (debug)
+          logLevel: 3, // sets the logLevel. will overwrite debugMode's logLevel
+          dontSetup: true // (be carefully) disables the setup function
+        };
+
+        // override config before the chayns.ready
         chayns.register({
           appName: 'Pascals',
           debugMode: true
         });
+
+        // chayns ready callback
+        // @param data Data Object
 
         chayns.ready(function(data) {
           console.log('i am running!', data);

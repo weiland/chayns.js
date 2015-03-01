@@ -1,3 +1,20 @@
+var browser = [
+  'chrome',
+  'firefox',
+  'safari',
+  'opera',
+  'chrome mobile',
+  'safari mobile',
+  'firefox mobile'
+];
+
+var os = [
+  'windows',
+  'macOS',
+  'android',
+  'ios',
+  'wp'
+];
 
 export var environment = {
 
@@ -28,7 +45,8 @@ export var environment = {
     name: 'Tobit',
     locationId: 1,
     url: 'https://tobit.com/',
-    useSSL: true
+    useSSL: true,
+    colorscheme: 1
     //editMode: false, // future edit mode for content
     //isAdminMode: true
   },
@@ -46,3 +64,7 @@ export var environment = {
     errors: []
   }
 };
+
+// TODO consider getters and setters
+// export set
+// export get

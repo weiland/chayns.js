@@ -8,7 +8,7 @@
  * @returns {*}
  */
 
-import {isObject} from './basics';
+import {isObject} from './is';
 
 export function extend(obj) {
   if (!isObject(obj)) {

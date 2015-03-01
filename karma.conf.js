@@ -5,10 +5,10 @@ module.exports = function (config) {
     frameworks: ['jasmine', 'browserify'],
     browsers: ['PhantomJS'],
     preprocessors: {
-      'test/*.js': ['browserify', 'coverage']
+      'test/**/*spec.js': ['browserify', 'coverage']
     },
     files: [
-      'test/*.js'
+      'test/**/*spec.js'
     ],
     browserify: {
       debug: true,
