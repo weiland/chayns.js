@@ -1,6 +1,7 @@
 // inspired by Angular2's DOM
 
 import {document} from './browser';
+import {isUndefined} from './is';
 
 export class DOM {
 
@@ -69,24 +70,30 @@ export class DOM {
   static classList(element) {
     return Array.prototype.slice.call(element.classList, 0);
   }
-  static addClass(element, classname) {
-    element.classList.add(classname);
+  static addClass(element, className) {
+    element.classList.add(className);
   }
-  static removeClass(element, classname) {
-    element.classList.remove(classname);
+  static removeClass(element, className) {
+    element.classList.remove(className);
   }
-  static hasClass(element, classname) {
-    return element.classList.contains(classname);
+  static hasClass(element, className) {
+    return element.classList.contains(className);
   }
 
   // css
-  static setCSS(element, stylename, stylevalue) {
-    element.style[stylename] = stylevalue;
+  static css(element, styleName, styleValue) {
+    if(isUndefined(styleValue)) {
+      return element.style[styleName];
+    }
+    element.style[styleName] = styleValue;
   }
-  static removeCSS(element, stylename) {
-    element.style[stylename] = null;
+  static setCSS(element, styleName, styleValue) {
+    element.style[styleName] = styleValue;
   }
-  static getCSS(element, stylename) {
-    return element.style[stylename];
+  static removeCSS(element, styleName) {
+    element.style[styleName] = null;
+  }
+  static getCSS(element, styleName) {
+    return element.style[styleName];
   }
 }

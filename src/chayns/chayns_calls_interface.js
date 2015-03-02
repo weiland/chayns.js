@@ -6,9 +6,9 @@ import {cmd, chaynsCalls} from './chayns_calls';
  */
 export var chaynsCallsInterface = {
   showWaitcursor: function() {
-
+    chaynsCalls.setWaitcursor(true);
   },
   hideWaitcursor: function() {
-
+    chaynsCalls.setWaitcursor(false);
   }
 };

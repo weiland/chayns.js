@@ -1,7 +1,10 @@
-import {getLogger, setLevel, extend, isObject, DOM
-  } from '../utils';
+import {getLogger, setLevel, extend, isObject, DOM} from '../utils';
+import {Config} from './config';
+// set logLevel to info
 setLevel(3);
+// create new Logger instance
 let log = getLogger('chayns.core');
+
 /**
  *
  *
@@ -33,15 +36,16 @@ var readyCallbacks = [];
  * @param obj
  * @returns {*}
  */
-export function register(config) {
+export function register(userConfig) {
   log.info('chayns.register');
-  extend(this.config, config); // this reference to the chayns obj
+  Config.set(userConfig); // this reference to the chayns obj
   return this;
 }
 
+// TODO: register `Function` or preChayns `Object`?
 export function preChayns() {
-  if ('preCahyns' in window && isObject(window.preChayns)) {
-
+  if ('preChayns' in window && isObject(window.preChayns)) {
+    // fill config
   }
 }
 
@@ -60,8 +64,12 @@ export function ready(cb) {
   if (arguments.length === 0) {
     return;
   }
-  if(domReady) {
-    cb(this.config);
+  if (domReady) {
+    // TODO: return a custom Model Object instead of `config`
+    cb({
+      appName:Config.get('appName'),
+      appVersion: Config.get('appVersion')
+    });
     return;
   }
   readyCallbacks.push(arguments[0]);
@@ -77,7 +85,7 @@ export function ready(cb) {
  * @param obj Reference to chayns Object
  * @returns {*}
  */
-export function setup(chayns) {
+export function setup() {
   log.info('start chayns setup');
 
   // enable `chayns.css` by adding `chayns` class
@@ -101,12 +109,14 @@ export function setup(chayns) {
   // set DOM ready event
   window.addEventListener('DOMContentLoaded', function() {
 
+    domReady = true;
+
     DOM.addClass(document.body, 'dom-ready');
     DOM.removeClass(document.body, 'chayns-cloak');
 
     readyCallbacks.forEach(function(callback) {
-      domReady = true;
-      callback.call(null, chayns.config);
+
+      callback.call(null, config);
     });
     readyCallbacks = [];
     log.info('finished chayns setup');
@@ -117,6 +127,7 @@ export function setup(chayns) {
  * @description
  * Detect `Browser`, `OS` and 'Device`
  * as well as `Chayns Environment`, `Chayns User` and `Chayns Site`
+ * and assign the data into the environment object
  */
 function setEnvironment() {
 

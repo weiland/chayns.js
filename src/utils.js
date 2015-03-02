@@ -28,7 +28,15 @@ export * from './utils/extend';
 //export * from './utils/fetch';
 
 // Browser APIs (window, document, location)
-export * from './utils/browser';
+// TODO: consider to not bind browser to the utils `Object`
+/* jshint -W116 */
+/* jshint -W033 */
+// jscs:disable parseError
+import * as browser from './utils/browser'; //noinspection BadExpressionStatementJS jshint ignore: line
+// jscs:enable parseError
+/* jshint +W033 */
+/* jshint +W116 */
+export {browser};
 
 // DOM
 export * from './utils/dom';
@@ -45,7 +53,7 @@ export * from './utils/error';
 // auth & JWT handler
 //export * from './utils/jwt';
 
-// cookie handler
+// cookie handler (will be used in the local_storage as fallback)
 //export * from './utils/cookie_handler';
 
 // localStorage helper (which cookie fallback)

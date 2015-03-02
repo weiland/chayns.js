@@ -15,8 +15,10 @@ describe('chayns', function() {
     expect(chayns.VERSION).toBeDefined();
   });
 
-  it('should have a config obj', function() {
-    expect(chayns.config).toBeDefined();
+  // when removing an object from the chayns `Object`
+  // make sure that it is undefined
+  it('should not have a config obj', function() {
+    expect(chayns.config).toBeUndefined();
   });
 
   it('should have a environment obj', function() {

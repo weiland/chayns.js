@@ -1,4 +1,4 @@
-import {isPresent, isBlank, isUndefined} from '../utils';
+import {isPresent, isBlank, isUndefined, isArray, extend} from '../utils';
 
 /**
  * Store internal chayns configuration
@@ -23,14 +23,17 @@ var _config = {
   //framework: ['Ember', 'Angular', 'Backbone', 'Ampersand', 'React', 'jQuery']
 };
 
-export function config() {
+// TODO: remove
+/*export function config() {
   if (arguments.length === 2) {
-    return Config.set(arguments[0], arguments[1]); // TODO refactor this
+    return Config.set(arguments[0], arguments[1]); // TODO: refactor this
+  } else if (arguments.length === 1) {
+    return Config.get(arguments);
   }
   return Config.get();
-}
+}*/
 
-// TODO refactor to Map
+// TODO: refactor to Map
 export class Config {
 
   /**
@@ -58,6 +61,10 @@ export class Config {
   static set(key, value) {
     if (isBlank(key) || isUndefined(value)) {
       return false;
+    }
+    // TODO: good idea? one should be careful i suppose
+    if (isArray(value)) {
+      extend(_config, value);
     }
     _config[key] = value;
     return true;

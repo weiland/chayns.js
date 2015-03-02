@@ -122,6 +122,8 @@ export function chaynsCall(url, debounce = true, win = window) {
 
   function executeCall(url) {
     try {
+      // TODO: create an easier identification of the right environment
+      // TODO: consider to execute the browser fallback in here as well
       if ('chaynsCall' in win && typeof win.chaynsCall.href === 'function') {
         win.chaynsCall.href(url);
       } else if ('webkit' in win && win.webkit.messageHandlers &&

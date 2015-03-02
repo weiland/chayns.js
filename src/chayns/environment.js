@@ -51,6 +51,7 @@ export var environment = {
     //isAdminMode: true
   },
 
+  // TODO: consider Tapp
   app: {
     appId: 1,
     config: {},
