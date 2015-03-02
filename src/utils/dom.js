@@ -5,6 +5,11 @@ import {isUndefined} from './is';
 
 export class DOM {
 
+  // NOTE: always returns an array
+  static $(selector) {
+    return document.querySelectorAll.bind(document);
+  }
+
   // selectors
   static query(selector) {
     return document.querySelector(selector);

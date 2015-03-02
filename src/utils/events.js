@@ -1,4 +1,24 @@
 // TODO: refactor and write tests
+// TODO: add example
+/**
+ * @description
+ ```js
+ // Demo
+
+ events.publish('/page/load', {
+	url: '/some/url/path' // any argument
+});
+
+ var subscription = events.subscribe('/page/load', function(obj) {
+	// Do something now that the event has occurred
+});
+
+ // ...sometime later where I no longer want subscription...
+ subscription.remove();
+
+ //  var target = window.event ? window.event.srcElement : e ? e.target : null;
+ ```
+ */
 export var events = (function() {
   let topics = {};
   let ownProperty = topics.hasOwnProperty;

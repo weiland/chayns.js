@@ -8,4 +8,5 @@
   } else {
     root.chayns = factory(root);
   }
+  // TODO: consider;  (typeof exports !== "undefined" && exports !== null ? exports : window).moduleName = moduleName;
 })(this, function (root) {
