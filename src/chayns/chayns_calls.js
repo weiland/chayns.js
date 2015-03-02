@@ -1,4 +1,15 @@
-import {native as os} from './os/native';
+/**
+ * @description
+ * Native OS Enum
+ * @type Enum
+ */
+export var os = {
+  android: 0,
+  ios: 1,
+  wp: 2,
+  web: 3,
+  webMobile: 4 // TODO: consider to remove
+};
 
 /**
  * @name chaynsCallsEnum

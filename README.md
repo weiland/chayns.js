@@ -8,7 +8,7 @@
 > currently wip
 
 ## Prerequisites
-make sure to have installed node.js and npm  
+make sure to have installed [node.js](http://nodejs.org/dist/v0.12.0/x64/node-v0.12.0-x64.msi) and npm  
 `karma` and `gulp` should be installed globally!
 
 ## Installation
@@ -36,6 +36,7 @@ validating js code via jshint and jscs
 
 ### Conventions
 * BDD TDD (unit and e2e)
+* use [caniuse](http://caniuse.com/)
 * ES6 modules (transpiled to CommonJS ES5 + browserify)
 * Mobile First (viewport, touch, offline appcache/sw)
 * IE >= 9
