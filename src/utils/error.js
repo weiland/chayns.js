@@ -5,6 +5,7 @@
 // TODO: consider importing from './utils' only
 import {window as win} from './browser';
 import {getLogger} from './logger';
+import {Config} from '../chayns/config';
 
 let log = getLogger('chayns.error');
 
@@ -23,5 +24,9 @@ win.addEventListener('error', function(err) {
   ];
 
   // TODO: add proper Error Handler
-  log.error(finalError);
+  log.warn(finalError);
+  if(Config.get('preventErrors')) {
+    err.preventDefault();
+  }
+  return false;
 });

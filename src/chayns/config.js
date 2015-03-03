@@ -1,3 +1,8 @@
+/**
+ * @module config
+ * @private
+ */
+
 import {isPresent, isBlank, isUndefined, isArray, extend} from '../utils';
 
 /**
@@ -8,6 +13,8 @@ import {isPresent, isBlank, isUndefined, isArray, extend} from '../utils';
 var _config = {
   appName: 'Chayns App',   // app Name
   appVersion: 1,           // app Version
+  preventErrors: true,        // error handler can hide errors (can be overwtitten by isProduction)
+  isProduction: true,      // production, development and test ENV
   loadModernizer: true,    // load modernizer
   loadPolyfills: true,     // load polyfills
   useFetch: true,          // use window.fetch and it's polyfills

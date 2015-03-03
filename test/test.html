@@ -2,13 +2,91 @@
 <html class="page page--home">
   <head>
     <meta charset="UTF-8">
-    <title>chayns test</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>chayns.js</title>
+    <style type="text/css">
+
+      html,
+      body {
+        color: blue;
+      }
+
+      .loading {
+        display: none;
+      }
+
+      .chayns-cloak {
+        color: red;
+      }
+
+      .chayns-cloak .loading {
+        display: block;
+      }
+
+      .js--no-support {
+        display: none;
+      }
+
+      .no-js .js--no-support {
+        display: block;
+      }
+
+      .js-support {
+        display: none;
+      }
+      .js .js-support {
+        display: block;
+      }
+
+      .dom-status {
+        display: none;
+      }
+
+      .dom-ready .dom-status {
+        display: block;
+      }
+
+      .chayns-status {
+        display: none;
+      }
+
+      .chayns-ready .chayns-status {
+        display: block;
+      }
+
+    </style>
   </head>
   <body class="no-js chayns-cloak">
-    <h1>chayns</h1>
-    <script src="../dist/chayns.js"></script>
+    <h1>chayns.js</h1>
+
+    <div class="loading">
+      loading....
+    </div>
+
+    <div class="js--support">
+      JavaScript is supported!
+    </div>
+    <div class="js--no-support">
+      JavaScript is not supported!
+    </div>
+
+    <div class="dom-status">
+      The DOM is ready!
+    </div>
+
+    <div class="chayns-status">
+      Chayns is ready!
+    </div>
+
+    <div class="chayns-env">
+
+    </div>
+
+    <script src="chayns.js"></script>
     <script>
       (function() {
+        'use strict';
 
         /**
          * @name preChayns
@@ -21,6 +99,7 @@
          * @type {{}}
          */
         // or call it toChayns
+        // the preChayns `Object` can be defined before chayns is loaded
         window.preChayns = {
           debugMode: true, // enables debugMode and sets logging to 4 (debug)
           logLevel: 3, // sets the logLevel. will overwrite debugMode's logLevel
@@ -28,16 +107,37 @@
         };
 
         // override config before the chayns.ready
+        // chayns.register is more logic and reasonable than a preChayns `Object`
         chayns.register({
           appName: 'Pascals',
           debugMode: true
         });
 
+        //chayns.getAppInfos();
+
         // chayns ready callback
         // @param data Data Object
 
         chayns.ready(function(data) {
-          console.log('i am running!', data);
+
+          // chayns logger
+          var log = chayns.getLogger('pw.app');
+
+          // chayns data
+          log.info('chayns app info: ', data);
+
+          // chayns env
+          var chaynsEnvElement = chayns.utils.DOM.query('.chayns-env');
+          var html = 'Browser: ' + chayns.env.isBrowser + '<br>\n'
+                   + 'App:' + chayns.env.isApp + '<br>\n<br>\n'
+                   + 'Mobile:' + chayns.env.isMobile + '<br>\n'
+                   + 'Desktop: ' + chayns.env.isDesktop + '<br>\n<br>\n'
+                   + 'Chayns Web: ' + chayns.env.isChaynsWeb + '<br>\n'
+                   + 'Chayns Web Mobile: ' + chayns.env.isChaynsWebMobile + '<br>\n<br>\n'
+                   + 'isAndroid: ' + chayns.env.isAndroid + '<br>\n'
+                   + 'isIOS: ' + chayns.env.isIOS + '<br>\n<br>\n'
+                   + 'canChaynsCalls: ' + chayns.env.canChaynsCall + '<br>\n';
+          chayns.utils.DOM.setHTML(chaynsEnvElement, '<br>' + html);
         });
 
       })();

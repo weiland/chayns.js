@@ -1,5 +1,5 @@
-import {window} from '../global';
-import {promise, deffered} from './utils';
+import {window} from './browser';
+import {promise, deferred} from './promise';
 
 export function fetch() {
 

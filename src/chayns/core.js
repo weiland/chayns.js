@@ -1,9 +1,11 @@
 import {getLogger, setLevel, extend, isObject, DOM} from '../utils';
 import {Config} from './config';
-// set logLevel to info
-setLevel(3);
+
 // create new Logger instance
 let log = getLogger('chayns.core');
+
+// disable JS Errors in the console
+Config.set('preventErrors', false);
 
 /**
  *
@@ -77,6 +79,7 @@ export function ready(cb) {
 
 /**
  * @name prepare
+ * @module chayns
  *
  * @description
  * Run necessary operations to prepare chayns.
@@ -90,9 +93,15 @@ export function setup() {
 
   // enable `chayns.css` by adding `chayns` class
   // remove `no-js` class and add `js` class
-  DOM.addClass(document.body, 'chayns');
-  DOM.addClass(document.body, 'js');
-  DOM.removeClass(document.body, 'no-js');
+  let body = document.body;
+  DOM.addClass(body, 'chayns');
+  DOM.addClass(body, 'js');
+  DOM.removeClass(body, 'no-js');
+
+  // add chayns root
+  let chaynsRoot = DOM.createElement('div');
+  DOM.addClass(chaynsRoot, 'chayns-root');
+  DOM.appendChild(body, chaynsRoot);
 
   // run polyfill (if required)
 
@@ -112,11 +121,13 @@ export function setup() {
     domReady = true;
 
     DOM.addClass(document.body, 'dom-ready');
+
+    // TODO: not only body, attribute over class
     DOM.removeClass(document.body, 'chayns-cloak');
 
     readyCallbacks.forEach(function(callback) {
 
-      callback.call(null, config);
+      callback.call(null, {config: 'config'});
     });
     readyCallbacks = [];
     log.info('finished chayns setup');

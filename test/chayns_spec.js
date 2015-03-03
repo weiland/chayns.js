@@ -21,8 +21,12 @@ describe('chayns', function() {
     expect(chayns.config).toBeUndefined();
   });
 
-  it('should have a environment obj', function() {
-    expect(chayns.environment).toBeDefined();
+  it('should have an env obj', function() {
+    expect(chayns.env).toBeDefined();
+  });
+
+  it('should not have an environment obj', function() {
+    expect(chayns.environment).toBeUndefined();
   });
 
   it('should have a user obj', function() {

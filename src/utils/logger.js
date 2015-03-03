@@ -39,7 +39,13 @@ let logLevel = levels.none;
  * @param args
  * @private
  */
-function log(level, args){
+function log(level, args, prefix) {
+  let slice = Array.prototype.slice;
+  if (prefix) {
+    args = slice.call(args);
+    //args.unshift(time); // TODO: consider toggleable time
+    args.unshift(prefix);
+  }
   logger[level || 'log'].apply(console, args);
 }
 
@@ -84,7 +90,7 @@ export class Logger {
     if (logLevel < 4) {
       return;
     }
-    log('debug', arguments);
+    log('debug', arguments, this.name);
   }
 
   /**
@@ -97,7 +103,7 @@ export class Logger {
     if (logLevel < 3) {
       return;
     }
-    log('info', arguments);
+    log('info', arguments, this.name);
   }
 
 
@@ -112,7 +118,7 @@ export class Logger {
       return;
     }
 
-    log('warn', arguments);
+    log('warn', arguments, this.name);
   }
 
   /**
@@ -125,6 +131,6 @@ export class Logger {
     if (logLevel < 1) {
       return;
     }
-    log('error', arguments);
+    log('error', arguments, this.name);
   }
 }

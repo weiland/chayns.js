@@ -1,10 +1,16 @@
-import {cmd, chaynsCalls} from './chayns_calls';
+import {chaynsCalls, apiCall} from './chayns_calls';
 
 /**
  * All public chayns methods to interact with *Chayns App* or *Chayns Web*
  * @type {{showWaitcursor: Function, hideWaitcursor: Function}}
  */
-export var chaynsCallsInterface = {
+  // TODO: rename, since this also invokes Chayns Web Functions
+export var chaynsApiInterface = {
+
+  getAppInfos: function() {
+    return apiCall(chaynsCalls.getGlobalData);
+  },
+
   showWaitcursor: function() {
     chaynsCalls.setWaitcursor(true);
   },

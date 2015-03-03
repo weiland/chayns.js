@@ -12,21 +12,28 @@
     "gulp-karma": "0.0.4",
     "jasmine-core": "^2.2.0",
     "jscs": "^1.11.3",
+    "jsdoc": "^3.3.0-beta1",
     "jshint": "^2.6.0",
     "karma": "^0.12.31",
     "karma-browserify": "^3.0.3",
     "karma-coverage": "^0.2.7",
     "karma-jasmine": "^0.3.5",
     "karma-phantomjs-launcher": "^0.1.4",
-    "karma-spec-reporter": "0.0.16"
+    "karma-spec-reporter": "0.0.16",
+    "watchify": "^2.4.0"
   },
   "dependencies": {},
   "scripts": {
     "test": "karma start --single-run",
+    "server": "puer -d test/ -p 8000",
+    "dev": "karma start & npm run watch-js & npm run server",
+    "watch-js": "watch-run -p 'src/**/*.js' npm run build-umd",
     "validate": "jshint src test && jscs src test",
     "bundle-umd": "rm -rf dist && mkdir dist && browserify -d --require ./src/chayns-umd.js:chayns -t babelify > dist/bundle.js",
-    "build-umd": "npm run bundle-umd && cat src/umd-head.js.txt dist/bundle.js src/umd-foot.js.txt > dist/chayns.js",
-    "build": "rm -rf dist && mkdir dist && browserify -d -e src/chayns.js -t babelify --outfile dist/chayns.js"
+    "build-umd": "npm run bundle-umd && cat src/umd-head.js.txt dist/bundle.js src/umd-foot.js.txt > dist/chayns.js && cp dist/chayns.js test/chayns.js",
+    "build": "rm -rf dist && mkdir dist && browserify -d -e src/chayns.js -t babelify --outfile dist/chayns.js",
+    "mount": "open smb://pweiland@chayns1/SlitteRessource",
+    "deploy": "cp -r ./dist/ /Volumes/SlitteRessource/API/v3/chayns.js && cp test/index.html /Volumes/SlitteRessource/API/v3/"
   },
   "author": "Pascal Weiland",
   "license": "MIT",

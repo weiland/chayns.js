@@ -101,4 +101,45 @@ export class DOM {
   static getCSS(element, styleName) {
     return element.style[styleName];
   }
+
+  // nodes & elements
+  static createElement(tagName, doc=document) {
+    return doc.createElement(tagName);
+  }
+
+  static remove(el) {
+    var parent = el.parentNode;
+    parent.removeChild(el);
+    return el;
+  }
+
+  static appendChild(el, node) {
+    el.appendChild(node);
+  }
+  static removeChild(el, node) {
+    el.removeChild(node);
+  }
+
+  static insertBefore(el, node) {
+    el.parentNode.insertBefore(node, el);
+  }
+
+  static insertAfter(el, node) {
+    el.parentNode.insertBefore(node, el.nextSibling);
+  }
+
+  static tagName(element) {
+    return element.tagName;
+  }
+
+  // attributes
+  static getAttribute(element, attribute) {
+    return element.getAttribute(attribute);
+  }
+  static setAttribute(element, name, value) {
+    element.setAttribute(name, value);
+  }
+  static removeAttribute(element, attribute) {
+    return element.removeAttribute(attribute);
+  }
 }

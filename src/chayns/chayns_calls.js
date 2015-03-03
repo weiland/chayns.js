@@ -1,3 +1,16 @@
+import {getLogger, isPermitted} from '../utils';
+import {environment} from './environment';
+let log = getLogger('chayns.core.chayns_calls');
+
+function can(versions) {
+  return isPermitted(versions, environment.os, environment.appVersion);
+}
+
+// OS App Version Map
+let osMap = {
+  chaynsCall: { android: 2510, ios: 2483, wp: 2469, bb: 118 }
+};
+
 /**
  * @description
  * Native OS Enum
@@ -16,13 +29,14 @@ export var os = {
  * @module chayns.os
  *
  * @description
- * Chayns Calls Enums start at 0
- * TODO: consider using an `Array` and reverting keys and values
+ * Chayns Calls Enum
+ * The Number represents the Chayns Call Number
  *
  * Chayns Calls Enum
  * @type {{setPullToRefresh: number}}
  */
-export var cmd = {
+export var cmds = {
+  getGlobalData: 18,
   setPullToRefresh: 0,
   setWaitcursor: 1,
   selectTab: 2,
@@ -38,14 +52,17 @@ export var cmd = {
  * @type {{none: number, Boolean: number, String: number}}
  * @private
  */
-var _params = {
+var params = {
   none: 'none',
   bool: 'Boolean',
   int: 'Integer',
-  string: 'String'
+  string: 'String',
+  callback: 'callback' // extends String
 };
 
 
+let allOs = [os.android, os.ios, os.wp, os.web];
+//let androidIos = [os.android, os.ios]; // TODO: not used
 /**
  * @name chaynsCalls
  * @module chayns.os
@@ -53,81 +70,106 @@ var _params = {
  * @description
  * Chayns Calls
  *
- * @type {{setPullToRefresh: {cmd: number, params: Array}}}
+ * @type {Object}
  */
-
-let allOs = [os.android, os.ios, os.wp];
-let androidIos = [os.android, os.ios];
-
 export var chaynsCalls = {
 
+  getGlobalData: buildChaynsCall({
+    cmd: cmds.getGlobalData,
+    params: [params.callback],
+    os: allOs,
+    callback: 'getGlobalData' // callback is the same as cmd
+  }),
+
   setPullToRefresh: {
-    cmd: cmd.setPullToRefresh,
-    params: [_params.bool],
+    cmd: cmds.setPullToRefresh,
+    params: [params.bool],
     os: allOs
   },
 
   setWaitcursor: {
-    cmd: cmd.setWaitcursor,
-    params: [_params.bool],
+    cmd: cmds.setWaitcursor,
+    params: [params.bool],
     os: allOs
   },
 
   selectTab: {
-    cmd: cmd.selectTab,
-    params: [_params.string],
+    cmd: cmds.selectTab,
+    params: [params.string],
     os: allOs
   }
 };
 
-function chaynsCallString(call) {
-  return 'chaynsCall(' + call + ')';
-}
-
-// protocol enum
-let protocol = {
-  slitte: 'slitte://',
-  chayns: 'chayns://',
-  http: 'http://',
-  https: 'https://'
-};
-
 /**
- *
- * @param chaynsCallObj
- * @returns {*}
+ * Build Chayns Call with Chayns Call `Object`.
+ * @param {Object} chaynsCallObj ChaynsCallObject
+ * @returns {string} Chayns call `URL` or null on error
  */
 function buildChaynsCall(chaynsCallObj) {
-  if (!chaynsCallObj || !chaynsCallObj.cmd) {
+
+  if (!can(osMap.chaynsCall)) {
+    log.info('the OS is not capable of ChaynsCalls');
     return null;
   }
+
+  if (!chaynsCallObj || !chaynsCallObj.cmd) {
+    log.warn('no chaynsCallObj passed');
+    return null;
+  }
+
   let cmd = chaynsCallObj.cmd,
-    params = chaynsCallObj.params;
-  // return cmd only if there is no param or 'none'
-  if (params.length === 0 || params[0] === _params.none) {
+    chaynsParams = chaynsCallObj.params;
+
+  // return cmd if there is no param or 'none'
+  if (chaynsParams.length === 0 || chaynsParams[0] === params.none) {
     return chaynsCallString(cmd);
   }
-  let callArgs = [cmd];
 
-  let call =  callArgs.join(', ');
+  // add the params to the chayns call
+  let callbackPrefix = 'chayns._callbacks.';
+  let callArgs = [cmd];
+  if (chaynsParams.length > 0) {
+    chaynsParams.forEach(function(param) {
+      if (param === params.callback) {
+        callArgs.push('"' + callbackPrefix + chaynsCallObj.callback + '"');
+      }
+    });
+  }
+
+  // build call string
+  let call = callArgs.join(', ');
+
+  // add chayns protocol and host to the call
   return chaynsCallString(call);
 }
 
+/**
+ * Add chayns `protocol` and chaynsCall `Host`
+ * @private
+ * @param {string} call Example: `1,jscallback("result")`
+ * @returns {string} Chayns call `URL`
+ */
+function chaynsCallString(call) {
+  return 'chayns://chaynsCall(' + call + ')';
+}
 
 /**
  * @name chayns.chaynsCall
- * @modeul chayns
+ * @module chayns
  *
  * @description
  * Chayns Call
  * TODO: should return a promise
  *
- * @param {String} url either `chayns://` or `slitte://` url
+ * @param {String} url `chayns://`
  * @param {Boolean} debounce waits 100ms if true, always returns true
  * @returns {Boolean} True if chayns call succeeded, false on error (no url etc)
  */
-export function chaynsCall(url, debounce = true, win = window) {
+export function chaynsCall(url, debounce = true) {
   if (!url) {
+    if(url === null) {
+      log.info('chayns calls do not seem to be supported');
+    }
     return false;
   }
 
@@ -135,13 +177,15 @@ export function chaynsCall(url, debounce = true, win = window) {
     try {
       // TODO: create an easier identification of the right environment
       // TODO: consider to execute the browser fallback in here as well
-      if ('chaynsCall' in win && typeof win.chaynsCall.href === 'function') {
-        win.chaynsCall.href(url);
-      } else if ('webkit' in win && win.webkit.messageHandlers &&
-        win.webkit.messageHandlers.chaynsCall && win.webkit.messageHandlers.chaynsCall.postMessage) {
-        win.webkit.messageHandlers.chaynsCall.postMessage(url);
+      if ('chaynsCall' in window && typeof window.chaynsCall.href === 'function') {
+        window.chaynsCall.href(url);
+      } else if ('webkit' in window
+          && window.webkit.messageHandlers
+          && window.webkit.messageHandlers.chaynsCall
+          && window.webkit.messageHandlers.chaynsCall.postMessage) {
+        window.webkit.messageHandlers.chaynsCall.postMessage(url);
       } else {
-        win.location.href = url;
+        window.location.href = url;
       }
       return true;
     } catch (e) {
@@ -155,4 +199,21 @@ export function chaynsCall(url, debounce = true, win = window) {
     return executeCall(url);
   }
   return true;
+}
+
+export function chaynsWebCall(url, debounce) {
+
+}
+
+/**
+ * Public Chayns Interface
+ * @param url
+ * @param debounce
+ */
+export function apiCall(url, debounce) {
+  if (can(osMap.chaynsCall)) {
+    chaynsCall(url, debounce);
+  } else {
+    chaynsWebCall(url, debounce);
+  }
 }

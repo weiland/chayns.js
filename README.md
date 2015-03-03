@@ -119,6 +119,10 @@ code style linter. ensures that the code follows our conventions
 - [ ] semantic version
 - [ ] minify build (uglify-js) and external source maps exorcist
 - [ ] publish to: npm, bower, (component), (ruby gems?)
+- [ ] Diagrams
+- [ ] Flow charts
+- [ ] Dependency Map
+- [ ] auto docs
 
 ## Contributing
 1. Fork the repository [https://github.com/weiland/chayns.js/fork](https://github.com/weiland/chayns.js/fork)

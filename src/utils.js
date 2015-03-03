@@ -47,6 +47,9 @@ export * from './utils/logger';
 // Analytics
 //export * from './utils/analytics';
 
+// Remote
+// remote debugging and analysis
+
 // front-end Error Handler (catches errors, identify and analyses them)
 export * from './utils/error';
 
@@ -87,6 +90,12 @@ export * from './utils/events';
 
 // lazy loading
 //export * from './utils/lazy_loading';
+
+// (image) preloader
+//export * from '/utils/preloader';
+
+// isPemitted App Version check
+export * from './utils/is_permitted';
 
 
 // in Future
