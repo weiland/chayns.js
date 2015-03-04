@@ -86,8 +86,31 @@
     <div class="chayns-env">
 
     </div>
+    <script>
+      // TODO: also fake webshadow mobile and ChaynsCalls
+      // TODO: write util and use that also for unit and e2e test
+
+      // fake iframe
+      (function(window) {
+        // we fake the parent window in order to
+        // build a chayns dev environment which
+        // runs without an iframe
+        window.parent = {
+          postMessage: function() {}
+        };
+
+        window.top = window;
+      })(window);
+
+      // fake chayns params
+      (function(window) {
+        window.location.search.os = 'webshadow';
+        window.location.search.appversion = 5000;
+      })(window);
+    </script>
     <script src="chayns.js"></script>
     <script>
+
       (function() {
         'use strict';
 

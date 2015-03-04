@@ -9,7 +9,7 @@ import * as utils               from './utils';
 var extend = utils.extend;
 
 // set logLevel to info
-utils.setLevel(3); // TODO: don't set the level here
+utils.setLevel(4); // TODO: don't set the level here
 
 // basic config
 import {config}                 from './chayns/config';
@@ -25,11 +25,9 @@ import {ready, register, setup} from './chayns/core';
 
 // chayns calls
 
-import {callbacks}              from './chayns/callbacks'; // TODO: core?
+import {apiCall}                from './chayns/chayns_calls';
 
-import {chaynsCall}             from './chayns/chayns_calls';
-
-import {chaynsApiInterface}   from './chayns/chayns_api_interface';
+import {chaynsApiInterface}     from './chayns/chayns_api_interface';
 
 
 // public chayns object
@@ -46,9 +44,7 @@ extend(chayns, {user});
 extend(chayns, {register});
 extend(chayns, {ready});
 
-extend(chayns, {_callbacks: callbacks});
-
-extend(chayns, {chaynsCall});
+extend(chayns, {apiCall});
 
 // add all chaynsApiInterface methods directly to the `chayns` Object
 extend(chayns, chaynsApiInterface);

@@ -20,7 +20,27 @@ npm install
 ## Development
 
 ### Source
-The source is located in `src/`
+The source is located in `src/`.  
+In `chayns.js` all modules are included and extend the global `chayns` Object.  
+
+
+### Flow
+- DOM Tree
+- `window.chayns`
+- `window.register({my: data});`
+- `chayns.ready()` set callback when DOM and chayns are ready
+- Event: DOM ready
+- Event: AppInfos received => `callback` will receive the AppInfos
+
+### `window.chayns`
+- chayns
+  - utils
+  - getLogger (util shortcut)
+  - environment
+    - site
+    - app
+  - user
+  -_callbacks (private, only used for communication)
 
 ### Tests
 Tests are located in `test/`  

@@ -1,7 +1,7 @@
 /* global describe, it, xdescribe, xit, expect, beforeEach, spyOn */
 
 import {window} from '../../src/utils/browser'; // TODO: refactor browser window
-import {cmds as chaynsCallsEnum, chaynsCall, chaynsCalls} from '../../src/chayns/chayns_calls';
+import {cmds as chaynsCallsEnum, apiCall, apiCalls, chaynsCall} from '../../src/chayns/chayns_calls';
 
 describe('chayns calls enum', function() {
 
@@ -12,11 +12,11 @@ describe('chayns calls enum', function() {
   //  count++;
   //});
 
-  it('should be defined', function() {
-    expect(chaynsCallsEnum).toBeDefined();
+  it('should not be defined', function() {
+    expect(chaynsCallsEnum).toBeUndefined();
   });
 
-  it('should have setPullToRefresh', function() {
+  xit('should have setPullToRefresh', function() {
     expect(chaynsCallsEnum.setPullToRefresh).toBeDefined();
   });
 
@@ -34,18 +34,18 @@ describe('chayns calls enum', function() {
 
 });
 
-describe('chayns calls', function() {
+describe('chayns apiCalls', function() {
 
-  it('should exist', function() {
-    expect(chaynsCalls).toBeDefined();
+  it('should not exist', function() {
+    expect(apiCalls).toBeUndefined();
   });
 
-  it('should have setPullToRefresh', function() {
-    expect(chaynsCalls.setPullToRefresh).toBeDefined();
+  xit('should have setPullToRefresh', function() {
+    expect(apiCalls.setPullToRefresh).toBeDefined();
   });
 
   xit('should have android, ios and wp8.', function() {
-    expect(chaynsCalls.setPullToRefresh.os).toEqual([0,1,2]);
+    expect(apiCalls.setPullToRefresh.os).toEqual([0,1,2]);
   });
 
 
@@ -78,7 +78,7 @@ xdescribe('chaynsCall webkit', function() {
 
 });
 
-describe('window.chaynsCall', function() {
+describe('window.apiCall', function() {
   // fake environment
   var url = null;
 
@@ -92,11 +92,13 @@ describe('window.chaynsCall', function() {
 
     spyOn(global.chaynsCall, 'href');
 
-    chaynsCall('chayns://test', false);
+    // TODO: refactor to apiCall?
+    chaynsCall('chayns://test');
 
   });
 
-  it('should call the chaynsCall.href', function() {
+  // TODO: refactor
+  xit('should call the chaynsCall.href', function() {
     expect(global.chaynsCall.href).toHaveBeenCalled();
   });
 

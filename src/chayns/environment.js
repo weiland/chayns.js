@@ -53,6 +53,8 @@ if (parameters.debug) {
   // TODO: enable debug mode
 }
 
+// TODO: further params and colorscheme
+
 
 function getFirstMatch(regex) {
   var match = ua.match(regex);
@@ -153,8 +155,13 @@ export var environment = {
 environment.parameters = parameters;
 environment.hash = location.hash.substr(1);
 
+// WATCH OUT the OS is set by parameter (unfortunately)
 environment.os = parameters.os || 'noOS'; // TODO: refactor OS
+if (is.mobile && ['android', 'ios', 'wp'].indexOf(parameters.os) !== -1) {
+  parameters.os = types.chaynsOS.app;
+}
 
+// detection by user agent
 environment.isIOS = is.ios;
 environment.isAndroid = is.android;
 environment.isWP = is.wp;
@@ -173,11 +180,13 @@ environment.isDesktop = (!is.mobile && !is.tablet);
 environment.isMobile = is.mobile;
 environment.isTablet = is.tablet;
 
-environment.isChaynsWeb = (parameters.os === types.chaynsOS.web);
-environment.isChaynsWebMobile = (parameters.os === types.chaynsOS.webMobile);
+environment.isChaynsWebMobile = (parameters.os === types.chaynsOS.webMobile) && environment.isInFrame;
+environment.isChaynsWebDesktop = (parameters.os === types.chaynsOS.web) && environment.isInFrame;
+environment.isChaynsWeb = environment.isChaynsWebDesktop || environment.isChaynsWebMobile;
 
 // internal TODO: make it private?
 environment.canChaynsCall = environment.isApp;
+environment.canChaynsWebCall = environment.isChaynsWeb;
 
 environment.viewport = viewport; // TODO: update on resize? no, due performance
 environment.orientation = orientation;

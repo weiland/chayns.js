@@ -86,7 +86,7 @@ export class DOM {
   }
 
   // css
-  static css(element, styleName, styleValue) {
+  static css(element, styleName, styleVhasalue) {
     if(isUndefined(styleValue)) {
       return element.style[styleName];
     }
@@ -140,6 +140,9 @@ export class DOM {
     element.setAttribute(name, value);
   }
   static removeAttribute(element, attribute) {
+    if (!element) {
+      return element;
+    }
     return element.removeAttribute(attribute);
   }
 }

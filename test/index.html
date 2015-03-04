@@ -4,28 +4,39 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>chayns.js</title>
+    <title>Chayns API v3</title>
+    <link href="css/chayns.css" rel="stylesheet">
     <style type="text/css">
 
-      html,
-      body {
-        color: blue;
+      .chayns-container {
+        max-width: 600px;
+        margin: auto;
+      }
+
+      .chayns-wrapper {
+        margin: 15px 10px 20px 10px;
+      }
+
+      .chayns-intro {
+
+      }
+
+      .grey-bg {
+        background-color: #F2F2F2;
+        /*margin: 10px;*/
+        /*overflow: hidden;*/
       }
 
       .loading {
         display: none;
       }
 
-      [chayns-cloak] {
-        display: none;
+      .chayns-cloak {
+        color: #666;
       }
 
-      .loading {
+      .chayns-cloak .loading {
         display: block;
-      }
-
-      .chayns-ready .loading {
-        display: none;
       }
 
       .js--no-support {
@@ -61,37 +72,44 @@
 
     </style>
   </head>
-  <body class="no-js" chayns-cloak>
-    <h1>chayns.js</h1>
+  <body class="no-js chayns-cloak">
+    <div class="chayns-container">
+      <div class="chayns-wrapper grey-bg">
+        <div class="chayns-intro">
+          <h1>chayns.js</h1>
+          <div>
+            Hello chayns v3!
+          </div>
+        </div>
 
-    <div class="loading">
-      loading....
-    </div>
+        <div class="loading">
+          loading....
+        </div>
 
-    <div class="js--support">
-      JavaScript is supported!
-    </div>
-    <div class="js--no-support">
-      JavaScript is not supported!
-    </div>
+        <div class="js--support">
+          JavaScript is supported!
+        </div>
+        <div class="js--no-support">
+          JavaScript is not supported!
+        </div>
 
-    <div class="dom-status">
-      The DOM is ready!
-    </div>
+        <div class="dom-status">
+          The DOM is ready!
+        </div>
 
-    <div class="chayns-status">
-      Chayns is ready!
-    </div>
+        <div class="chayns-status">
+          Chayns is ready!
+        </div>
 
-    <div class="chayns-env">
+        <div class="chayns-env">
 
+        </div>
+      </div>
     </div>
-    <script src="chayns.js"></script>
+    <script src="js/chayns.js"></script>
     <script>
       (function() {
         'use strict';
-
-        chayns.showWaitcursor();
 
         /**
          * @name preChayns
@@ -138,20 +156,11 @@
                    + 'Mobile:' + chayns.env.isMobile + '<br>\n'
                    + 'Desktop: ' + chayns.env.isDesktop + '<br>\n<br>\n'
                    + 'Chayns Web: ' + chayns.env.isChaynsWeb + '<br>\n'
-                   + 'Chayns Web Mobile: ' + chayns.env.isChaynsWebMobile + '<br>\n'
-                   + 'Chayns Web Desktop: ' + chayns.env.isChaynsWebDesktop + '<br>\n<br>\n'
+                   + 'Chayns Web Mobile: ' + chayns.env.isChaynsWebMobile + '<br>\n<br>\n'
                    + 'isAndroid: ' + chayns.env.isAndroid + '<br>\n'
                    + 'isIOS: ' + chayns.env.isIOS + '<br>\n<br>\n'
-                   + 'canChaynsCalls: ' + chayns.env.canChaynsCall + '<br>\n'
-                   + 'canChaynsWebCalls: ' + chayns.env.canChaynsWebCall + '<br>\n<br>\n'
-                   + 'isInFrame: ' + chayns.env.isInFrame + '<br>\n';
+                   + 'canChaynsCalls: ' + chayns.env.canChaynsCall + '<br>\n';
           chayns.utils.DOM.setHTML(chaynsEnvElement, '<br>' + html);
-
-          // just Demo purpose
-          setTimeout(chayns.hideWaitcursor, 500);
-
-          // caption Button
-          chayns.createCaptionButton('API 3', console.log.bind(console));
         });
 
       })();

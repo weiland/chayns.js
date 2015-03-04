@@ -1,219 +1,187 @@
-import {getLogger, isPermitted} from '../utils';
+import {getLogger, isPermitted, isFunction, isBlank, isArray, isObject, isDefined} from '../utils';
+import {window, parent} from '../utils/browser';
 import {environment} from './environment';
+import {setCallback} from './callbacks';
 let log = getLogger('chayns.core.chayns_calls');
+
 
 function can(versions) {
   return isPermitted(versions, environment.os, environment.appVersion);
 }
 
-// OS App Version Map
+// OS App Version Map for Chayns Calls Support
+// TODO: move into environment? (or just remove cause it is only used one time in here)
 let osMap = {
   chaynsCall: { android: 2510, ios: 2483, wp: 2469, bb: 118 }
 };
 
 /**
- * @description
- * Native OS Enum
- * @type Enum
+ * Public Chayns Interface
+ * Execute API Call
+ *
+ * @param url
+ * @param params
+ * @param debounce
+ * // TODO: left of callback as promise
  */
-export var os = {
-  android: 0,
-  ios: 1,
-  wp: 2,
-  web: 3,
-  webMobile: 4 // TODO: consider to remove
-};
+export function apiCall(obj) {
 
-/**
- * @name chaynsCallsEnum
- * @module chayns.os
- *
- * @description
- * Chayns Calls Enum
- * The Number represents the Chayns Call Number
- *
- * Chayns Calls Enum
- * @type {{setPullToRefresh: number}}
- */
-export var cmds = {
-  getGlobalData: 18,
-  setPullToRefresh: 0,
-  setWaitcursor: 1,
-  selectTab: 2,
-  selectAlbum: 3
-};
+  let debounce = obj.debounce || false;
 
-/**
- * @name _paramsEnum
- *
- * @description
- * Available parameters for a chayns call
- *
- * @type {{none: number, Boolean: number, String: number}}
- * @private
- */
-var params = {
-  none: 'none',
-  bool: 'Boolean',
-  int: 'Integer',
-  string: 'String',
-  callback: 'callback' // extends String
-};
+  // TODO: check obj.os VERSION
 
+  function executeCall(chaynsCallObj) {
 
-let allOs = [os.android, os.ios, os.wp, os.web];
-//let androidIos = [os.android, os.ios]; // TODO: not used
-/**
- * @name chaynsCalls
- * @module chayns.os
- *
- * @description
- * Chayns Calls
- *
- * @type {Object}
- */
-export var chaynsCalls = {
+    if (environment.canChaynsCall && can(osMap.chaynsCall)) {
+      // TODO: consider callQueue and Interval to prevent errors
+      log.debug('executeCall: chayns call ', chaynsCallObj.cmd);
 
-  getGlobalData: buildChaynsCall({
-    cmd: cmds.getGlobalData,
-    params: [params.callback],
-    os: allOs,
-    callback: 'getGlobalData' // callback is the same as cmd
-  }),
-
-  setPullToRefresh: {
-    cmd: cmds.setPullToRefresh,
-    params: [params.bool],
-    os: allOs
-  },
-
-  setWaitcursor: {
-    cmd: cmds.setWaitcursor,
-    params: [params.bool],
-    os: allOs
-  },
-
-  selectTab: {
-    cmd: cmds.selectTab,
-    params: [params.string],
-    os: allOs
-  }
-};
-
-/**
- * Build Chayns Call with Chayns Call `Object`.
- * @param {Object} chaynsCallObj ChaynsCallObject
- * @returns {string} Chayns call `URL` or null on error
- */
-function buildChaynsCall(chaynsCallObj) {
-
-  if (!can(osMap.chaynsCall)) {
-    log.info('the OS is not capable of ChaynsCalls');
-    return null;
-  }
-
-  if (!chaynsCallObj || !chaynsCallObj.cmd) {
-    log.warn('no chaynsCallObj passed');
-    return null;
-  }
-
-  let cmd = chaynsCallObj.cmd,
-    chaynsParams = chaynsCallObj.params;
-
-  // return cmd if there is no param or 'none'
-  if (chaynsParams.length === 0 || chaynsParams[0] === params.none) {
-    return chaynsCallString(cmd);
-  }
-
-  // add the params to the chayns call
-  let callbackPrefix = 'chayns._callbacks.';
-  let callArgs = [cmd];
-  if (chaynsParams.length > 0) {
-    chaynsParams.forEach(function(param) {
-      if (param === params.callback) {
-        callArgs.push('"' + callbackPrefix + chaynsCallObj.callback + '"');
+      if ('cb' in chaynsCallObj && isFunction(chaynsCallObj.cb)) {
+        setCallback(chaynsCallObj.callbackName || chaynsCallObj.params[0].callback, chaynsCallObj.cb, true);
       }
-    });
-  }
-
-  // build call string
-  let call = callArgs.join(', ');
-
-  // add chayns protocol and host to the call
-  return chaynsCallString(call);
-}
-
-/**
- * Add chayns `protocol` and chaynsCall `Host`
- * @private
- * @param {string} call Example: `1,jscallback("result")`
- * @returns {string} Chayns call `URL`
- */
-function chaynsCallString(call) {
-  return 'chayns://chaynsCall(' + call + ')';
-}
-
-/**
- * @name chayns.chaynsCall
- * @module chayns
- *
- * @description
- * Chayns Call
- * TODO: should return a promise
- *
- * @param {String} url `chayns://`
- * @param {Boolean} debounce waits 100ms if true, always returns true
- * @returns {Boolean} True if chayns call succeeded, false on error (no url etc)
- */
-export function chaynsCall(url, debounce = true) {
-  if (!url) {
-    if(url === null) {
-      log.info('chayns calls do not seem to be supported');
-    }
-    return false;
-  }
-
-  function executeCall(url) {
-    try {
-      // TODO: create an easier identification of the right environment
-      // TODO: consider to execute the browser fallback in here as well
-      if ('chaynsCall' in window && typeof window.chaynsCall.href === 'function') {
-        window.chaynsCall.href(url);
-      } else if ('webkit' in window
-          && window.webkit.messageHandlers
-          && window.webkit.messageHandlers.chaynsCall
-          && window.webkit.messageHandlers.chaynsCall.postMessage) {
-        window.webkit.messageHandlers.chaynsCall.postMessage(url);
-      } else {
-        window.location.href = url;
+      if (isObject(chaynsCallObj.support) && !can(chaynsCallObj.support)) {
+        log.info('executeCall: the chayns version is not supported');
+        if (chaynsCallObj.fallbackCmd) {
+          log.info('executeCall: fallback chayns call will be invoked');
+          return chaynsCall(chaynsCallObj.fallbackCmd);
+        }
+        return false;
       }
-      return true;
-    } catch (e) {
-      return false;
+      return chaynsCall(chaynsCallObj.cmd, chaynsCallObj.params);
+
+    } else if (environment.canChaynsWebCall) {
+
+      if ('cb' in chaynsCallObj && isFunction(chaynsCallObj.cb)) {
+        setCallback(chaynsCallObj.webFn, chaynsCallObj.cb);
+      }
+      if (!chaynsCallObj.webFn) {
+        log.info('executeCall: This Call has no webFn');
+        return false;
+      }
+
+      log.debug('executeCall: chayns web call ', chaynsCallObj.webFn.name || chaynsCallObj.webFn);
+
+      return chaynsWebCall(chaynsCallObj.webFn, chaynsCallObj.webParams || chaynsCallObj.params);
+
+    } else {
+      log.info('executeCall: neither chayns web call nor chayns web');
     }
   }
 
   if (debounce) {
-    setTimeout(executeCall.bind(null, url), 100);
+    setTimeout(executeCall.bind(null, obj), 100); // TODO: error?
   } else {
-    return executeCall(url);
+    return executeCall(obj);
   }
-  return true;
-}
-
-export function chaynsWebCall(url, debounce) {
-
 }
 
 /**
- * Public Chayns Interface
- * @param url
- * @param debounce
+ * Build Chayns Call (only for native Apps)
+ * @private
+
+ * @returns {Boolean} True if chayns call succeeded, false on error (no url etc)
  */
-export function apiCall(url, debounce) {
-  if (can(osMap.chaynsCall)) {
-    chaynsCall(url, debounce);
-  } else {
-    chaynsWebCall(url, debounce);
+function chaynsCall(cmd, params) {
+
+  if (isBlank(cmd)) { // 0 is a valid call, undefined and null are not
+    log.warn('chaynsCall: missing cmd for chaynsCall');
+    return false;
   }
+  let url = null;
+
+  // if there is no param or 'none' which means no callback
+  if (!params) {
+
+    url = 'chayns://chaynsCall(' + cmd + ')';
+
+  } else {
+
+    // params exist however, it is no array
+    if (!isArray(params)) {
+      log.error('chaynsCall: params are no Array');
+      return false;
+    }
+
+    // add the params to the chayns call
+    let callbackPrefix = '_chaynsCallbacks.';
+    let callString = '';
+    if (params.length > 0) {
+      let callArgs = [];
+      params.forEach(function(param) {
+        let name = Object.keys(param)[0];
+        let value = param[name];
+        if (name === 'callback') {
+          callArgs.push('"' + callbackPrefix + value + '"');
+        } else if (name === 'bool' || name === 'Function' || name === 'Integer') {
+          callArgs.push(value);
+        } else if (isDefined(value)) {
+          callArgs.push('\'' + value + '\'');
+        }
+      });
+      callString = ',' + callArgs.join(',');
+    }
+
+    // add chayns protocol and host and join array
+    url = 'chayns://chaynsCall(' + cmd + callString + ')';
+  }
+
+  log.debug('chaynsCall: url: ', url);
+
+  try {
+    // TODO: create an easier identification of the right environment
+    // TODO: consider to execute the browser fallback in here as well
+    if ('chaynsCall' in window && isFunction(window.chaynsCall.href)) {
+      window.chaynsCall.href(url);
+    } else if ('webkit' in window
+      && window.webkit.messageHandlers
+      && window.webkit.messageHandlers.chaynsCall
+      && window.webkit.messageHandlers.chaynsCall.postMessage) {
+      window.webkit.messageHandlers.chaynsCall.postMessage(url);
+    } else {
+      window.location.href = url;
+    }
+    return true;
+  } catch (e) {
+    log.warn('chaynsCall: Error: could not execute ChaynsCall: ', e);
+  }
+
+  return false;
+}
+
+/**
+ * @description
+ * Execute a ChaynsWeb Call in the parent window.
+ *
+ * @param {String} fn Function name
+ * @param {String} params Additional
+ * @returns {boolean} True if chaynsWebbCall succeeded
+ */
+function chaynsWebCall(fn, params) {
+  if (!fn) {
+    log.info('chaynsWebCall: no ChaynsWebCall fn');
+    return null;
+  }
+  if (!params || isArray(params)) { // Array indicates that these are chaynsCalls params TODO: refactor
+    params = '';
+  }
+  if (isObject(params)) { // an Array is also seen as Object, however it will be reset before
+    params = JSON.stringify(params);
+  }
+
+  if (isFunction(fn)) {
+    return fn.call(null);
+  }
+
+  var namespace = 'chayns.customTab.';
+  var url = namespace + fn + ':' + params;
+
+  log.debug('chaynsWabCall: ' + url);
+
+  try {
+    parent.postMessage(url, '*');
+    return true;
+  } catch (e) {
+    log.warn('chaynsWebCall: postMessgae failed');
+  }
+  return false;
 }

@@ -1,5 +1,7 @@
-import {getLogger, setLevel, extend, isObject, DOM} from '../utils';
+import {getLogger, isObject, DOM} from '../utils';
 import {Config} from './config';
+import {messageListener} from './callbacks';
+import {chaynsApiInterface} from './chayns_api_interface';
 
 // create new Logger instance
 let log = getLogger('chayns.core');
@@ -111,27 +113,52 @@ export function setup() {
 
   // (viewport setup)
 
+  // crate meta tags (colors, mobile icons etc)
+
+  // do some SEO stuff (canonical etc)
+
   // detect user (logged in?)
 
   // run chayns setup (colors based on environment)
+
+
 
   // set DOM ready event
   window.addEventListener('DOMContentLoaded', function() {
 
     domReady = true;
+    log.debug('DOM ready');
 
     DOM.addClass(document.body, 'dom-ready');
 
-    // TODO: not only body, attribute over class
-    DOM.removeClass(document.body, 'chayns-cloak');
+    // get the App Infos, has to be done when document ready
+    let getAppInfosCall = !chaynsApiInterface.getGlobalData(function(data) {
 
-    readyCallbacks.forEach(function(callback) {
+      // now Chayns is officially ready
 
-      callback.call(null, {config: 'config'});
+      log.debug('appInfos callback', data);
+
+      readyCallbacks.forEach(function(callback) {
+
+        callback.call(null, data);
+      });
+      readyCallbacks = [];
+
+      DOM.addClass(document.body, 'chayns-ready');
+      DOM.removeAttribute(DOM.query('[chayns-cloak]'), 'chayns-cloak');
+
+      log.info('finished chayns setup');
     });
-    readyCallbacks = [];
-    log.info('finished chayns setup');
+
+    if (getAppInfosCall) {
+      log.error('The AppInfos could not be retrieved.');
+    }
   });
+
+  // start window.on('message') listener for Frame Communication
+  messageListener();
+
+
 }
 
 /**

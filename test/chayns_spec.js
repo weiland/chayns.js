@@ -43,8 +43,8 @@ describe('chayns', function() {
     expect(isFunction(chayns.ready)).toBe(true);
   });
 
-  it('should have chaynsCall.', function() {
-    expect(chayns.chaynsCall).toBeDefined();
+  it('should have apiCall.', function() {
+    expect(chayns.apiCall).toBeDefined();
   });
 
   it('should not have private method setup.', function() {
