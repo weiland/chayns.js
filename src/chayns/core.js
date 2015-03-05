@@ -100,10 +100,6 @@ export function setup() {
   DOM.addClass(body, 'js');
   DOM.removeClass(body, 'no-js');
 
-  // add chayns root
-  let chaynsRoot = DOM.createElement('div');
-  DOM.addClass(chaynsRoot, 'chayns-root');
-  DOM.appendChild(body, chaynsRoot);
 
   // run polyfill (if required)
 
@@ -129,14 +125,21 @@ export function setup() {
     domReady = true;
     log.debug('DOM ready');
 
+    // add chayns root element
+    let chaynsRoot = DOM.createElement('div');
+    chaynsRoot.setAttribute('id', 'chayns-root');
+    chaynsRoot.setAttribute('class', 'chayns__root');
+    DOM.appendChild(body, chaynsRoot);
+
+    // dom-ready class
     DOM.addClass(document.body, 'dom-ready');
 
-    // get the App Infos, has to be done when document ready
-    let getAppInfosCall = !chaynsApiInterface.getGlobalData(function(data) {
+    // get the App Information, has to be done when document ready
+    let getAppInformationCall = !chaynsApiInterface.getGlobalData(function(data) {
 
       // now Chayns is officially ready
 
-      log.debug('appInfos callback', data);
+      log.debug('appInformation callback', data);
 
       readyCallbacks.forEach(function(callback) {
 
@@ -150,8 +153,8 @@ export function setup() {
       log.info('finished chayns setup');
     });
 
-    if (getAppInfosCall) {
-      log.error('The AppInfos could not be retrieved.');
+    if (getAppInformationCall) {
+      log.error('The App Information could not be retrieved.');
     }
   });
 

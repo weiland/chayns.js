@@ -1,20 +1,82 @@
 import {apiCall} from './chayns_calls';
-import {getLogger, isFunction, isString, isNumber, isBLEAddress, isDate, isPresent} from '../utils';
+import {getLogger, isFunction, isString, isNumber, isBLEAddress,
+  isDate, isObject, isArray, trim, DOM} from '../utils';
+import {window, location} from '../utils/browser'; // due to window.open and location.href
 
 let log = getLogger('chayns_api_interface');
+
+/**
+ * NFC Response Data Storage
+ * @type {Object}
+ */
+let NfcResponseData = {
+  RFId: 0,
+  PersonId: 0
+};
+
+/**
+ * Popup Button
+ * @class PopupButton
+ */
+class PopupButton {
+  /**
+   * Popup Button Constructor
+   * @param {String} name Popup Button name
+   */
+  constructor(name, callback) {
+    this.name = name;
+    this.callback = callback;
+    this.element = DOM.createElement('div')
+                .setAttribute('id', 'chayns-popup')
+                .setAttribute('class', 'chayns__popup');
+  }
+  /**
+   * Get Popup Button name
+   * @returns {name}
+   */
+  name() {
+    return this.name;
+  }
+
+  /**
+   * Callback
+   */
+  callback() {
+    let cb = this.callback;
+    let name = cb.name;
+    if (isFunction(cb)) {
+      cb.call(null, name);
+    }
+  }
+  /**
+   * @name toHTML
+   * Returns HTML Node containing the PopupButton.
+   * @returns {PopupButton.element|HTMLNode}
+   */
+  toHTML() {
+    return this.element;
+  }
+}
+
+/**
+ * Beacon List
+ * @type {Array|null}
+ */
+let beaconList = null;
+
+/**
+ * Global Data Storage
+ * @type {boolean|Object}
+ */
+let globalData = false;
+
 /**
  * All public chayns methods to interact with *Chayns App* or *Chayns Web*
  * @type {Object}
  */
 export var chaynsApiInterface = {
 
-  // TODO: rename to enablePullToRefresh
-  allowRefreshScroll: function() {
-    chaynsApiInterface.setPullToRefresh(true);
-  },
-  disallowRefreshScroll: function() {
-    chaynsApiInterface.setPullToRefresh(false);
-  },
+
   /**
    * Enable or disable PullToRefresh
    *
@@ -28,13 +90,14 @@ export var chaynsApiInterface = {
       params: [{'bool': allowPull}]
     });
   },
+  // TODO: rename to enablePullToRefresh
+  allowRefreshScroll: function() {
+    chaynsApiInterface.setPullToRefresh(true);
+  },
+  disallowRefreshScroll: function() {
+    chaynsApiInterface.setPullToRefresh(false);
+  },
 
-  showWaitcursor: function() {
-    return chaynsApiInterface.setWaitcursor(true);
-  },
-  hideWaitcursor: function() {
-    return chaynsApiInterface.setWaitcursor(false);
-  },
   /**
    *
    * @param {Boolean} [showCursor] If true the waitcursor will be shown
@@ -48,8 +111,14 @@ export var chaynsApiInterface = {
       params: [{'bool': showCursor}]
     });
   },
+  showWaitcursor: function() {
+    return chaynsApiInterface.setWaitcursor(true);
+  },
+  hideWaitcursor: function() {
+    return chaynsApiInterface.setWaitcursor(false);
+  },
 
-  // TODO: name it Tapp?
+  // TODO: rename it to openTapp?
   /**
    * Select different Tapp identified by TappID or InternalTappName
    *
@@ -86,6 +155,7 @@ export var chaynsApiInterface = {
 
   /**
    * Select Album
+   * TODO: rename to open
    *
    * @param {id|string} id Album ID (Album Name will work as well, but do prefer IDs)
    * @returns {Boolean}
@@ -259,7 +329,7 @@ export var chaynsApiInterface = {
   openInterCom: function() {
     return apiCall({
       cmd: 12,
-      support: { android: 2402, ios: 1383, wp: 2543 },
+      support: { android: 2402, ios: 1383, wp: 2543 }
     });
   },
 
@@ -311,6 +381,50 @@ export var chaynsApiInterface = {
     });
   },
 
+  /**
+   * Show Dialog
+   *
+   * @param {Object} {content:{String} , headline: ,buttons:{Array}, noContentnPadding:, onLoad:}
+   * @returns {boolean}
+   */
+  showDialog: function showDialog(obj) {
+    if (!obj || !isObject(obj)) {
+      log.warn('showDialog: invalid parameters');
+      return false;
+    }
+    if (isString(obj.content)) {
+      obj.content = trim(obj.content.replace(/<br[ /]*?>/g, '\n'));
+    }
+    if (!isArray(obj.buttons) || obj.buttons.length === 0) {
+      obj.buttons = [(new PopupButton('OK')).toHTML()];
+    }
+
+    let callbackName = 'ChaynsDialogCallBack()';
+    let callbackFn = function(buttons, id) {
+      id = parseInt(id, 10) - 1;
+      if (buttons[id]) {
+        buttons[id].callback();
+      }
+    };
+
+    return apiCall({
+      cmd: 16, // TODO: is slitte://
+      params: [
+        {'callback': callbackFn},
+        {'string': obj.headline},
+        {'string': obj.content},
+        {'string': obj.buttons[0].name} // TODO: needs encodeURI?
+        //{'string': obj.buttons[1].name}, // TODO: needs encodeURI?
+        //{'string': obj.buttons[2].name} // TODO: needs encodeURI?
+      ],
+      callbackName: callbackName.bind(null, obj.buttons),
+      support: {android: 2606},
+      fallbackFn: function() {
+        console.log('fallback popup', arguments);
+      }
+    });
+  },
+
 
   /**
    * Formerly known as getAppInfos
@@ -321,17 +435,16 @@ export var chaynsApiInterface = {
     // TODO: use forceReload and cache AppData
   getGlobalData: function(callback, forceReload) {
     if (!isFunction(callback)) {
-      log.warn('getGlobalData: no valid callback');
+      log.warn('getGlobalData: callback is no valid `Function`.');
       return false;
     }
-    let globalData = false; // TODO: fix
     if (!forceReload && globalData) {
       callback(globalData);
     }
     return apiCall({
       cmd: 18,
       webFn: 'getAppInfos',
-      params: [{'callback': 'getGlobalData'}], // callback param only on mobile
+      params: [{'callback': 'getGlobalData()'}], // callback param only on mobile
       cb: callback
     });
   },
@@ -347,7 +460,7 @@ export var chaynsApiInterface = {
     }
     return apiCall({
       cmd: 19,
-      params: [{'string': duration.toString()}],
+      params: [{'Integer': duration.toString()}],
       webFn: function navigatorVibrate() {
         try {
           navigator.vibrate(100);
@@ -415,7 +528,7 @@ export var chaynsApiInterface = {
           support: {android: 3234, wp: 3121}
         });
     }
-    var cmd = (response === window.NfcResponseData.PersonId) ? 37 : 38;
+    var cmd = (response === nfcResponseData.PersonId) ? 37 : 38;
     return apiCall({
         cmd: cmd === 37 ? 38 : 37,
         params: [{'Function': 'null'}],
@@ -704,7 +817,7 @@ export var chaynsApiInterface = {
     return apiCall({
       cmd: 31,
       webFn: function() {
-        window.location.href = url; // TODO: make sure it works
+        location.href = url; // TODO: make sure it works
       },
       params: [{'string': url}, {'string': title}],
       support: {android: 3110, ios: 3074, wp: 3063}
@@ -768,7 +881,6 @@ export var chaynsApiInterface = {
    * @param {Function} callback Function which receives the result
    * @returns {Boolean}
    */
-    beaconList: null, // TODO: dont place it here, obove is better (but not global i suppose)
   getLocationBeacons: function getLocationBeacons(callback, forceReload) {
 
     if (!isFunction(callback)) {
@@ -777,14 +889,19 @@ export var chaynsApiInterface = {
     }
 
     let callbackName = 'getBeaconsCallBack()';
-    if (chaynsApiInterface.beaconList && !forceReload) {
-      return callback.call(null, chaynsApiInterface.beaconList);
+    if (beaconList && !forceReload) { // TODO: make sure it is good to cache the list
+      log.debug('getLocationBeacons: there is already one beaconList');
+      return callback.call(null, beaconList);
     }
+    let callbackFn = function getLocationBeaconCallback(callback, list) {
+      beaconList = list;
+      callback.call(null, list);
+    };
     return apiCall({
       cmd: 39,
       params: [{'callback': callbackName}],
       support: {android:  4045, ios: 4048},
-      cb: callback
+      cb: callbackFn.bind(null, callback)
     });
   },
 
@@ -801,21 +918,13 @@ export var chaynsApiInterface = {
       return false;
     }
 
-    // TODO important Add Fallback openLinkInBrowser(url) (but only on ios)
-
     return apiCall({
       cmd: 47,
       params: [{'string': url}],
-      support: {ios: 4045}
+      support: {ios: 4045},
+      webFn: chaynsApiInterface.openLinkInBrowser.bind(null, url),
+      fallbackFn: chaynsApiInterface.openLinkInBrowser.bind(null, url)
     });
   }
 
-};
-
-// for NFC
-// TODO: refactor: move at the top as private object
-// TODO: import window
-window.NfcResponseData = {
-  RFId: 0,
-  PersonId: 0
 };

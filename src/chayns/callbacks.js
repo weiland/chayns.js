@@ -55,11 +55,11 @@ function callback(callbackName, type) {
   return function handleData() {
 
     if (callbackName in callbacks) {
-      log.debug('invoke callback: ', callbackName);
+      log.debug('invoke callback: ', callbackName, 'type:', type);
       var fn = callbacks[callbackName];
       if (isFunction(fn)) {
         fn.apply(null, arguments);
-        delete callbacks[callbackName]; // TODO: cannot be like that, remove array?
+        //delete callbacks[callbackName]; // TODO: cannot be like that, remove array?
       } else {
         log.warn('callback is no function', callbackName, fn);
       }

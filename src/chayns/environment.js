@@ -37,8 +37,8 @@ types.chaynsOS = {
 // location query string
 var query = location.search.substr(1);
 var parameters = {};
-query.split("&").forEach(function(part) {
-  var item = part.split("=");
+query.split('&').forEach(function(part) {
+  var item = part.split('=');
   parameters[item[0].toLowerCase()] = decodeURIComponent(item[1]).toLowerCase();
 });
 
@@ -54,6 +54,7 @@ if (parameters.debug) {
 }
 
 // TODO: further params and colorscheme
+// TODO: discuss role of URL params and try to replace them and only use AppData
 
 
 function getFirstMatch(regex) {

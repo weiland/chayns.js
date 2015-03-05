@@ -45,6 +45,10 @@ export function apiCall(obj) {
           log.info('executeCall: fallback chayns call will be invoked');
           return chaynsCall(chaynsCallObj.fallbackCmd);
         }
+        if (isFunction(chaynsCallObj.fallbackFn)) {
+          log.info('executeCall: fallbackFn will be invoked');
+          return chaynsCallObj.fallbackFn.call(null);
+        }
         return false;
       }
       return chaynsCall(chaynsCallObj.cmd, chaynsCallObj.params);
@@ -111,7 +115,7 @@ function chaynsCall(cmd, params) {
         let name = Object.keys(param)[0];
         let value = param[name];
         if (name === 'callback') {
-          callArgs.push('"' + callbackPrefix + value + '"');
+          callArgs.push('\'' + callbackPrefix + value + '\'');
         } else if (name === 'bool' || name === 'Function' || name === 'Integer') {
           callArgs.push(value);
         } else if (isDefined(value)) {
