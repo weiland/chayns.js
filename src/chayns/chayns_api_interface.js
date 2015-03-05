@@ -507,6 +507,23 @@ export var chaynsApiInterface = {
       cmd: 21,
       params: [{'callback': callbackName}], // callback param only on mobile
       cb: callback,
+      webFn: function() {
+        // TODO: implement image upload with window.fetch
+        //var fd = new FormData();
+        //fd.append("Image", file[0]);
+        //window.imageChosen = window.fetch({
+        //  type: "POST",
+        //  url: "//chayns1.tobit.com/TappApi/File/Image",
+        //  contentType: false,
+        //  processData: false,
+        //  cache: false,
+        //  data: fd
+        //}).then(function(data) {
+        //  delete window.imageChosen;
+        //  callback.call(null, data);
+        //});
+        //$("#ChaynsImageUpload").click();
+      },
       support: {android: 2705, wp: 2538, ios: 2642}
     });
   },
