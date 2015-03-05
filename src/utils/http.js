@@ -12,3 +12,7 @@ export function fetchJSON() {
 export function post() {
 
 }
+
+export function upload() {
+
+}

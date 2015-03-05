@@ -23,9 +23,7 @@ export * from './utils/extend';
 // promise Q
 //export * from './utils/promise';
 
-// polyfill & ajax wrapper window.fetch (instead of $.ajax, $.get, $.getJSON, $http)
-// offers fetch, fetchJSON (json is standard), uploads {get, post, put, delete}, fetchCSS, fetchJS
-//export * from './utils/fetch';
+export * from './utils/http';
 
 // Browser APIs (window, document, location)
 // TODO: consider to not bind browser to the utils `Object`

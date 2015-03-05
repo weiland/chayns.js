@@ -1,3 +1,8 @@
+/**
+ * Chayns API Interface
+ * API to communicate with the APP and the Chayns Web
+ */
+
 import {apiCall} from './chayns_calls';
 import {getLogger, isFunction, isString, isNumber, isBLEAddress,
   isDate, isObject, isArray, trim, DOM} from '../utils';

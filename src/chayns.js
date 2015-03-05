@@ -20,6 +20,8 @@ import {environment}            from './chayns/environment';
 // (current) user
 import {user}                   from './chayns/user';
 
+import './lib/fetch_polyfill';
+
 // core functions
 import {ready, register, setup} from './chayns/core';
 
