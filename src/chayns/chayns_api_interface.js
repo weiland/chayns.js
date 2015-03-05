@@ -26,9 +26,10 @@ class PopupButton {
   constructor(name, callback) {
     this.name = name;
     this.callback = callback;
-    this.element = DOM.createElement('div')
-                .setAttribute('id', 'chayns-popup')
-                .setAttribute('class', 'chayns__popup');
+    let el = DOM.createElement('div');
+    el.setAttribute('id', 'chayns-popup');
+    el.setAttribute('class', 'chayns__popup');
+    this.element = el;
   }
   /**
    * Get Popup Button name
@@ -400,24 +401,24 @@ export var chaynsApiInterface = {
     }
 
     let callbackName = 'ChaynsDialogCallBack()';
-    let callbackFn = function(buttons, id) {
+    function callbackFn(buttons, id) {
       id = parseInt(id, 10) - 1;
       if (buttons[id]) {
-        buttons[id].callback();
+        buttons[id].callback.call(null);
       }
-    };
+    }
 
     return apiCall({
       cmd: 16, // TODO: is slitte://
       params: [
-        {'callback': callbackFn},
+        {'callback': callbackName},
         {'string': obj.headline},
         {'string': obj.content},
         {'string': obj.buttons[0].name} // TODO: needs encodeURI?
         //{'string': obj.buttons[1].name}, // TODO: needs encodeURI?
         //{'string': obj.buttons[2].name} // TODO: needs encodeURI?
       ],
-      callbackName: callbackName.bind(null, obj.buttons),
+      cb: callbackFn.bind(null, obj.buttons),
       support: {android: 2606},
       fallbackFn: function() {
         console.log('fallback popup', arguments);

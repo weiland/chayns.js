@@ -2,7 +2,7 @@
  * This module contains the Browser APIs
  *
  */
-
+// TODO: move out of utils
 var win = window;
 
 // using node global (mainly for testing, dependency management)

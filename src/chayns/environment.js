@@ -34,6 +34,8 @@ types.chaynsOS = {
   app: 'webshadowmobile'
 };
 
+// TODO: hide internal parameters from the others
+// TODO: offer user an `Object` with URL Parameters
 // location query string
 var query = location.search.substr(1);
 var parameters = {};
