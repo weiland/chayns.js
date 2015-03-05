@@ -1,7 +1,7 @@
 {
-  "name": "helper.js",
+  "name": "chayns.js",
   "version": "1.0.0",
-  "homepage": "https://github.com/weiland/helper.js",
+  "homepage": "https://github.com/weiland/chayns.js",
   "authors": [
     "Pascal Weiland <pasweiland@gmail.com>"
   ],
@@ -16,5 +16,9 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "dependencies": {
+    "fetch": "~0.7.0",
+    "es6-promise": "~2.0.1"
+  }
 }
