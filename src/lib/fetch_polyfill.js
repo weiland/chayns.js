@@ -1,9 +1,9 @@
 (function() {
   'use strict';
-
-  if (self.fetch) {
-    return
-  }
+  //
+  //if (self.fetch) {
+  //  return
+  //}
 
   function normalizeName(name) {
     if (typeof name !== 'string') {

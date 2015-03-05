@@ -513,7 +513,14 @@ export var chaynsApiInterface = {
       params: [{'callback': callbackName}], // callback param only on mobile
       cb: callback,
       webFn: function() {
-        // TODO: implement image upload with window.fetch
+        var input = DOM.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('value', '');
+        input.setAttribute('accept', 'image/*');
+        //input.setAttribute('id', 'chayns-image-upload-field);
+        input.setAttribute('onchange', 'imageChosen()');
+        input.setAttribute('class', 'chayns__upload-image');
+        DOM.query('#chayns-root').appendChild(input);
         //var fd = new FormData();
         //fd.append("Image", file[0]);
         //window.imageChosen = window.fetch({

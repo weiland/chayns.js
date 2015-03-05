@@ -17,11 +17,11 @@ export * from './utils/is';
 // extend object function
 export * from './utils/extend';
 
-// modernizer
-//export * from './utils/modernizer';
+// Logger
+export * from './utils/logger';
 
-// promise Q
-//export * from './utils/promise';
+// TODO: do we even need modernizer?
+//export * from './utils/modernizer';
 
 export * from './utils/http';
 
@@ -38,9 +38,6 @@ export {browser};
 
 // DOM
 export * from './utils/dom';
-
-// Logger
-export * from './utils/logger';
 
 // Analytics
 //export * from './utils/analytics';

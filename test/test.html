@@ -59,6 +59,11 @@
         display: block;
       }
 
+      .chayns__upload-image {
+        position: absolute;
+        top: -100px;
+      }
+
     </style>
   </head>
   <body class="no-js" chayns-cloak>
@@ -152,6 +157,15 @@
 
           // caption Button
           chayns.createCaptionButton('API 3', console.log.bind(console));
+
+          // fetch API
+          chayns.utils
+            .get('./test.json')
+            .then(console.debug.bind(console), console.error.bind(console));
+
+          chayns.utils
+            .fetchJSON('./test.json')
+            .then(console.debug.bind(console), console.error.bind(console));
         });
 
       })();

@@ -223,9 +223,39 @@ export function isMacAddress(value) {
  * @description
  * Determines if a reference is a `BLE Address`
  *
- * @param {*} value Reference to check.
+ * @param {*} obj Reference to check.
  * @returns {boolean} True if `value` is a `BLE Address`.
  */
 export function isBLEAddress(value) {
   return isUUID(value) || isMacAddress(value);
+}
+
+/**
+ * @name utils.isFormData
+ * @module utils
+ * @kind function
+ *
+ * @description
+ * Determines if a reference is a FormData `Object`.
+ *
+ * @param {*} obj Reference to check.
+ * @returns {boolean} True if `obj` is a `FormData` Object.
+ */
+export function isFormData(obj) {
+  return toString.call(obj) === '[object FormData]';
+}
+
+/**
+ * @name utils.isFormElement
+ * @module utils
+ * @kind function
+ *
+ * @description
+ * Determines if a reference is a FormElement.
+ *
+ * @param {*} obj Reference to check.
+ * @returns {boolean} True if `obj` is a `HTMLFormElement`.
+ */
+export function isFormElement(obj) {
+  return toString.call(obj) === '[object HTMLFormElement]';
 }
