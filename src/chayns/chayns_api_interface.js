@@ -221,6 +221,7 @@ export var chaynsApiInterface = {
       cmd: 5,
       params: [{string: text}, {callback: callbackName}],
       support: { android: 1358, ios: 1366, wp: 2469 },
+      callbackName: callbackName,
       cb: callback
     });
   },
@@ -242,6 +243,7 @@ export var chaynsApiInterface = {
 
   /**
    * Facebook Connect
+   * NOTE: prefer `chayns.login()` over this method to perform a user login.
    *
    * @param {string} [permissions = 'user_friends'] Facebook Permissions, separated by comma
    * @param {string} [reloadParam = 'comment'] Reload Param
@@ -930,6 +932,7 @@ export var chaynsApiInterface = {
 
   /**
    * Tobit Login
+   * With FacebookConnect Fallback
    *
    * @param {String} params Reload Parameter
    * @returns {Boolean}
