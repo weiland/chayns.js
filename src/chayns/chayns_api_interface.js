@@ -926,6 +926,24 @@ export var chaynsApiInterface = {
       webFn: chaynsApiInterface.openLinkInBrowser.bind(null, url),
       fallbackFn: chaynsApiInterface.openLinkInBrowser.bind(null, url)
     });
+  },
+
+  /**
+   * Tobit Login
+   *
+   * @param {String} params Reload Parameter
+   * @returns {Boolean}
+   */
+  login: function login(params) {
+    params = 'ExecCommand=' + params;
+    return apiCall({
+      cmd: 54,
+      params: [{'string': params}],
+      support: {ios: 4240, wp: 4099},
+      fallbackFn: chaynsApiInterface.facebookConnect.bind(null, 'user_friends', params),
+      webFn: 'tobitconnect',
+      webParams: params
+    });
   }
 
 };

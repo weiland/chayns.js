@@ -5,6 +5,8 @@ bower_components
 dist
 old
 coverage
+out
+test/chayns.js
 
 # IDE
 .idea
