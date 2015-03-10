@@ -97,62 +97,11 @@ var viewport = window.innerWidth + 'x' + window.innerHeight;
 
 export var environment = {
 
-  //os: parameters.os,
   osVersion: 1,
 
   browser: 'cc',
   browserVersion: 1,
 
-  //appVersion: parameters.appversion,
-
-  //orientation: orientation,
-
-  //viewport: viewport, // in 1x1 in px
-
-  //ratio: 1, // pixel ratio
-
-  //isInFrame: false,
-
-  //isChaynsWeb: null, // desktop browser, no App, no mobile
-  //isChaynsWebMobile: null, // mobile browser, no App, no desktop
-  //isApp: false, // otherwise Browser
-  //isMobile: null, // no desktop, but mobile browser and app
-  //isTablet: null, // no desktop, kinda mobile, most likely no app
-  //isDesktop: null, // no app, no mobile
-  //isBrowser: null, // otherwise App
-
-  //isIOS: is.ios,
-  //isAndroid: is.android,
-  //isWP: is.wp,
-  //isBB: is.bb,
-
-  //parameters: parameters,
-  //hash: location.hash.substr(1),
-
-  site: {
-    //siteId: 1,
-    //name: 'Tobit',
-    //locationId: 1,
-    //url: 'https://tobit.com/',
-    //useSSL: true,
-    //colorscheme: 1
-    //editMode: false, // future edit mode for content
-    //isAdminMode: true
-  },
-
-  // TODO: consider Tapp
-  app: {
-    appId: 1,
-    config: {},
-    //defaultContif: {},
-    domReady: false,
-    logs: {
-      log: [],
-      debug: [],
-      warn: []
-    },
-    errors: []
-  }
 };
 
 environment.parameters = parameters; // TODO strip 'secret params'
@@ -195,11 +144,21 @@ environment.viewport = viewport; // TODO: update on resize? no, due performance
 environment.orientation = orientation;
 environment.ratio = window.devicePixelRatio;
 
+//environment.user = {
+//  name: 'Pacal Weiland',
+//  firstName: 'Pascal',
+//  lastName: 'Weiland',
+//  userId: 1234,
+//  facebookId: 12345,
+//  isAdmin: true,
+//  uacGroups: [],
+//  language: 'de_DE',
+//  token: 'token' // TODO include token here?
+//};
+
+
 export function setEnv(key, value) {
   //extend(environment, prop);
   environment[key] = value;
 }
 
-export function getEnv(key) {
-  environment[key];
-}

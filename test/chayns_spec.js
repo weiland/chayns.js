@@ -29,8 +29,8 @@ describe('chayns', function() {
     expect(chayns.environment).toBeUndefined();
   });
 
-  it('should have a user obj', function() {
-    expect(chayns.user).toBeDefined();
+  it('should not have a user obj', function() {
+    expect(chayns.user).toBeUndefined();
   });
 
   it('should have a register', function() {

@@ -17,9 +17,6 @@ import {config}                 from './chayns/config';
 // environment
 import {environment}            from './chayns/environment';
 
-// (current) user
-import {user}                   from './chayns/user';
-
 import Promise from  './lib/promise_polyfill';
 Promise.polyfill(); // autoload Promise polyfill
 // TODO: add Deferred?
@@ -49,7 +46,6 @@ extend(chayns, {VERSION: '0.1.0'});
 //extend(chayns, {config}); // TODO: the config `Object` should not be exposed
 
 extend(chayns, {env: environment}); // TODO: generally rename
-extend(chayns, {user});
 
 extend(chayns, {register});
 extend(chayns, {ready});

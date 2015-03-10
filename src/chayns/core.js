@@ -3,12 +3,11 @@ import {Config} from './config';
 import {messageListener} from './callbacks';
 import {chaynsApiInterface} from './chayns_api_interface';
 import {environment, setEnv} from './environment';
-import {user} from './user';
 
 // create new Logger instance
 let log = getLogger('chayns.core');
 
-// disable JS Errors in the console
+// enable JS Errors in the console
 Config.set('preventErrors', false);
 
 /**
@@ -42,16 +41,18 @@ var readyCallbacks = [];
  * @param obj
  * @returns {*}
  */
-export function register(userConfig) {
+export function register(config) {
   log.info('chayns.register');
-  Config.set(userConfig); // this reference to the chayns obj
+  Config.set(config); // this reference to the chayns obj
   return this;
 }
 
 // TODO: register `Function` or preChayns `Object`?
 export function preChayns() {
   if ('preChayns' in window && isObject(window.preChayns)) {
-    // fill config
+    Object.keys(window.preChayns).forEach(function(setting) {
+      log.debug('pre chayns: ', setting);
+    });
   }
 }
 
@@ -63,7 +64,7 @@ export function preChayns() {
  * Run necessary operations to prepare chayns.
  *
  * @param obj
- * @returns {*}
+ * @returns {Promise}
  */
 export function ready(cb) {
   log.info('chayns.ready');
@@ -147,28 +148,42 @@ export function setup() {
 
       if (isObject(data.AppInfo)) {
         let appInfo = data.AppInfo;
-        let site = {};
-        site.siteId = appInfo.SiteID;
-        site.title = appInfo.title;
-        site.tapps = appInfo.Tapps;
-        site.facebookAppId = appInfo.FacebookAppID;
-        site.facebookPageId = appInfo.FacebookPageID;
-        site.colorScheme = appInfo.ColorScheme || 0;
-        site.version = appInfo.Version;
+        let site = {
+          siteId: appInfo.SiteID,
+          title: appInfo.Title,
+          tapps: appInfo.Tapps,
+          facebookAppId: appInfo.FacebookAppID,
+          facebookPageId: appInfo.FacebookPageID,
+          colorScheme: appInfo.ColorScheme || 0,
+          version: appInfo.Version,
+          tapp: appInfo.TappSelected
+        };
         setEnv('site', site);
-        //set(site);
       }
       if (isObject(data.AppUser)) {
         let appUser = data.AppUser;
-        user.name = appUser.FacebookUserName;
-        user.id = appUser.TobitUserID;
-        user.facebookId = appUser.FacebookID;
-        user.personId = appUser.PersonID;
-        user.accessToken = appUser.TobitAccessToken;
-        user.facebookAccessToken = appUser.FacebookAccessToken;
+        let user = {
+          name: appUser.FacebookUserName,
+          id: appUser.TobitUserID,
+          facebookId: appUser.FacebookID,
+          personId: appUser.PersonID,
+          accessToken: appUser.TobitAccessToken,
+          facebookAccessToken: appUser.FacebookAccessToken,
+          groups: appUser.UACGroups
+        };
+        setEnv('user', user);
       }
       if (isObject(data.Device)) {
-
+        let device = data.Device;
+        let app = {
+          languageId: device.LanguageID,
+          model: device.Model,
+          name: device.SystemName,
+          version: device.SystemVersion,
+          uid: device.UID, // TODO uuid? is it even used?
+          metrics: device.Metrics // TODO: used?
+        };
+        setEnv('app', app);
       }
 
 
