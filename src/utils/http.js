@@ -10,7 +10,7 @@ import {
 
 let log = getLogger('chayns.utils.http');
 //let Promise = window.Promise; // otherwise import Promise
-//let fetch = window.fetch; // otherwise import fetch
+//let fetch = window.fetch; // otherwise TODO: import fetch
 
 
 
@@ -35,7 +35,7 @@ export function fetchJSON(url) {
  * @param {HTMLFormElement\FormData\URLSearchParams\USVString\Blob|BufferSource} form
  * @returns {Promise}
  */
-export function post(url, form) {
+export function postForm(url, form) {
   if (isFormElement(form)) {
     form = new FormData(form);
   }
@@ -49,17 +49,17 @@ export function post(url, form) {
  * Post JSON
  *
  * @param {String} url
- * @param {`Object`} data
+ * @param {`Object`} data Either Object or JSON String
  * @returns {boolean}
  */
-export function postJSON(url, data) {
+export function post(url, data) {
   if (isObject(data)) {
     data = JSON.stringify(data);
   } else if (!isString(data)) {
     log.warn('postJSON: invalid data');
-    return false;
+    throw new Error('Invalid post data');
   }
-  fetch(url, {
+  return fetch(url, {
     method: 'post',
     headers: {
       'Accept': 'application/json',

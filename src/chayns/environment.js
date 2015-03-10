@@ -4,11 +4,11 @@
  * Chayns Environment
  */
 
-import {getLogger} from '../utils';
+import {getLogger, extend} from '../utils';
 let log = getLogger('chayns.environment');
 
 // TODO: import dependencies
-export var types = {};
+var types = {};
 
 types.browser = [
   'chrome',
@@ -100,7 +100,7 @@ export var environment = {
   //os: parameters.os,
   osVersion: 1,
 
-  browser: '',
+  browser: 'cc',
   browserVersion: 1,
 
   //appVersion: parameters.appversion,
@@ -130,12 +130,12 @@ export var environment = {
   //hash: location.hash.substr(1),
 
   site: {
-    siteId: 1,
-    name: 'Tobit',
-    locationId: 1,
-    url: 'https://tobit.com/',
-    useSSL: true,
-    colorscheme: 1
+    //siteId: 1,
+    //name: 'Tobit',
+    //locationId: 1,
+    //url: 'https://tobit.com/',
+    //useSSL: true,
+    //colorscheme: 1
     //editMode: false, // future edit mode for content
     //isAdminMode: true
   },
@@ -155,7 +155,7 @@ export var environment = {
   }
 };
 
-environment.parameters = parameters;
+environment.parameters = parameters; // TODO strip 'secret params'
 environment.hash = location.hash.substr(1);
 
 // WATCH OUT the OS is set by parameter (unfortunately)
@@ -194,3 +194,12 @@ environment.canChaynsWebCall = environment.isChaynsWeb;
 environment.viewport = viewport; // TODO: update on resize? no, due performance
 environment.orientation = orientation;
 environment.ratio = window.devicePixelRatio;
+
+export function setEnv(key, value) {
+  //extend(environment, prop);
+  environment[key] = value;
+}
+
+export function getEnv(key) {
+  environment[key];
+}

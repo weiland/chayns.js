@@ -35,9 +35,13 @@ import {apiCall}                from './chayns/chayns_calls';
 
 import {chaynsApiInterface}     from './chayns/chayns_api_interface';
 
+import {tappApiInterface}       from './chayns/tapp_api_interface';
+
 
 // public chayns object
 export var chayns = {};
+
+// TODO: use extend method only one time
 
 extend(chayns, {getLogger: utils.getLogger}); // jshint ignore: line
 extend(chayns, {utils});
@@ -50,10 +54,13 @@ extend(chayns, {user});
 extend(chayns, {register});
 extend(chayns, {ready});
 
+// TODO: remove line below
 extend(chayns, {apiCall});
 
 // add all chaynsApiInterface methods directly to the `chayns` Object
 extend(chayns, chaynsApiInterface);
+
+extend(chayns, tappApiInterface);
 
 // setup chayns
 setup();
