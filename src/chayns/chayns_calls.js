@@ -69,6 +69,9 @@ export function apiCall(obj) {
 
     } else {
       log.info('executeCall: neither chayns web call nor chayns web');
+      if (isFunction(obj.onError)) {
+        obj.onError.call(undefined, new Error('Neither in Chayns Web nor in Chayns App'));
+      }
     }
   }
 

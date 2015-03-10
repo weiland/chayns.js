@@ -10,26 +10,8 @@ let log = getLogger('chayns.core');
 // enable JS Errors in the console
 Config.set('preventErrors', false);
 
-/**
- *
- *
- * @description
- *
- *
- * @type {boolean} True if the DOM is loaded
- * @private
- */
-var domReady = false;
-
-/**
- *
- * @description
- *
- *
- * @type {array} Contains callbacks for the DOM ready event
- * @private
- */
-var readyCallbacks = [];
+var domReadyPromise;
+var chaynsReadyPromise;
 
 /**
  * @name chayns.prepare
@@ -63,23 +45,11 @@ export function preChayns() {
  * @description
  * Run necessary operations to prepare chayns.
  *
- * @param obj
  * @returns {Promise}
  */
-export function ready(cb) {
-  log.info('chayns.ready');
-  if (arguments.length === 0) {
-    return;
-  }
-  if (domReady) {
-    // TODO: return a custom Model Object instead of `config`
-    cb({
-      appName:Config.get('appName'),
-      appVersion: Config.get('appVersion')
-    });
-    return;
-  }
-  readyCallbacks.push(arguments[0]);
+export function ready() {
+  log.debug('chayns.ready()');
+  return chaynsReadyPromise;
 }
 
 /**
@@ -120,108 +90,115 @@ export function setup() {
 
   // run chayns setup (colors based on environment)
 
-
-
-  // set DOM ready event
-  window.addEventListener('DOMContentLoaded', function() {
-
-    domReady = true;
-    log.debug('DOM ready');
-
-    // add chayns root element
-    let chaynsRoot = DOM.createElement('div');
-    chaynsRoot.setAttribute('id', 'chayns-root');
-    chaynsRoot.setAttribute('class', 'chayns__root');
-    DOM.appendChild(body, chaynsRoot);
-
-    // dom-ready class
-    DOM.addClass(document.body, 'dom-ready');
-
-    // get the App Information, has to be done when document ready
-    let getAppInformationCall = chaynsApiInterface.getGlobalData(function(data) {
-
-      // now Chayns is officially ready
-      // first set all env stuff
-      if (!data) {
-        throw new Error('There is no app Data');
-      }
-
-      if (isObject(data.AppInfo)) {
-        let appInfo = data.AppInfo;
-        let site = {
-          siteId: appInfo.SiteID,
-          title: appInfo.Title,
-          tapps: appInfo.Tapps,
-          facebookAppId: appInfo.FacebookAppID,
-          facebookPageId: appInfo.FacebookPageID,
-          colorScheme: appInfo.ColorScheme || 0,
-          version: appInfo.Version,
-          tapp: appInfo.TappSelected
-        };
-        setEnv('site', site);
-      }
-      if (isObject(data.AppUser)) {
-        let appUser = data.AppUser;
-        let user = {
-          name: appUser.FacebookUserName,
-          id: appUser.TobitUserID,
-          facebookId: appUser.FacebookID,
-          personId: appUser.PersonID,
-          accessToken: appUser.TobitAccessToken,
-          facebookAccessToken: appUser.FacebookAccessToken,
-          groups: appUser.UACGroups
-        };
-        setEnv('user', user);
-      }
-      if (isObject(data.Device)) {
-        let device = data.Device;
-        let app = {
-          languageId: device.LanguageID,
-          model: device.Model,
-          name: device.SystemName,
-          version: device.SystemVersion,
-          uid: device.UID, // TODO uuid? is it even used?
-          metrics: device.Metrics // TODO: used?
-        };
-        setEnv('app', app);
-      }
-
-
-      log.debug('appInformation callback', data);
-
-      readyCallbacks.forEach(function(callback) {
-
-        callback.call(null, data);
-      });
-      readyCallbacks = [];
-
-      DOM.addClass(document.body, 'chayns-ready');
-      DOM.removeAttribute(DOM.query('[chayns-cloak]'), 'chayns-cloak');
-
-      cssSetup();
-
-      log.info('finished chayns setup');
-    });
-
-    if (!getAppInformationCall) {
-      log.error('The App Information could not be retrieved.');
+  // DOM  ready promise
+  domReadyPromise = new Promise(function(resolve) {
+    if (document.readyState === 'complete') {
+      resolve();
+    } else {
+      var domReady = function domReady() {
+        resolve();
+        window.removeEventListener('DOMContentLoaded', domReady, true);
+      };
+      window.addEventListener('DOMContentLoaded', domReady, true);
     }
+  }).then(function() {
+    // DOM ready actions
+    log.debug('DOM ready'); // TODO: actually we can remove this
+    // dom-ready class
+    DOM.addClass(body, 'dom-ready');
+    // start window.on('message') listener for iFrame Communication
+    messageListener();
   });
 
-  // start window.on('message') listener for Frame Communication
-  messageListener();
+  // chaynsReadyPromise: get the App Information (TODO: has to be done when document ready?)
+  chaynsReadyPromise = chaynsApiInterface.getGlobalData();
+  chaynsReadyPromise.then(function(data) {
+
+    // now Chayns is officially ready
+    // first set all env stuff
+    if (!data) {
+      // TODO: that wont work, due to inner promise
+      return Promise.reject(new Error('There is no app Data'));
+    }
+
+    log.debug('appInformation callback', data);
+
+    // store received information
+    if (isObject(data.AppInfo)) {
+      let appInfo = data.AppInfo;
+      let site = {
+        siteId: appInfo.SiteID,
+        title: appInfo.Title,
+        tapps: appInfo.Tapps,
+        facebookAppId: appInfo.FacebookAppID,
+        facebookPageId: appInfo.FacebookPageID,
+        colorScheme: appInfo.ColorScheme || 0,
+        version: appInfo.Version,
+        tapp: appInfo.TappSelected
+      };
+      setEnv('site', site);
+    }
+    if (isObject(data.AppUser)) {
+      let appUser = data.AppUser;
+      let user = {
+        name: appUser.FacebookUserName,
+        id: appUser.TobitUserID,
+        facebookId: appUser.FacebookID,
+        personId: appUser.PersonID,
+        accessToken: appUser.TobitAccessToken,
+        facebookAccessToken: appUser.FacebookAccessToken,
+        groups: appUser.UACGroups
+      };
+      setEnv('user', user);
+    }
+    if (isObject(data.Device)) {
+      let device = data.Device;
+      let app = {
+        languageId: device.LanguageID,
+        model: device.Model,
+        name: device.SystemName,
+        version: device.SystemVersion,
+        uid: device.UID, // TODO uuid? is it even used?
+        metrics: device.Metrics // TODO: used?
+      };
+      setEnv('app', app);
+    }
+
+    // don't worry this is no v2 thing
+    cssSetup();
+    log.info('finished chayns setup');
+
+    return Promise.resolve(data);
+
+  }, function rejected() {
+    log.debug('Error: The App Information could not be received.');
+    //return Promise.reject(new Error('The App Information could not be received.'));
+  });
 
 
 }
 
+
+/**
+ * Adds vendor classes to the body in order to show that chayns is ready
+ * and which OS, Browser and ColorScheme should be applied.
+ * This function is invoked when the DOM and Chayns is ready.
+ *
+ * @private
+ */
 function cssSetup() {
   let body = document.body;
   let suffix = 'chayns-';
 
+  DOM.addClass(body, 'chayns-ready');
+  DOM.removeAttribute(DOM.query('[chayns-cloak]'), 'chayns-cloak');
+
+  // add vendor classes (OS, Browser, ColorScheme)
   DOM.addClass(body, suffix + 'os--' + environment.os);
   DOM.addClass(body, suffix + 'browser--' + environment.browser);
   DOM.addClass(body, suffix + 'color--' + environment.browser);
 
+  // Environment
   if (environment.isChaynsWeb) {
     DOM.addClass(body, suffix + '-' + 'web');
   }
@@ -237,4 +214,10 @@ function cssSetup() {
   if (environment.isInFrame) {
     DOM.addClass(body, suffix + '-' + 'frame');
   }
+
+  // add chayns root element
+  let chaynsRoot = DOM.createElement('div');
+  chaynsRoot.setAttribute('id', 'chayns-root');
+  chaynsRoot.setAttribute('class', 'chayns__root');
+  DOM.appendChild(body, chaynsRoot);
 }

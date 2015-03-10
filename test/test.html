@@ -91,6 +91,26 @@
     <div class="chayns-env">
 
     </div>
+    <script>
+      /**
+       * @name preChayns
+       * @module window
+       *
+       * @description
+       * global object which contains information about chayns configuration
+       * which will be available before any chayns service starts
+       * TODO: remove or keep?
+       *
+       * @type {{}}
+       */
+        // or call it toChayns
+        // the preChayns `Object` can be defined before chayns is loaded
+      window.preChayns = {
+        debugMode: true, // enables debugMode and sets logging to 4 (debug)
+        logLevel: 3, // sets the logLevel. will overwrite debugMode's logLevel
+        dontSetup: true // (be carefully) disables the setup function
+      };
+    </script>
     <script src="chayns.js"></script>
     <script>
       (function() {
@@ -98,23 +118,6 @@
 
         chayns.showWaitcursor();
 
-        /**
-         * @name preChayns
-         * @module window
-         *
-         * @description
-         * global object which contains information about chayns configuration
-         * which will be available before any chayns service starts
-         *
-         * @type {{}}
-         */
-        // or call it toChayns
-        // the preChayns `Object` can be defined before chayns is loaded
-        window.preChayns = {
-          debugMode: true, // enables debugMode and sets logging to 4 (debug)
-          logLevel: 3, // sets the logLevel. will overwrite debugMode's logLevel
-          dontSetup: true // (be carefully) disables the setup function
-        };
 
         // override config before the chayns.ready
         // chayns.register is more logic and reasonable than a preChayns `Object`
@@ -123,15 +126,13 @@
           debugMode: true
         });
 
-        //chayns.getAppInfos();
+        // chayns logger
+        var log = chayns.getLogger('pw.app');
 
-        // chayns ready callback
-        // @param data Data Object
+        // chayns ready promise <3
+        chayns.ready().then(function(data) {
 
-        chayns.ready(function(data) {
 
-          // chayns logger
-          var log = chayns.getLogger('pw.app');
 
           // chayns data
           log.info('chayns app info: ', data);
@@ -171,6 +172,8 @@
 //            .post('./test.json', {test: true})
 //            .then(console.debug.bind(console), console.error.bind(console));
 
+        }, function rejected() {
+          log.error('Chayns Information could not be received');
         });
 
       })();

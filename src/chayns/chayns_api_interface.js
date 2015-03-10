@@ -438,22 +438,24 @@ export var chaynsApiInterface = {
    * Formerly known as getAppInfos
    *
    * @param {Function} callback Callback function to be invoked with the AppData
-   * @returns {Boolean} True if the call succeeded or is async, false on error
+   * @returns {Promise} True if the call succeeded or is async, false on error
    */
     // TODO: use forceReload and cache AppData
-  getGlobalData: function(callback, forceReload) {
-    if (!isFunction(callback)) {
-      log.warn('getGlobalData: callback is no valid `Function`.');
-      return false;
-    }
+  getGlobalData: function(forceReload) {
     if (!forceReload && globalData) {
-      callback(globalData);
+      log.debug('getGlobalData: return cached data');
+      return Promise.resolve(globalData);
     }
-    return apiCall({
-      cmd: 18,
-      webFn: 'getAppInfos',
-      params: [{'callback': 'getGlobalData()'}], // callback param only on mobile
-      cb: callback
+    return new Promise(function(resolve, reject) {
+
+      apiCall({
+        cmd: 18,
+        webFn: 'getAppInfos',
+        params: [{'callback': 'getGlobalData()'}], // callback param only on mobile
+        cb: resolve,
+        onError: reject
+      });
+
     });
   },
 
