@@ -110,71 +110,74 @@ export function setup() {
     messageListener();
   });
 
-  // chaynsReadyPromise: get the App Information (TODO: has to be done when document ready?)
-  chaynsReadyPromise = chaynsApiInterface.getGlobalData();
-  chaynsReadyPromise.then(function(data) {
+  // chaynsReady Promise
+  chaynsReadyPromise = new Promise(function(resolve, reject) {
+    // get the App Information (TODO: has to be done when document ready?)
+    chaynsApiInterface.getGlobalData().then(function resolved(data) {
 
-    // now Chayns is officially ready
-    // first set all env stuff
-    if (!data) {
-      // TODO: that wont work, due to inner promise
-      return Promise.reject(new Error('There is no app Data'));
-    }
+      // now Chayns is officially ready
+      // first set all env stuff
+      if (!data) {
+        return reject(new Error('There is no app Data'));
+      }
 
-    log.debug('appInformation callback', data);
+      log.debug('appInformation callback', data);
 
-    // store received information
-    if (isObject(data.AppInfo)) {
-      let appInfo = data.AppInfo;
-      let site = {
-        siteId: appInfo.SiteID,
-        title: appInfo.Title,
-        tapps: appInfo.Tapps,
-        facebookAppId: appInfo.FacebookAppID,
-        facebookPageId: appInfo.FacebookPageID,
-        colorScheme: appInfo.ColorScheme || 0,
-        version: appInfo.Version,
-        tapp: appInfo.TappSelected
-      };
-      setEnv('site', site);
-    }
-    if (isObject(data.AppUser)) {
-      let appUser = data.AppUser;
-      let user = {
-        name: appUser.FacebookUserName,
-        id: appUser.TobitUserID,
-        facebookId: appUser.FacebookID,
-        personId: appUser.PersonID,
-        accessToken: appUser.TobitAccessToken,
-        facebookAccessToken: appUser.FacebookAccessToken,
-        groups: appUser.UACGroups
-      };
-      setEnv('user', user);
-    }
-    if (isObject(data.Device)) {
-      let device = data.Device;
-      let app = {
-        languageId: device.LanguageID,
-        model: device.Model,
-        name: device.SystemName,
-        version: device.SystemVersion,
-        uid: device.UID, // TODO uuid? is it even used?
-        metrics: device.Metrics // TODO: used?
-      };
-      setEnv('app', app);
-    }
+      // store received information
+      if (isObject(data.AppInfo)) {
+        let appInfo = data.AppInfo;
+        let site = {
+          siteId: appInfo.SiteID,
+          title: appInfo.Title,
+          tapps: appInfo.Tapps,
+          facebookAppId: appInfo.FacebookAppID,
+          facebookPageId: appInfo.FacebookPageID,
+          colorScheme: appInfo.ColorScheme || 0,
+          version: appInfo.Version,
+          tapp: appInfo.TappSelected
+        };
+        setEnv('site', site);
+      }
+      if (isObject(data.AppUser)) {
+        let appUser = data.AppUser;
+        let user = {
+          name: appUser.FacebookUserName,
+          id: appUser.TobitUserID,
+          facebookId: appUser.FacebookID,
+          personId: appUser.PersonID,
+          accessToken: appUser.TobitAccessToken,
+          facebookAccessToken: appUser.FacebookAccessToken,
+          groups: appUser.UACGroups
+        };
+        setEnv('user', user);
+      }
+      if (isObject(data.Device)) {
+        let device = data.Device;
+        let app = {
+          languageId: device.LanguageID,
+          model: device.Model,
+          name: device.SystemName,
+          version: device.SystemVersion,
+          uid: device.UID, // TODO uuid? is it even used?
+          metrics: device.Metrics // TODO: used?
+        };
+        setEnv('app', app);
+      }
 
-    // don't worry this is no v2 thing
-    cssSetup();
-    log.info('finished chayns setup');
+      // don't worry this is no v2 thing
+      cssSetup();
+      log.info('finished chayns setup');
 
-    return Promise.resolve(data);
+      // TODO: create custom model?
+      resolve(data);
 
-  }, function rejected() {
-    log.debug('Error: The App Information could not be received.');
-    //return Promise.reject(new Error('The App Information could not be received.'));
+    }, function rejected() {
+      log.debug('Error: The App Information could not be received.');
+      reject('The App Information could not be received.');
+      //return Promise.reject(new Error('The App Information could not be received.'));
+    });
+
   });
-
 
 }
 

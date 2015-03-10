@@ -132,8 +132,6 @@
         // chayns ready promise <3
         chayns.ready().then(function(data) {
 
-
-
           // chayns data
           log.info('chayns app info: ', data);
 
@@ -172,8 +170,8 @@
 //            .post('./test.json', {test: true})
 //            .then(console.debug.bind(console), console.error.bind(console));
 
-        }, function rejected() {
-          log.error('Chayns Information could not be received');
+        }).catch( function rejected(e) {
+          log.error('Chayns Information could not be received\n', e);
         });
 
       })();

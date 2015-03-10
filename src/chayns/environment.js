@@ -51,18 +51,17 @@ if (!parameters.appversion) {
 if (!parameters.os) {
   log.warn('no os parameter');
 }
-if (parameters.debug) {
-  // TODO: enable debug mode
-}
+
+let debugMode = !!parameters.debug;
 
 // TODO: further params and colorscheme
 // TODO: discuss role of URL params and try to replace them and only use AppData
 
 
-function getFirstMatch(regex) {
-  var match = ua.match(regex);
-  return (match && match.length > 1 && match[1]) || '';
-}
+//function getFirstMatch(regex) {
+//  var match = ua.match(regex);
+//  return (match && match.length > 1 && match[1]) || '';
+//}
 
 // user agent detection
 var userAgent = (window.navigator && navigator.userAgent) || '';
@@ -100,7 +99,7 @@ export var environment = {
   osVersion: 1,
 
   browser: 'cc',
-  browserVersion: 1,
+  browserVersion: 1
 
 };
 
@@ -144,6 +143,8 @@ environment.viewport = viewport; // TODO: update on resize? no, due performance
 environment.orientation = orientation;
 environment.ratio = window.devicePixelRatio;
 
+environment.debugMode = debugMode;
+
 //environment.user = {
 //  name: 'Pacal Weiland',
 //  firstName: 'Pascal',
@@ -153,7 +154,7 @@ environment.ratio = window.devicePixelRatio;
 //  isAdmin: true,
 //  uacGroups: [],
 //  language: 'de_DE',
-//  token: 'token' // TODO include token here?
+//  token: 'token' // TODO: exclude token?
 //};
 
 
