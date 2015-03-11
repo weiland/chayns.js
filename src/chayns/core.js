@@ -190,37 +190,37 @@ export function setup() {
  * @private
  */
 function cssSetup() {
-  let body = document.body;
+  let html = document.documentElement;
   let suffix = 'chayns-';
 
-  DOM.addClass(body, 'chayns-ready');
+  DOM.addClass(html, 'chayns-ready');
   DOM.removeAttribute(DOM.query('[chayns-cloak]'), 'chayns-cloak');
 
   // add vendor classes (OS, Browser, ColorScheme)
-  DOM.addClass(body, suffix + 'os--' + environment.os);
-  DOM.addClass(body, suffix + 'browser--' + environment.browser);
-  DOM.addClass(body, suffix + 'color--' + environment.browser);
+  DOM.addClass(html, suffix + 'os--' + environment.os);
+  DOM.addClass(html, suffix + 'browser--' + environment.browser);
+  DOM.addClass(html, suffix + 'color--' + environment.site.colorScheme);
 
   // Environment
   if (environment.isChaynsWeb) {
-    DOM.addClass(body, suffix + '-' + 'web');
+    DOM.addClass(html, suffix + '-' + 'web');
   }
   if (environment.isChaynsWebMobile) {
-    DOM.addClass(body, suffix + '-' + 'mobile');
+    DOM.addClass(html, suffix + '-' + 'mobile');
   }
   if (environment.isChaynsWebDesktop) {
-    DOM.addClass(body, suffix + '-' + 'desktop');
+    DOM.addClass(html, suffix + '-' + 'desktop');
   }
   if (environment.isApp) {
-    DOM.addClass(body, suffix + '-' + 'app');
+    DOM.addClass(html, suffix + '-' + 'app');
   }
   if (environment.isInFrame) {
-    DOM.addClass(body, suffix + '-' + 'frame');
+    DOM.addClass(html, suffix + '-' + 'frame');
   }
 
   // add chayns root element
   let chaynsRoot = DOM.createElement('div');
   chaynsRoot.setAttribute('id', 'chayns-root');
   chaynsRoot.setAttribute('class', 'chayns__root');
-  DOM.appendChild(body, chaynsRoot);
+  DOM.appendChild(document.body, chaynsRoot);
 }

@@ -6,7 +6,6 @@
 
 import {getLogger, isPresent, isObject, isArray, isDefined} from '../utils';
 import {environment} from './environment';
-import {user} from './user';
 //import {window} from '../utils/browser'; // due to window.open and location.href
 
 let log = getLogger('tapp_api');
@@ -211,8 +210,9 @@ function sendMessage(obj) {
   if (!isObject(obj) || !obj.message || !obj.url) {
     Promise.reject(Error('Invalid parameters'));
   }
+  console.debug(obj, environment,'asdf');
   obj.siteId = obj.siteId || environment.site.siteId;
-  obj.accessToken = obj.accessToken || user.accessToken;
+  obj.accessToken = obj.accessToken || environment.user.accessToken;
   let map = {
     message: 'Message',
     accessToken: 'AccessToken',

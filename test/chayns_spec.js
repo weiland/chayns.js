@@ -1,6 +1,6 @@
 /* global describe, it, expect */
 
-import {isFunction} from '../src/utils';
+import {isFunction, isPromise} from '../src/utils';
 import {chayns} from '../src/chayns';
 
 // chayns spec
@@ -41,6 +41,10 @@ describe('chayns', function() {
   it('should have a ready function', function() {
     expect(chayns.ready).toBeDefined();
     expect(isFunction(chayns.ready)).toBe(true);
+  });
+
+  it('should have a promise invoking the ready function', function() {
+    expect(isPromise(chayns.ready())).toBe(true);
   });
 
   it('should have apiCall.', function() {

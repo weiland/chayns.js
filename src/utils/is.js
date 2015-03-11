@@ -145,6 +145,21 @@ export function isDate(value) {
   return toString.call(value) === '[object Date]';
 }
 
+/**
+ * @name isPromise
+ * @module utils
+ * @kind function
+ *
+ * @description
+ * Determnines if a reference is a promise.
+ *
+ * @param {*} obj Object to check.
+ * @returns {boolean} Returns true if `ob` is a promise or promise-like object.
+ */
+export function isPromise(obj) {
+  return obj && isFunction(obj.then);
+}
+
 // TODO: does not belong in here
 /**
  * @name utils.trim
@@ -196,6 +211,7 @@ export function isUUID(value) {
 export function isGUID(value) {
   return isUUID(value);
 }
+
 /**
  * @name utils.isMacAddress
  * @module chayns.utils
