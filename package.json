@@ -6,7 +6,9 @@
     "url": "https://github.com/weiland/chayns.js/issues"
   },
   "devDependencies": {
-    "babelify": "^5.0.3",
+    "babelify": "^5.0.4",
+    "browser-sync": "^2.2.4",
+    "browserify": "^9.0.3",
     "gulp": "^3.8.11",
     "gulp-jscs": "^1.4.0",
     "gulp-karma": "0.0.4",
@@ -21,18 +23,18 @@
     "karma-jasmine": "^0.3.5",
     "karma-phantomjs-launcher": "^0.1.4",
     "karma-spec-reporter": "0.0.16",
+    "rimraf": "^2.3.2",
+    "vinyl-source-stream": "^1.1.0",
     "watchify": "^2.4.0"
   },
   "dependencies": {},
   "scripts": {
     "test": "karma start --single-run",
-    "server": "puer -d test/ -p 8000",
+    "server": "puer -d ./ -p 8000",
     "dev": "karma start & npm run watch-js & npm run server",
-    "watch-js": "watch-run -p 'src/**/*.js' npm run build-umd",
+    "watch-js": "watch-run -p 'src/**/*.js' npm run build",
     "validate": "jshint src test && jscs src test",
-    "bundle-umd": "rm -rf dist && mkdir dist && browserify -d --require ./src/chayns-umd.js:chayns -t babelify > dist/bundle.js",
-    "build-umd": "npm run bundle-umd && cat src/umd-head.js.txt dist/bundle.js src/umd-foot.js.txt > dist/chayns.js && cp dist/chayns.js test/chayns.js",
-    "build": "rm -rf dist && mkdir dist && browserify -d -e src/chayns.js -t babelify --outfile dist/chayns.js",
+    "build": "rimraf dist && mkdirp dist && browserify -d -e src/chayns.js -t babelify --outfile dist/chayns.js",
     "mount": "open smb://pweiland@chayns1/SlitteRessource",
     "deploy": "cp -r ./dist/ /Volumes/SlitteRessource/API/v3/js && cp test/index.html /Volumes/SlitteRessource/API/v3/"
   },

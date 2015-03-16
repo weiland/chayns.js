@@ -21,7 +21,7 @@ import Promise from  './lib/promise_polyfill';
 Promise.polyfill(); // autoload Promise polyfill
 // TODO: add Deferred?
 
-// TODO: import './lib/formdata_polyfill'; 
+// TODO: import './lib/formdata_polyfill';
 import './lib/fetch_polyfill';
 import './lib/raf_polyfill';
 
@@ -65,4 +65,5 @@ setup();
 
 
 // chayns publish no UMD
-//window.chayns = chayns;
+console.log('test7');
+global.chayns = chayns;

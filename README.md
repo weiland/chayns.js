@@ -8,7 +8,12 @@
 > currently wip
 
 ## Prerequisites
-make sure to have installed [node.js](http://nodejs.org/dist/v0.12.0/x64/node-v0.12.0-x64.msi) and npm  
+make sure to have installed [node.js](http://nodejs.org/dist/v0.12.0/x64/node-v0.12.0-x64.msi) (which ships with npm)  
+  
+```bash
+# Install global dependencies
+npm install -g gulp karma karma-cli codeclimate-test-reporter browserify watch-run mkdirp rimraf
+```
 `karma` and `gulp` should be installed globally!
 
 ## Installation
