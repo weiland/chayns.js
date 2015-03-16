@@ -21,7 +21,9 @@ import Promise from  './lib/promise_polyfill';
 Promise.polyfill(); // autoload Promise polyfill
 // TODO: add Deferred?
 
+// TODO: import './lib/formdata_polyfill'; 
 import './lib/fetch_polyfill';
+import './lib/raf_polyfill';
 
 // core functions
 import {ready, register, setup} from './chayns/core';

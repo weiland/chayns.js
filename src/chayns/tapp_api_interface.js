@@ -14,10 +14,10 @@ console.debug(environment, 'evn');
 
 // TODO: force SSL?
 let tappApiRoot = '//chayns1.tobit.com/TappApi/';
-let resultType = {
-  error: -1,
-  success: 0
-};
+//let resultType = { // TODO: ResultEnum is not used, consider removing or adjusting the API
+//  error: -1,
+//  success: 0
+//};
 
 function parseUser(user) {
   return {
@@ -255,6 +255,7 @@ function sendMessage(obj) {
  *
  * TODO: use POST instead of GET
  * TODO: posting JSON with {credentials: 'cors'}
+ * @private
  * @param endpoint
  * @returns {Promise} with json data
  */

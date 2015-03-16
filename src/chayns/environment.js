@@ -145,6 +145,9 @@ environment.ratio = window.devicePixelRatio;
 
 environment.debugMode = debugMode;
 
+environment.site = {};
+environment.site.colorScheme = parameters.colorscheme; // TODO: chayns web fix
+
 //environment.user = {
 //  name: 'Pacal Weiland',
 //  firstName: 'Pascal',

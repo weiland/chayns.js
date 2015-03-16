@@ -101,13 +101,35 @@ export function setup() {
       };
       window.addEventListener('DOMContentLoaded', domReady, true);
     }
-  }).then(function() {
+  })
+  .then(function() {
     // DOM ready actions
     log.debug('DOM ready'); // TODO: actually we can remove this
     // dom-ready class
     DOM.addClass(body, 'dom-ready');
     // start window.on('message') listener for iFrame Communication
     messageListener();
+
+    // resize listener
+    let heightCache;
+    if (environment.isChaynsWebDesktop) {
+      window.addEventListener('resize', resizeHandler);
+      // TODO: is there any alternative to the DOMSubtree event?
+      document.body.addEventListener('DOMSubtreeModified', resizeHandler.bind(true));
+      chaynsApiInterface.setFixedHeight(); // default value is 500
+      resizeHandler();
+    }
+    function resizeHandler(isDomMod) {
+      window.requestAnimationFrame(function() {
+        log.debug(isDomMod ? 'DOMSubtreeModified' : 'resize');
+        if (heightCache === document.body.scrollHeight) {
+          return;
+        }
+        heightCache = document.body.scrollHeight;
+        chaynsApiInterface.setHeight();
+      }, true);
+    }
+
   });
 
   // chaynsReady Promise
@@ -132,7 +154,7 @@ export function setup() {
           tapps: appInfo.Tapps,
           facebookAppId: appInfo.FacebookAppID,
           facebookPageId: appInfo.FacebookPageID,
-          colorScheme: appInfo.ColorScheme || 0,
+          colorScheme: appInfo.ColorScheme || environment.site.colorScheme || 0,
           version: appInfo.Version,
           tapp: appInfo.TappSelected
         };
@@ -193,9 +215,6 @@ function cssSetup() {
   let html = document.documentElement;
   let suffix = 'chayns-';
 
-  DOM.addClass(html, 'chayns-ready');
-  DOM.removeAttribute(DOM.query('[chayns-cloak]'), 'chayns-cloak');
-
   // add vendor classes (OS, Browser, ColorScheme)
   DOM.addClass(html, suffix + 'os--' + environment.os);
   DOM.addClass(html, suffix + 'browser--' + environment.browser);
@@ -223,4 +242,8 @@ function cssSetup() {
   chaynsRoot.setAttribute('id', 'chayns-root');
   chaynsRoot.setAttribute('class', 'chayns__root');
   DOM.appendChild(document.body, chaynsRoot);
+
+  // chayns is ready
+  DOM.addClass(html, 'chayns-ready');
+  DOM.removeAttribute(DOM.query('[chayns-cloak]'), 'chayns-cloak');
 }

@@ -331,6 +331,7 @@ export var chaynsApiInterface = {
   /**
    * Open InterCom.
    * Works only in native apps.
+   * TODO: deprecated
    *
    * @returns {Boolean} False on error, true if call succeeded
    */
@@ -977,6 +978,34 @@ export var chaynsApiInterface = {
       fallbackFn: chaynsApiInterface.facebookConnect.bind(null, 'user_friends', params),
       webFn: 'tobitconnect',
       webParams: params
+    });
+  },
+
+  /* ----- Chayns Web Only ------ */
+
+  /**
+   * Set the height to the frame container
+   * Chayns Web only
+   * @params [height] Set custom height. Default is body's scrollHeight or offsetHeight
+   */
+  setHeight: function setHeight(height) {
+    return apiCall({
+      webFn: 'height',
+      webParams: height || document.body.scrollHeight || document.body.offsetHeight
+    });
+  },
+
+  /**
+   * Set fixec height
+   * Chayns Web only
+   * TODO: does the name match?
+   * @params [height = 500]
+   * @returns {*}
+   */
+  setFixedHeight: function setFixedHeight(height) {
+    return apiCall({
+      webFn: 'forceHeight',
+      webParams: height || 500
     });
   }
 

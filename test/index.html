@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="page page--home">
+<html class="page page--home no-js">
   <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -8,31 +8,13 @@
     <link href="css/chayns.css" rel="stylesheet">
     <style type="text/css">
 
-      .chayns-container {
-        max-width: 600px;
-        margin: auto;
-      }
-
-      .chayns-wrapper {
-        margin: 15px 10px 20px 10px;
-      }
-
-      .chayns-intro {
-
-      }
-
-      .grey-bg {
-        background-color: #F2F2F2;
-        /*margin: 10px;*/
-        /*overflow: hidden;*/
-      }
 
       .loading {
         display: none;
       }
 
-      .chayns-cloak {
-        color: #666;
+      [chayns-cloak] {
+        display: none;
       }
 
       .chayns-cloak .loading {
@@ -47,10 +29,10 @@
         display: block;
       }
 
-      .js-support {
+      .js--support {
         display: none;
       }
-      .js .js-support {
+      .js .js--support {
         display: block;
       }
 
@@ -72,40 +54,59 @@
 
     </style>
   </head>
-  <body class="no-js chayns-cloak">
-    <div class="chayns-container">
-      <div class="chayns-wrapper grey-bg">
-        <div class="chayns-intro">
-          <h1>chayns.js</h1>
-          <div>
-            Hello chayns v3!
-          </div>
-        </div>
+  <body chayns-cloak>
 
-        <div class="loading">
-          loading....
-        </div>
+  <div class="tapp">
 
-        <div class="js--support">
-          JavaScript is supported!
-        </div>
-        <div class="js--no-support">
-          JavaScript is not supported!
-        </div>
+    <div class="tapp__intro">
+      <h1 class="headline">Chayns V3</h1>
+      Here you can place your intro text for your lovely Chayns V3 Tapp! :)
+    </div>
 
-        <div class="dom-status">
-          The DOM is ready!
-        </div>
+    <div class="tapp__content is-dark">
+      <h2 class="headline">Overview</h2>
+      <ul>
+        <li><a href="#">Style</a></li>
+        <li><a href="#">Functions</a></li>
+      </ul>
+    </div>
 
-        <div class="chayns-status">
-          Chayns is ready!
-        </div>
+    <div class="tapp__content is-dark">
+      <h2 class="headline">Info</h2>
+      <div class="loading">
+        loading....
+      </div>
 
-        <div class="chayns-env">
+      <div class="js--support">
+        JavaScript is supported!
+      </div>
+      <div class="js--no-support">
+        JavaScript is not supported!
+      </div>
 
-        </div>
+      <div class="dom-status">
+        The DOM is ready!
+      </div>
+
+      <div class="chayns-status">
+        Chayns is ready!
+      </div>
+
+      <div class="chayns-env">
+
       </div>
     </div>
+
+    <div class="tapp__content is-dark">
+      <h2 class="headline">Functions</h2>
+      <ul>
+        <li><a href="#">ShowWaitCursor</a></li>
+        <li><a href="#">HideWaitcursor</a></li>
+      </ul>
+    </div>
+  </div>
+
+
     <script src="js/chayns.js"></script>
     <script>
       (function() {
