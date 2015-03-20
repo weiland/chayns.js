@@ -65,5 +65,5 @@ setup();
 
 
 // chayns publish no UMD
-console.log('test7');
+console.log('test14');
 global.chayns = chayns;

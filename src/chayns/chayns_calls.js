@@ -65,7 +65,7 @@ export function apiCall(obj) {
 
       log.debug('executeCall: chayns web call ', chaynsCallObj.webFn.name || chaynsCallObj.webFn);
 
-      return chaynsWebCall(chaynsCallObj.webFn, chaynsCallObj.webParams || chaynsCallObj.params);
+      return chaynsWebCall(chaynsCallObj.webFn, chaynsCallObj.webParams);
 
     } else {
       log.info('executeCall: neither chayns call nor chayns web');
@@ -168,7 +168,7 @@ function chaynsWebCall(fn, params) {
     log.info('chaynsWebCall: no ChaynsWebCall fn');
     return null;
   }
-  if (!params || isArray(params)) { // Array indicates that these are chaynsCalls params TODO: refactor
+  if (!params) {
     params = '';
   }
   if (isObject(params)) { // an Array is also seen as Object, however it will be reset before

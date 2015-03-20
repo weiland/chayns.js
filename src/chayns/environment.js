@@ -147,6 +147,7 @@ environment.debugMode = debugMode;
 
 environment.site = {};
 environment.site.colorScheme = parameters.colorscheme; // TODO: chayns web fix
+log.info(environment.site.colorScheme, parameters);
 
 //environment.user = {
 //  name: 'Pacal Weiland',

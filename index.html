@@ -60,6 +60,13 @@
         top: -100px;
       }
 
+      .toggle {
+      }
+
+      .toggle--margin {
+        margin-top: 1700px
+      }
+
     </style>
   </head>
   <body chayns-cloak>
@@ -67,6 +74,18 @@
     <div class="tapp">
       <div class="tapp__intro">
         <h1 class="headline">chayns.js</h1>
+
+        <div>
+          <button class="button" onclick="chayns.dialog.alert('dhello.fx').then(console.debug.bind(console, 'alertResolved'),console.error.bind(console, 'alertRejected'))">Alert</button>
+          <button class="button" onclick="chayns.dialog.confirm('dhello.fx').then(console.debug.bind(console, 'confirmResolved'),console.error.bind(console, 'confirmResjected'))">Confirm</button>
+        </div>
+
+        <div>
+          <button class="button" onclick="chayns.dialog.select({title:'dhello.fx',quickfind:0,list:[{name:'test'}, {name:'test2'}]}).then(console.debug.bind(console, 'selectResolved'),console.error.bind(console, 'selectRejected'))">Select</button>
+          <button class="button" onclick="chayns.dialog.select({title:'dhello.fx',quickfind:1,list:[{name:'test'}, {name:'test2'}]}).then(console.debug.bind(console, 'selectResolved'),console.error.bind(console, 'selectRejected'))">Select</button>
+          <button class="button" onclick="chayns.dialog.select({title:'dhello.fx',quickfind:0,list:[{name:'test'}, {name:'selectdd',isSelected:true}]}).then(console.debug.bind(console, 'selectResolved'),console.error.bind(console, 'selectRejected'))">Select</button>
+          <button class="button" onclick="chayns.dialog.select({title:'dhello.fx',quickfind:0,multiselect:1,list:[{name:'test'}, {name:'test2'}]}).then(console.debug.bind(console, 'selectResolved'),console.error.bind(console, 'selectRejected'))">Multiselect</button>
+        </div>
 
         <div class="loading">
           loading....
@@ -92,6 +111,11 @@
         env loading...
       </div>
 
+      <button class="button" onclick="document.querySelector('.toggle').classList.toggle('toggle--margin')">toggle </button>
+
+
+      <p class="toggle">hope you like scrolling in the deeeeeep</p>
+
     </div>
     <script>
       /**
@@ -113,10 +137,12 @@
         dontSetup: true // (be carefully) disables the setup function
       };
     </script>
+    <script src="js/chayns.js"></script>
     <script src="dist/chayns.js"></script>
     <script>
       (function() {
         'use strict';
+
 
         chayns.showWaitcursor();
 
@@ -160,17 +186,20 @@
           chayns.createCaptionButton('API 3', console.log.bind(console));
 
           // fetch API
-          chayns.utils
-            .get('./test.json')
-            .then(console.debug.bind(console), console.error.bind(console));
-
-          chayns.utils
-            .fetchJSON('./test.json')
-            .then(console.debug.bind(console), console.error.bind(console));
+//          chayns.utils
+//            .get('./test.json')
+//            .then(console.debug.bind(console), console.error.bind(console));
+//
+//          chayns.utils
+//            .fetchJSON('./test.json')
+//            .then(console.debug.bind(console), console.error.bind(console));
 
 //          chayns.utils
 //            .post('./test.json', {test: true})
 //            .then(console.debug.bind(console), console.error.bind(console));
+
+          // resize exclusive container
+//          parent.dispatchEvent(new Event('resize'));
 
         }).catch( function rejected(e) {
           log.error('Chayns Information could not be received\n', e);

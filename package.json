@@ -36,7 +36,7 @@
     "validate": "jshint src test && jscs src test",
     "build": "rimraf dist && mkdirp dist && browserify -d -e src/chayns.js -t babelify --outfile dist/chayns.js",
     "mount": "open smb://pweiland@chayns1/SlitteRessource",
-    "deploy": "cp -r ./dist/ /Volumes/SlitteRessource/API/v3/js && cp test/index.html /Volumes/SlitteRessource/API/v3/"
+    "deploy": "cp -r ./dist/ /Volumes/SlitteRessource/API/v3/js && cp ./index.html /Volumes/SlitteRessource/API/v3/"
   },
   "author": "Pascal Weiland",
   "license": "MIT",
