@@ -106,8 +106,35 @@ export function setup() {
   .then(function() {
     // DOM ready actions
     log.debug('DOM ready'); // TODO: actually we can remove this
+
+    let html = document.documentElement;
+    let suffix = 'chayns-';
+
     // dom-ready class
     DOM.addClass(body, 'dom-ready');
+
+    // add vendor classes (OS, Browser, ColorScheme)
+    DOM.addClass(html, suffix + 'os--' + environment.os);
+    DOM.addClass(html, suffix + 'browser--' + environment.browser);
+    DOM.addClass(html, suffix + 'color--' + environment.site.colorScheme);
+
+    // Environment
+    if (environment.isChaynsWeb) {
+      DOM.addClass(html, suffix + '-' + 'web');
+    }
+    if (environment.isChaynsWebMobile) {
+      DOM.addClass(html, suffix + '-' + 'mobile');
+    }
+    if (environment.isChaynsWebDesktop) {
+      DOM.addClass(html, suffix + '-' + 'desktop');
+    }
+    if (environment.isApp) {
+      DOM.addClass(html, suffix + '-' + 'app');
+    }
+    if (environment.isInFrame) {
+      DOM.addClass(html, suffix + '-' + 'frame');
+    }
+
     // start window.on('message') listener for iFrame Communication
     messageListener();
 
@@ -168,7 +195,17 @@ export function setup() {
           }
 
           // don't worry this is no v2 thing
-          cssSetup();
+          // add chayns root element
+          // only used for popup fallback
+          let chaynsRoot = DOM.createElement('div');
+          chaynsRoot.setAttribute('id', 'chayns-root');
+          chaynsRoot.setAttribute('class', 'chayns__root');
+          DOM.appendChild(document.body, chaynsRoot);
+
+          // chayns is ready
+          DOM.addClass(html, 'chayns-ready');
+          DOM.removeAttribute(DOM.query('[chayns-cloak]'), 'chayns-cloak');
+
           log.info('finished chayns setup');
 
           // TODO: create custom model?
@@ -209,48 +246,3 @@ export function setup() {
 
 }
 
-
-/**
- * Adds vendor classes to the body in order to show that chayns is ready
- * and which OS, Browser and ColorScheme should be applied.
- * This function is invoked when the DOM and Chayns is ready.
- *
- * @private
- */
-function cssSetup() {
-  let html = document.documentElement;
-  let suffix = 'chayns-';
-
-  // add vendor classes (OS, Browser, ColorScheme)
-  DOM.addClass(html, suffix + 'os--' + environment.os);
-  DOM.addClass(html, suffix + 'browser--' + environment.browser);
-  DOM.addClass(html, suffix + 'color--' + environment.site.colorScheme);
-
-  // Environment
-  if (environment.isChaynsWeb) {
-    DOM.addClass(html, suffix + '-' + 'web');
-  }
-  if (environment.isChaynsWebMobile) {
-    DOM.addClass(html, suffix + '-' + 'mobile');
-  }
-  if (environment.isChaynsWebDesktop) {
-    DOM.addClass(html, suffix + '-' + 'desktop');
-  }
-  if (environment.isApp) {
-    DOM.addClass(html, suffix + '-' + 'app');
-  }
-  if (environment.isInFrame) {
-    DOM.addClass(html, suffix + '-' + 'frame');
-  }
-
-  // add chayns root element
-  // only used for popup fallback
-  let chaynsRoot = DOM.createElement('div');
-  chaynsRoot.setAttribute('id', 'chayns-root');
-  chaynsRoot.setAttribute('class', 'chayns__root');
-  DOM.appendChild(document.body, chaynsRoot);
-
-  // chayns is ready
-  DOM.addClass(html, 'chayns-ready');
-  DOM.removeAttribute(DOM.query('[chayns-cloak]'), 'chayns-cloak');
-}

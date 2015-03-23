@@ -479,6 +479,7 @@ export var chaynsApiInterface = {
         input.setAttribute('onchange', 'imageChosen()');
         input.setAttribute('class', 'chayns__upload-image');
         DOM.query('#chayns-root').appendChild(input);
+        // TODO: solve with window.fetch()
         //var fd = new FormData();
         //fd.append("Image", file[0]);
         //window.imageChosen = window.fetch({
@@ -595,6 +596,7 @@ export var chaynsApiInterface = {
   /**
    * Bluetooth
    * Only in native Apps (ios and android)
+   * TODO: remove LE (BLE only? or normal BT as well?)
    */
   bluetooth: {
     LESendStrength: { // TODO: what is that?
@@ -734,15 +736,17 @@ export var chaynsApiInterface = {
    * Select Date
    * Old: DateSelect
    * Native Apps only. TODO: also in Chayns Web? HTML5 Datepicker etc
-   * TODO; reconsider order etc
+   * TODO: reconsider order etc
+   * TODO: move to dialogs? (yes)
    * @param {dateType|Number} dateType Enum 1-2: time, date, datetime. use chayns.dateType
    * @param {Number|Date} preSelect Preset the Date (e.g. current Date)
    * @param {Function} callback Function that receives the chosen Date as Timestamp
    * @param {Number|Date} minDate Minimum StartDate
    * @param {Number|Date} maxDate Maximum EndDate
    */
-  selectDate: function selectDate(dateType, preSelect, callback, minDate, maxDate) {
-
+  selectDate: function selectDate() {
+    let [dateType, preSelect, callback, minDate, maxDate] = arguments;
+    //let {dateType, preSelect, callback, minDate, maxDate} = arguments;
     if (!isNumber(dateType) || dateType <= 0) {
       log.warn('selectDate: wrong dateType');
       return false;
@@ -936,6 +940,20 @@ export var chaynsApiInterface = {
       webParams: params
     });
   },
+
+  /**
+   * Tobit Logout
+   * TODO: find out app support
+   *
+   * @returns {Boolean}
+   */
+  logout: function logout() {
+    return apiCall({
+      cmd: 56,
+      support: {ios: 4240, wp: 4099},
+      webFn: 'logout'
+    });
+  }
 
 
 
