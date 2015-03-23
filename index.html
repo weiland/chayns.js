@@ -82,8 +82,11 @@
 
         <div>
           <button class="button" onclick="chayns.dialog.select({title:'dhello.fx',quickfind:0,list:[{name:'test'}, {name:'test2'}]}).then(console.debug.bind(console, 'selectResolved'),console.error.bind(console, 'selectRejected'))">Select</button>
-          <button class="button" onclick="chayns.dialog.select({title:'dhello.fx',quickfind:1,list:[{name:'test'}, {name:'test2'}]}).then(console.debug.bind(console, 'selectResolved'),console.error.bind(console, 'selectRejected'))">Select</button>
-          <button class="button" onclick="chayns.dialog.select({title:'dhello.fx',quickfind:0,list:[{name:'test'}, {name:'selectdd',isSelected:true}]}).then(console.debug.bind(console, 'selectResolved'),console.error.bind(console, 'selectRejected'))">Select</button>
+          <button class="button" onclick="chayns.dialog.select({title:'dhello.fx',quickfind:1,list:[{name:'test'}, {name:'test2'}]}).then(console.debug.bind(console, 'selectResolved'),console.error.bind(console, 'selectRejected'))">Select with Quickfind</button>
+          <button class="button" onclick="chayns.dialog.select({title:'dhello.fx',multiselect:0,list:[{name:'test'}, {name:'selectdd',isSelected:true}]}).then(console.debug.bind(console, 'selectResolved'),console.error.bind(console, 'selectRejected'))">Select with PreSelection</button>
+        </div>
+        <div>
+          <button class="button" onclick="chayns.dialog.select({title:'dhello.fx',quickfind:0,multiselet:1,list:[{name:'test'}, {name:'selectdd',isSelected:true}]}).then(console.debug.bind(console, 'selectResolved'),console.error.bind(console, 'selectRejected'))">Multiselect with PreSelection</button>
           <button class="button" onclick="chayns.dialog.select({title:'dhello.fx',quickfind:0,multiselect:1,list:[{name:'test'}, {name:'test2'}]}).then(console.debug.bind(console, 'selectResolved'),console.error.bind(console, 'selectRejected'))">Multiselect</button>
         </div>
 

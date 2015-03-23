@@ -28,13 +28,11 @@ import './lib/raf_polyfill';
 // core functions
 import {ready, register, setup} from './chayns/core';
 
-// chayns calls
-
-import {apiCall}                from './chayns/chayns_calls';
-
+// chayns communication (chayns calls, tapp api, chayns web)
 import {chaynsApiInterface}     from './chayns/chayns_api_interface';
-
 import {tappApiInterface}       from './chayns/tapp_api_interface';
+import {chaynsWebInterface}     from './chayns/chayns_web_interface';
+import {dialogs}                from './chayns/dialogs.js';
 
 
 // public chayns object
@@ -52,13 +50,11 @@ extend(chayns, {env: environment}); // TODO: generally rename
 extend(chayns, {register});
 extend(chayns, {ready});
 
-// TODO: remove line below
-extend(chayns, {apiCall});
-
 // add all chaynsApiInterface methods directly to the `chayns` Object
 extend(chayns, chaynsApiInterface);
-
 extend(chayns, tappApiInterface);
+extend(chayns, chaynsWebInterface);
+extend(chayns, {dialog: dialogs});
 
 // setup chayns
 setup();

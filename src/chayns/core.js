@@ -2,6 +2,7 @@ import {getLogger, isObject, DOM, isNumber} from '../utils';
 import {Config} from './config';
 import {messageListener} from './callbacks';
 import {chaynsApiInterface} from './chayns_api_interface';
+import {chaynsWebInterface} from './chayns_web_interface';
 import {environment, setEnv} from './environment';
 
 // create new Logger instance
@@ -183,9 +184,9 @@ export function setup() {
           if (environment.isChaynsWebDesktop) {
             log.debug('start height observer interval ');
             //window.addEventListener('resize', resizeHandler);
-            // TODO: is there any alternative to the DOMSubtree event?
+            // TODO: is there any alternative to the DOMSubtree event or Interval to detect modifications?
             //document.body.addEventListener('DOMSubtreeModified', resizeHandler.bind(true));
-            chaynsApiInterface.setFixedHeight(500); // default value is 500
+            chaynsWebInterface.setFixedHeight(500); // default value is 500
             //resizeHandler();
             setInterval(resizeHandler, 100);
           }
@@ -196,7 +197,7 @@ export function setup() {
               }
               log.debug('old height', heightCache, 'new height: ', document.body.offsetHeight);
               heightCache = document.body.offsetHeight;
-              chaynsApiInterface.setHeight(heightCache);
+              chaynsWebInterface.setHeight(heightCache);
             });
           }
 

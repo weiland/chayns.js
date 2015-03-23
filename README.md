@@ -12,7 +12,7 @@ make sure to have installed [node.js](http://nodejs.org/dist/v0.12.0/x64/node-v0
   
 ```bash
 # Install global dependencies
-npm install -g gulp karma karma-cli codeclimate-test-reporter browserify watch-run mkdirp rimraf
+npm install -g gulp karma karma-cli browser-sync codeclimate-test-reporter browserify watch-run mkdirp rimraf
 ```
 `karma` and `gulp` should be installed globally!
 
