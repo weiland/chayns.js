@@ -93,6 +93,13 @@
           <button class="button" onclick="chayns.dialog.facebook({title:'dhello.fx'}).then(console.debug.bind(console, 'selectResolved'),console.error.bind(console, 'selectRejected'))">FB</button>
           <button class="button" onclick="chayns.dialog.facebook({title:'dhello.fx',preSelected:['4462600500641']}).then(console.debug.bind(console, 'selectResolved'),console.error.bind(console, 'selectRejected'))">FB preselected</button>
         </div>
+        <div>
+          <button class="button" onclick="chayns.dialog.date(Date.now(),console.log.bind(console))">DateSelect</button>
+        </div>
+
+        <div>
+          <button class="button" onclick="htmlDialog()">HTML Dialog</button>
+        </div>
 
         <div class="loading">
           loading....
@@ -124,7 +131,25 @@
       <p class="toggle">hope you like scrolling in the deeeeeep</p>
 
     </div>
+    <div class="chayns__root" id="chayns-root"></div>
     <script>
+
+      function htmlDialog() {
+        chayns.dialog.html({
+          title: 'Html Dialog',
+          message: '<b>HTML</b><br>Dialog<br><marquee>text goes here</marquee>',
+          buttons: [
+            {
+              name: 'OK',
+              value: 1
+            },
+            {
+              name: 'About',
+              value: 2
+            }
+          ]
+        }).then(console.debug.bind(console, 'htmlDialogResolved'), console.error.bind(console, 'htmlDialogRejected'))
+      }
       /**
        * @name preChayns
        * @module window

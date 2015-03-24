@@ -208,7 +208,7 @@ export var tappApiInterface = {
 // TODO: refactor to JSON instead of www-form-urlencoded
 function sendMessage(obj) {
   if (!isObject(obj) || !obj.message || !obj.url) {
-    Promise.reject(Error('Invalid parameters'));
+    return Promise.reject(Error('Invalid parameters'));
   }
   console.debug(obj, environment,'asdf');
   obj.siteId = obj.siteId || environment.site.siteId;

@@ -1,8 +1,9 @@
 import {apiCall} from './chayns_calls';
-import {getLogger, isObject, isArray} from '../utils';
+import {getLogger, isObject, isArray, isNumber, isDate, isFunction} from '../utils';
+import {chaynsRoot} from '../utils/browser';
 //import {window, location} from '../utils/browser'; // due to window.open and location.href
 
-//let log = getLogger('chayns_dialogs');
+let log = getLogger('chayns_dialogs');
 
 let buttonType = {
   SUCCESS: 1,
@@ -96,12 +97,82 @@ export var dialogs = {
     });
   },
 
-  date: function dateSelect() {
 
+  /**
+   * Select Date
+   * Old: DateSelect
+   * Native Apps only. TODO: also in Chayns Web? HTML5 Datepicker etc
+   * TODO: reconsider order etc
+   * @param {dateType|Number} dateType Enum 1-2: time, date, datetime. use chayns.dateType
+   * @param {Number|Date} preSelect Preset the Date (e.g. current Date)
+   * @param {Function} callback Function that receives the chosen Date as Timestamp
+   * @param {Number|Date} minDate Minimum StartDate
+   * @param {Number|Date} maxDate Maximum EndDate
+   */
+  date: function selectDate() {
+    let [ preSelect, callback, minDate, maxDate] = arguments;
+    //let {dateType, preSelect, callback, minDate, maxDate} = arguments;
+
+    if (!isFunction(callback)) {
+      log.warn('selectDate: callback is no `Function`.');
+      return false;
+    }
+    function validateValue(value) {
+      if (!isNumber(value)) {
+        if (isDate(value)) {
+          return parseInt(value.getTime() / 1000, 10);
+        }
+        return -1;
+      }
+      return value;
+    }
+    preSelect = validateValue(preSelect);
+    minDate = validateValue(minDate);
+    maxDate = validateValue(maxDate);
+
+    let dateRange = '';
+    if (minDate > -1 && maxDate > -1) {
+      dateRange = ',' + minDate + ',' + maxDate;
+    }
+
+    let callbackName = 'selectDateCallback';
+    function callbackFn(callback, preSelect, time) {
+      // TODO: important validate Date
+      // TODO: choose right date by dateTypeEnum
+      log.debug(preSelect);
+      callback.call(null, time ? new Date(time) : -1);
+    }
+
+    return apiCall({
+      cmd: 30,
+      params: [
+        {'callback': callbackName},
+        {'Integer': 1},
+        {'Integer': preSelect + dateRange}
+      ],
+      webFn: 'datepicker',
+      webParams: ['datepicker', preSelect],
+      cb: callbackFn.bind(null, callback, preSelect),
+      callbackName: callbackName,
+      support: {android: 3072, ios: 3062, wp: 3030}
+    });
+  },
+
+  html: function html(config) {
+    var promise = new Promise(function(resolve, reject) {
+      return fallbackDialog(config, resolve, reject);
+    });
+    return promise;
+  },
+
+  close: function close() {
+    document.querySelector('.chayns__dialog').style.display = 'none';
+    window._chaynsCallbacks.closeCb.apply(window._chaynsCallbacks, arguments);
   },
 
   reset: function reset() {
-
+    document.querySelector('.chayns__dialog').style.display = 'none';
+    window._chaynsCallbacks.closeCbError.apply(window._chaynsCallbacks, arguments);
   }
 
 };
@@ -171,9 +242,7 @@ function chaynsSelectDialog(config) {
       webFn: fnName,
       webParams: [fnName, setup, list],
       support: { android: 4651, ios: 4238 }, // new
-      fallbackFn: function() {
-        console.log('fallback popup', arguments);
-      }
+      fallbackFn: fallbackDialog.bind(undefined, {title: config.title, message: config.message}, resolve)
     });
   };
 
@@ -224,9 +293,8 @@ function chaynsDialog(config) {
       }],
       support: { android: 4649, ios: 4119, wp: 4076 },
       // support: {android: 2606}, // old dialog
-      fallbackFn: function() {
-        console.log('fallback popup', arguments);
-      }
+      fallbackFn: fallbackDialog.bind(undefined, {title: config.title, message: config.message}, resolve)
+      //fallbackFn: resolve
     });
   };
 
@@ -235,6 +303,27 @@ function chaynsDialog(config) {
   return promise;
 }
 
+function fallbackDialog(config, resolve, reject) {
+  log.info('fallback popup', arguments);
+
+  // create callbacks
+  window._chaynsCallbacks.closeCb = resolve;
+  window._chaynsCallbacks.closeCbError = reject; // is not used
+
+  // create Dialog Object
+  let dialog = new Dialog(config.title, config.message, config.buttons);
+  let chaynsRoot = document.getElementById('chayns-root');
+  chaynsRoot.innerHTML = dialog.toHTML(); // assing the Dialog's HTML to the chayns-root
+  // show the dialog
+  chaynsRoot.querySelector('.chayns__dialog').style.display = 'block';
+  chaynsRoot.querySelector('.chayns__dialog').style.opacity = '1';
+  // get the dialog's height
+  let height = chaynsRoot.querySelector('.dialog__content').offsetHeight || 55;
+  log.debug('height', height);
+  // adjust the top position
+  chaynsRoot.querySelector('.dialog__content').style.top = window.innerHeight / 2 - height + 'px';
+
+}
 
 // Chayns Dialog HTML setup
 /**
@@ -246,38 +335,32 @@ class Dialog {
    * Dialog Constructor
    * @param {String} name Popup Button name
    */
-  constructor(name, callback) {
-    this.name = name;
-    this.callback = callback;
-    //let el = DOM.createElement('div');
-    //el.setAttribute('id', 'chayns-popup');
-    //el.setAttribute('class', 'chayns__popup');
-    //this.element = el;
-  }
-  /**
-   * Get Popup Button name
-   * @returns {name}
-   */
-  name() {
-    return this.name;
+  constructor(title, message, buttons) {
+    this.title = title || '';
+    this.message = message || '';
+    this.buttons = buttons || [{name:'OK',value:1}];
   }
 
-  /**
-   * Callback
-   */
-  callback() {
-    //let cb = this.callback;
-    //let name = cb.name;
-    //if (isFunction(cb)) {
-    //  cb.call(null, name);
-    //}
+  getButtons() {
+    var html = [];
+    this.buttons.forEach(function(button) {
+      html.push( `<button class="button button--dialog" onclick="chayns.dialog.close({name: '${button.name}', value: '${button.value}'});">${button.name}</button>` );
+    });
+    return html.join('');
   }
-  /**
-   * @name toHTML
-   * Returns HTML Node containing the PopupButton.
-   * @returns {PopupButton.element|HTMLNode}
-   */
+
   toHTML() {
-    return this.element;
+    return `<div class="chayns__dialog">
+  <div class="dialog__background"></div>
+  <div class="dialog__content">
+    <div class="dialog__box">
+      <div class="dialog__headline"><h1 class="headline">${this.title}</h1></div>
+      <div class="dialog__body">${this.message}</div>
+      <div class="dialog__buttons">
+        ${this.getButtons()}
+      </div>
+   </div>
+  </div>`;
   }
 }
+

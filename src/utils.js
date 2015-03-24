@@ -11,6 +11,15 @@
 // TODO: helper.js with ES6 and jasmine (and or tape)
 // include helper as main module
 
+import Promise from  './lib/promise_polyfill';
+Promise.polyfill(); // autoload Promise polyfill
+
+// TODO: import './lib/formdata_polyfill';
+import './lib/fetch_polyfill';
+import './lib/raf_polyfill';
+
+export * from './utils/defer';
+
 // important is* functions
 export * from './utils/is';
 
@@ -76,7 +85,7 @@ export * from './utils/events';
 //export * from './utils/datetime';
 
 
-// language API i18n
+// language API i18n langres
 //export * from './utils/language';
 
 // critical css

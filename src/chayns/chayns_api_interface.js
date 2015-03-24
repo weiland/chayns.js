@@ -320,7 +320,7 @@ export var chaynsApiInterface = {
       cmd: 14,
       params: [{'callback': callbackName}],
       support: { android: 2501, ios: 2466, wp: 2469 },
-      //webFn: function() { navigator.geolocation; }
+      //webFn: function() { navigator.geolocation; } // TODO: implement
       cb: callback
     });
   },
@@ -723,77 +723,6 @@ export var chaynsApiInterface = {
   },
 
   /**
-   * DateTypes Enum
-   * starts at 1
-   */
-  dateType: {
-    date: 1,
-    time: 2,
-    dateTime: 3
-  },
-
-  /**
-   * Select Date
-   * Old: DateSelect
-   * Native Apps only. TODO: also in Chayns Web? HTML5 Datepicker etc
-   * TODO: reconsider order etc
-   * TODO: move to dialogs? (yes)
-   * @param {dateType|Number} dateType Enum 1-2: time, date, datetime. use chayns.dateType
-   * @param {Number|Date} preSelect Preset the Date (e.g. current Date)
-   * @param {Function} callback Function that receives the chosen Date as Timestamp
-   * @param {Number|Date} minDate Minimum StartDate
-   * @param {Number|Date} maxDate Maximum EndDate
-   */
-  selectDate: function selectDate() {
-    let [dateType, preSelect, callback, minDate, maxDate] = arguments;
-    //let {dateType, preSelect, callback, minDate, maxDate} = arguments;
-    if (!isNumber(dateType) || dateType <= 0) {
-      log.warn('selectDate: wrong dateType');
-      return false;
-    }
-    if (!isFunction(callback)) {
-      log.warn('selectDate: callback is no `Function`.');
-      return false;
-    }
-    function validateValue(value) {
-      if (!isNumber(value)) {
-        if (isDate(value)) {
-          return parseInt(value.getTime() / 1000, 10);
-        }
-        return -1;
-      }
-      return value;
-    }
-    preSelect = validateValue(preSelect);
-    minDate = validateValue(minDate);
-    maxDate = validateValue(maxDate);
-
-    let dateRange = '';
-    if (minDate > -1 && maxDate > -1) {
-      dateRange = ',' + minDate + ',' + maxDate;
-    }
-
-    let callbackName = 'selectDateCallback';
-    function callbackFn(callback, dateType, preSelect, time) {
-      // TODO: important validate Date
-      // TODO: choose right date by dateTypeEnum
-      log.debug(dateType, preSelect);
-      callback.call(null, time ? new Date(time) : -1);
-    }
-
-    return apiCall({
-      cmd: 30,
-      params: [
-        {'callback': callbackName},
-        {'Integer': dateType},
-        {'Integer': preSelect + dateRange}
-      ],
-      cb: callbackFn.bind(null, callback, dateType, preSelect),
-      support: {android: 3072, ios: 3062, wp: 3030}
-    });
-  },
-
-  /**
    * Open URL in App
    * (old ShowURLInApp)
    * not to confuse with openLinkInBrowser
@@ -820,7 +749,7 @@ export var chaynsApiInterface = {
 
   /**
    * create QR Code
-   *
+   * TODO: show QR Code in Dialog when there is no callback
    * @param {String|Object} data QR Code data
    * @param {Function} callback Function which receives the base64 encoded IMG TODO: which type?
    * @returns {Boolean}

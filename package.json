@@ -30,7 +30,7 @@
   "dependencies": {},
   "scripts": {
     "test": "karma start --single-run",
-    "server": "browser-sync start --files 'dist/*.js,./index.html' --server ./ --port 8000",
+    "server": "browser-sync start --files 'dist/*.js,./index.html' --server ./ --port 8000 --no-ghost-mode",
     "dev": "karma start & npm run watch-js & npm run server",
     "watch-js": "watch-run -p 'src/**/*.js' npm run build",
     "validate": "jshint src test && jscs src test",

@@ -47,7 +47,7 @@ export function apiCall(obj) {
         }
         if (isFunction(chaynsCallObj.fallbackFn)) {
           log.info('executeCall: fallbackFn will be invoked');
-          return chaynsCallObj.fallbackFn.call(null);
+          return chaynsCallObj.fallbackFn.call(null, chaynsCallObj.cb, chaynsCallObj.onError);
         }
         return false;
       }
@@ -69,6 +69,11 @@ export function apiCall(obj) {
 
     } else {
       log.info('executeCall: neither chayns call nor chayns web');
+      // TODO: don't use the fallbackFn since this is actually only for chaynCalls
+      if (isFunction(obj.fallbackFn)) {
+        log.info('executeCall: (no web nor native) fallbackFn will be invoked');
+        return chaynsCallObj.fallbackFn.call(null, chaynsCallObj.cb, chaynsCallObj.onError);
+      }
       if (isFunction(obj.onError)) {
         obj.onError.call(undefined, new Error('Neither in Chayns Web nor in Chayns App'));
       }
