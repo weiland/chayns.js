@@ -53,7 +53,7 @@ describe('utils.browser', function() {
     expect(browser.console).toBeDefined();
   });
 
-  it('should have a gc', function() {
+  xit('should have a gc', function() {
     expect(browser.gc).toBeDefined();
   });
 });
@@ -80,7 +80,7 @@ describe('utils.browser (single import)', function() {
     expect(console).toBeDefined();
   });
 
-  it('should have a gc', function() {
+  xit('should have a gc', function() {
     expect(gc).toBeDefined();
   });
 });
@@ -107,7 +107,7 @@ describe('utils.browser', function() {
     expect(browser.console).toBe(console);
   });
 
-  it('should be equal to gc', function() {
+  xit('should be equal to gc', function() {
     expect(browser.gc).toBe(gc);
   });
 });
