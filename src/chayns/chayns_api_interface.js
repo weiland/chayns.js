@@ -65,21 +65,20 @@ export var chaynsApiInterface = {
    *                               otherwise it will be hidden
    * @returns {Boolean}
    */
-  setWaitcursor: function(showCursor) {
+  setWaitCursor: function(showCursor) {
     return apiCall({
       cmd: 1,
       webFn: (showCursor ? 'show' : 'hide') + 'LoadingCursor',
       params: [{'bool': showCursor}]
     });
   },
-  showWaitcursor: function() {
-    return chaynsApiInterface.setWaitcursor(true);
+  showWaitCursor: function() {
+    return chaynsApiInterface.setWaitCursor(true);
   },
-  hideWaitcursor: function() {
-    return chaynsApiInterface.setWaitcursor(false);
+  hideWaitCursor: function() {
+    return chaynsApiInterface.setWaitCursor(false);
   },
 
-  // TODO: rename it to openTapp?
   /**
    * Select different Tapp identified by TappID or InternalTappName
    *
@@ -87,7 +86,7 @@ export var chaynsApiInterface = {
    * @param {String} (optional) param URL Parameter
    * @returns {Boolean}
    */
-  selectTab: function(tab, param) {
+  selectTapp: function(tab, param) {
 
     let cmd = 13; // selectTab with param ChaynsCall
 
@@ -135,14 +134,14 @@ export var chaynsApiInterface = {
   },
 
   /**
-   * Open Picture
+   * Open Image
    * (old ShowPicture)
    * Android does not support gifs :(
    *
    * @param {string} url Image URL should cotain jpg,png or gif
    * @returns {Boolean}
    */
-  openPicture: function(url) {
+  openImage: function(url) {
     if (!isString(url) || !url.match(/jpg$|png$|gif$/i)) { // TODO: more image types?
       log.error('openPicture: invalid url');
       return false;
@@ -162,13 +161,12 @@ export var chaynsApiInterface = {
    * The caption button is the text at the top right of the app.
    * (mainly used for login or the username)
    * TODO: implement into Chayns Web?
-   * TODO: rename to set?
    *
    * @param {String} text The Button's text
    * @param {Function} callback Callback Function when the caption button was clicked
    * @returns {Boolean}
    */
-  createCaptionButton: function(text, callback) {
+  setCaptionButton: function(text, callback) {
 
     if (!isFunction(callback)) {
       //log.error('There is no valid callback Function.');
@@ -226,12 +224,12 @@ export var chaynsApiInterface = {
   },
 
   /**
-   * Open Link in Browser
+   * Open URL in Browser
    *
    * @param {string} url URL
    * @returns {Boolean}
    */
-  openLinkInBrowser: function(url) {
+  openUrlInBrowser: function(url) {
     return apiCall({
       cmd: 9,
       webFn: function() {
@@ -596,7 +594,7 @@ export var chaynsApiInterface = {
   /**
    * Bluetooth
    * Only in native Apps (ios and android)
-   * TODO: remove LE (BLE only? or normal BT as well?)
+   * TODO: add modern bluetooth chayns calls
    */
   bluetooth: {
     LESendStrength: { // TODO: what is that?
@@ -605,7 +603,7 @@ export var chaynsApiInterface = {
       Default: 2,
       Far: 3
     },
-    LEScan: function LEScan(callback) {
+    scan: function LEScan(callback) {
       if (!isFunction(callback)) {
         log.warn('LEScan: no valid callback');
         return false;
@@ -618,7 +616,7 @@ export var chaynsApiInterface = {
         support: {android: 2771, ios: 2651}
       });
     },
-    LEConnect: function LEConnect(address, callback, password) {
+    connect: function LEConnect(address, callback, password) {
       if (!isString(address) || !isBLEAddress(address)) {
         log.warn('LEConnect: no valid address parameter');
         return false;
@@ -649,7 +647,7 @@ export var chaynsApiInterface = {
      * @param {Function} callback
      * @constructor
      */
-    LEWrite: function LEWrite(address, subId, measurePower, sendStrength, callback) {
+    write: function LEWrite(address, subId, measurePower, sendStrength, callback) {
       if (!isString(address) || !isBLEAddress(address)) {
         log.warn('LEWrite: no valid address parameter');
         return false;
@@ -725,12 +723,11 @@ export var chaynsApiInterface = {
   /**
    * Open URL in App
    * (old ShowURLInApp)
-   * not to confuse with openLinkInBrowser
+   * not to confuse with openUrlInBrowser
    *
    * @param {string} url Video URL should contain jpg,png or gif
    * @returns {Boolean}
    */
-    // TODO: implement Chayns Web Method as well (navigate back support)
   openUrl: function openUrl(url, title) {
     if (!isString(url)) {
       log.error('openUrl: invalid url');
@@ -739,10 +736,12 @@ export var chaynsApiInterface = {
 
     return apiCall({
       cmd: 31,
-      webFn: function() {
-        location.href = url; // TODO: make sure it works
+      fallbackFn: function() {
+        location.href = url;
       },
       params: [{'string': url}, {'string': title}],
+      webFn: 'overlay',
+      webParams: {src: url},
       support: {android: 3110, ios: 3074, wp: 3063}
     });
   },
@@ -831,6 +830,7 @@ export var chaynsApiInterface = {
   /**
    * Add to Passbook
    * iOS only
+   * TODO: consider removal
    *
    * @param {String} url Path to Passbook file
    * @returns {Boolean}
@@ -845,8 +845,8 @@ export var chaynsApiInterface = {
       cmd: 47,
       params: [{'string': url}],
       support: {ios: 4045},
-      webFn: chaynsApiInterface.openLinkInBrowser.bind(null, url),
-      fallbackFn: chaynsApiInterface.openLinkInBrowser.bind(null, url)
+      webFn: chaynsApiInterface.openUrlInBrowser.bind(null, url),
+      fallbackFn: chaynsApiInterface.openUrlInBrowser.bind(null, url)
     });
   },
 
@@ -863,7 +863,7 @@ export var chaynsApiInterface = {
     return apiCall({
       cmd: 54,
       params: [{'string': params}],
-      support: {ios: 4240, wp: 4099},
+      support: {ios: 4240, wp: 4099, android: 4670},
       fallbackFn: chaynsApiInterface.facebookConnect.bind(null, 'user_friends', params),
       webFn: 'tobitconnect',
       webParams: params

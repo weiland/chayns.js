@@ -33,6 +33,7 @@ export var chayns = {};
 // TODO: use extend method only one time
 
 extend(chayns, {getLogger: utils.getLogger}); // jshint ignore: line
+extend(chayns, {$: utils.DOM}); // jshint ignore: line
 extend(chayns, {utils});
 extend(chayns, {VERSION: '0.1.0'});
 //extend(chayns, {config}); // TODO: the config `Object` should not be exposed

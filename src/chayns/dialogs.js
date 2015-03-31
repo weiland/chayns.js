@@ -27,11 +27,11 @@ let openDialog = false;
  */
 export var dialogs = {
 
-  alert: function alert(title) {
+  alert: function alert(title, message) {
     return chaynsDialog({
       type: dialogType.ALERT,
       title: title || 'Alert Modal Dialog',
-      message: 'My <i>message</i>',
+      message: message || '',
       buttons: [{
         type: buttonType.SUCCESS,
         title: 'OK'
@@ -39,11 +39,11 @@ export var dialogs = {
     });
   },
 
-  confirm: function confirm(title) {
+  confirm: function confirm(title, message) {
     return chaynsDialog({
       type: dialogType.CONFIRM,
       title: title || 'Confirm Modal Dialog',
-      message: 'My <i>confirm</i>',
+      message: message || '',
       buttons: [{
         type: buttonType.SUCCESS,
         title: 'YES'
@@ -54,13 +54,13 @@ export var dialogs = {
     });
   },
 
-  select: function select(config) {
+  select: function select(config, message) {
     if (!config || !isObject(config)) {
       return Promise.reject(new Error('Invalid Parameters'));
     }
     return chaynsSelectDialog({
       title: config.title || 'Select Modal Dialog',
-      message: 'My <i>select</i>',
+      message: message || '',
       buttons: [{
         title: 'Confirm',
         type: buttonType.SUCCESS
@@ -69,8 +69,8 @@ export var dialogs = {
         type: buttonType.CANCEL
       }],
       list: config.list || [],
-      selection: config.multiselect || 1, // enable multiple selection
-      quickfind: config.quickfind || 1  // allow quickfind
+      multiselect: config.multiselect, // enable multiple selection
+      quickfind: config.quickfind  // allow quickfind
     });
   },
 
@@ -80,7 +80,7 @@ export var dialogs = {
     }
     return chaynsSelectDialog({
       title: config.title || 'Friends Select Modal Dialog',
-      message: 'My <i>friends</i>',
+      message: config.message || '',
       // TODO: right order of buttons, in app only the second is visible
       buttons: [{
         title: 'Ok',
@@ -90,8 +90,8 @@ export var dialogs = {
         type: buttonType.CANCEL
       }],
       preSelected: config.preSelected,
-      multiselect: config.multiselect || 1, // enable multiple selection
-      quickfind: config.quickfind || 1,  // allow quickfind
+      multiselect: config.multiselect, // enable multiple selection
+      quickfind: config.quickfind,  // allow quickfind
       includeMyself: true,
       isFacebook: true
     });
@@ -166,14 +166,14 @@ export var dialogs = {
   },
 
   close: function close() {
-    document.querySelector('.chayns__dialog').style.display = 'none';
+    document.querySelector('.chayns__dialog').classList.remove('chayns__dialog--visible');
     window._chaynsCallbacks.closeCb.apply(window._chaynsCallbacks, arguments);
-  },
-
-  reset: function reset() {
-    document.querySelector('.chayns__dialog').style.display = 'none';
-    window._chaynsCallbacks.closeCbError.apply(window._chaynsCallbacks, arguments);
   }
+
+  //,reset: function reset() {
+  //  document.querySelector('.chayns__dialog').style.display = 'none';
+  //  window._chaynsCallbacks.closeCbError.apply(window._chaynsCallbacks, arguments);
+  //}
 
 };
 
@@ -204,8 +204,8 @@ function chaynsSelectDialog(config) {
     Headline: config.title,
     Text: config.message,
     Buttons: buttons,
-    Quickfind: config.quickselect,
-    Selection: config.multiselect
+    Quickfind: config.quickfind || 0,
+    Selection: config.multiselect || 0
   };
   if ('includeMyself' in config) { // Facebook Dialog only
     setup.DisplayMe = config.includeMyself;
@@ -313,15 +313,19 @@ function fallbackDialog(config, resolve, reject) {
   // create Dialog Object
   let dialog = new Dialog(config.title, config.message, config.buttons);
   let chaynsRoot = document.getElementById('chayns-root');
-  chaynsRoot.innerHTML = dialog.toHTML(); // assing the Dialog's HTML to the chayns-root
+  chaynsRoot.innerHTML = dialog.toHTML(); // assign the Dialog's HTML to the chayns-root
   // show the dialog
-  chaynsRoot.querySelector('.chayns__dialog').style.display = 'block';
-  chaynsRoot.querySelector('.chayns__dialog').style.opacity = '1';
+  chaynsRoot.querySelector('.chayns__dialog').classList.add('chayns__dialog--visible');
   // get the dialog's height
-  let height = chaynsRoot.querySelector('.dialog__content').offsetHeight || 55;
-  log.debug('height', height);
+  let dialogHeight = chaynsRoot.querySelector('.dialog__content').offsetHeight || 55;
+  let viewportHeight = window.innerHeight; // the users browser's viewport
+  let bannerHeight = 450;
+  //let documentHeight = window.outerHeight; // entire document
+  log.debug('dialog height', dialogHeight);
   // adjust the top position
-  chaynsRoot.querySelector('.dialog__content').style.top = window.innerHeight / 2 - height + 'px';
+  let topPosition = viewportHeight / 2 - dialogHeight - bannerHeight;
+  topPosition = topPosition > 50 ? topPosition : 50;
+  chaynsRoot.querySelector('.dialog__content').style.top = topPosition + 'px';
 
 }
 
