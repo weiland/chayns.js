@@ -114,7 +114,7 @@ export function setup() {
     DOM.addClass(body, 'dom-ready');
 
     // add vendor classes (OS, Browser, ColorScheme)
-    DOM.addClass(html, suffix + 'os--' + environment.os);
+    DOM.addClass(html, suffix + 'os--' + (environment.os || 0));
     DOM.addClass(html, suffix + 'browser--' + environment.browser);
     DOM.addClass(html, suffix + 'color--' + environment.site.colorScheme);
 
@@ -205,6 +205,9 @@ export function setup() {
           // chayns is ready
           DOM.addClass(html, 'chayns-ready');
           DOM.removeAttribute(DOM.query('[chayns-cloak]'), 'chayns-cloak');
+
+          // update colorScheme again
+          DOM.addClass(html, 'chayns-os--' + (environment.os || 0));
 
           log.info('finished chayns setup');
 

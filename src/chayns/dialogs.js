@@ -46,11 +46,11 @@ export var dialogs = {
       title: title || 'Confirm Modal Dialog',
       message: message || '',
       buttons: [{
-        type: buttonType.SUCCESS,
-        title: 'YES'
-      }, {
         type: buttonType.CANCEL,
-        title: 'NO'
+        title: 'No'
+      }, {
+        type: buttonType.SUCCESS,
+        title: 'Yes'
       }]
     });
   },
@@ -62,12 +62,12 @@ export var dialogs = {
     return chaynsSelectDialog({
       title: config.title || 'Select Modal Dialog',
       message: config.message || '',
-      buttons: [{
-        title: 'Confirm',
-        type: buttonType.SUCCESS
-      }, {
+      buttons: [ {
         title: 'Cancel',
         type: buttonType.CANCEL
+      }, {
+        title: 'Ok',
+        type: buttonType.SUCCESS
       }],
       list: config.list || [],
       multiselect: config.multiselect, // enable multiple selection
@@ -84,11 +84,11 @@ export var dialogs = {
       message: config.message || '',
       // TODO: right order of buttons, in app only the second is visible
       buttons: [{
-        title: 'Ok',
-        type: buttonType.OK
-      }, {
         title: 'Cancel',
         type: buttonType.CANCEL
+      },{
+        title: 'Ok',
+        type: buttonType.OK
       }],
       preSelected: config.preSelected,
       multiselect: config.multiselect, // enable multiple selection
@@ -193,7 +193,7 @@ function chaynsSelectDialog(config) {
       Value: config.buttons[0].type
     }
   ];
-
+  // TODO: should only have one button?!
   if (config.buttons[1]) {
     buttons.push({
       Text: config.buttons[1].title,
@@ -243,6 +243,7 @@ function chaynsSelectDialog(config) {
       webFn: fnName,
       webParams: [fnName, setup, list],
       support: { android: 4651, ios: 4238 }, // new
+      // TODO: select has no fallback dialog yet
       fallbackFn: fallbackDialog.bind(undefined, {title: config.title, message: config.message}, resolve)
     });
   };
@@ -332,7 +333,8 @@ function fallbackDialog(config, resolve, reject) {
   let dialogHeight = chaynsRoot.querySelector('.dialog__content').offsetHeight || 55;
   let viewportHeight = window.innerHeight; // the users browser's viewport
   let bannerHeight = 0;
-  if (environment) {
+  log.debug('test', environment.isChaynsWebDesktop);
+  if (environment.isChaynsWebDesktop) {
     bannerHeight = 450;
   }
   //let documentHeight = window.outerHeight; // entire document
@@ -357,7 +359,7 @@ class Dialog {
   constructor(title, message, buttons) {
     this.title = title || '';
     this.message = message || '';
-    this.buttons = buttons || [{name:'OK',value:1}];
+    this.buttons = buttons || [{name:'Ok',value:1}];
   }
 
   getButtons() {
