@@ -144,7 +144,7 @@ export var tappApiInterface = {
      * @param message
      * @returns {Promise}
      */
-    sendMessageAsUser: function sendMessageAsUser(message) {
+    sendMessageToPage: function sendMessageAsUser(message) {
       return sendMessage({
         message: message,
         url: 'InterCom/Page'

@@ -1,5 +1,6 @@
 import {apiCall} from './chayns_calls';
 import {getLogger, isObject, isArray, isNumber, isDate, isFunction} from '../utils';
+import {environment} from './environment';
 import {chaynsRoot} from '../utils/browser';
 //import {window, location} from '../utils/browser'; // due to window.open and location.href
 
@@ -54,13 +55,13 @@ export var dialogs = {
     });
   },
 
-  select: function select(config, message) {
+  select: function select(config) {
     if (!config || !isObject(config)) {
       return Promise.reject(new Error('Invalid Parameters'));
     }
     return chaynsSelectDialog({
       title: config.title || 'Select Modal Dialog',
-      message: message || '',
+      message: config.message || '',
       buttons: [{
         title: 'Confirm',
         type: buttonType.SUCCESS
@@ -263,6 +264,13 @@ function chaynsDialog(config) {
       }
     ];
 
+    let fallbackButtons = [
+      {
+        name: config.buttons[0].title,
+        value: config.buttons[0].type
+      }
+    ];
+
     let params = [
       {'callback': 'multiselectdialog'},
       {'string': config.title},
@@ -277,6 +285,10 @@ function chaynsDialog(config) {
       });
       params.push({
         'string': config.buttons[1].title
+      });
+      fallbackButtons.push({
+        name: config.buttons[1].title,
+        value: config.buttons[1].type
       });
     }
 
@@ -293,7 +305,7 @@ function chaynsDialog(config) {
       }],
       support: { android: 4649, ios: 4119, wp: 4076 },
       // support: {android: 2606}, // old dialog
-      fallbackFn: fallbackDialog.bind(undefined, {title: config.title, message: config.message}, resolve)
+      fallbackFn: fallbackDialog.bind(undefined, {title: config.title, message: config.message, buttons:fallbackButtons}, resolve)
       //fallbackFn: resolve
     });
   };
@@ -319,7 +331,10 @@ function fallbackDialog(config, resolve, reject) {
   // get the dialog's height
   let dialogHeight = chaynsRoot.querySelector('.dialog__content').offsetHeight || 55;
   let viewportHeight = window.innerHeight; // the users browser's viewport
-  let bannerHeight = 450;
+  let bannerHeight = 0;
+  if (environment) {
+    bannerHeight = 450;
+  }
   //let documentHeight = window.outerHeight; // entire document
   log.debug('dialog height', dialogHeight);
   // adjust the top position
