@@ -183,11 +183,12 @@
         // chayns.register is more logic and reasonable than a preChayns `Object`
         chayns.register({
           appName: 'Pascals',
+          loggerName: 'pw.app', // additionally, the appName will be used as default
           debugMode: true
         });
 
         // chayns logger
-        var log = chayns.getLogger('pw.app');
+        //var log = chayns.getLogger('pw.app');
 
         // chayns ready promise <3
         chayns.ready().then(function(data) {

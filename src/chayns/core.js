@@ -25,8 +25,17 @@ var chaynsReadyPromise;
  * @returns {*}
  */
 export function register(config) {
+  if (!isObject(config)) {
+    return false;// TODO: throw error?
+  }
   log.info('chayns.register');
+
   Config.set(config); // this reference to the chayns obj
+
+  if (config.loggerName ||  config.appName) {
+    window.log = getLogger(config.loggerName ||  config.appName);
+  }
+
   return this;
 }
 

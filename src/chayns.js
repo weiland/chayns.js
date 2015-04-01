@@ -9,7 +9,7 @@ import * as utils               from './utils';
 var extend = utils.extend;
 
 // set logLevel to info
-utils.setLevel(4); // TODO: don't set the level here
+utils.setLevel(4); // TODO: don't set the level here, refactor name
 
 // basic config
 import {config}                 from './chayns/config';
