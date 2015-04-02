@@ -125,7 +125,7 @@ export function setup() {
     // add vendor classes (OS, Browser, ColorScheme)
     DOM.addClass(html, suffix + 'os--' + (environment.os || 0));
     DOM.addClass(html, suffix + 'browser--' + environment.browser);
-    DOM.addClass(html, suffix + 'color--' + environment.site.colorScheme);
+    DOM.addClass(html, suffix + 'color--' + (environment.site.colorScheme || 0));
 
     // Environment
     if (environment.isChaynsWeb) {

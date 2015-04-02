@@ -18,6 +18,12 @@ export function setCallback(name, fn, isChaynsCall) {
     log.warn('setCallback: name is undefined');
     return false;
   }
+
+  if (isFunction(name)) {
+    log.warn('setCallback: name is a function');
+    return false;
+  }
+
   if (!isFunction(fn)) {
     log.warn('setCallback: fn is no Function');
     return false;

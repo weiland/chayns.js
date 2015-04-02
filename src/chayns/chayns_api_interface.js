@@ -318,7 +318,18 @@ export var chaynsApiInterface = {
       cmd: 14,
       params: [{'callback': callbackName}],
       support: { android: 2501, ios: 2466, wp: 2469 },
-      //webFn: function() { navigator.geolocation; } // TODO: implement
+      webFn: function() {
+
+        let geoCallback = function(geoposition) {
+          let coords = geoposition.coords;
+          callback.apply(undefined, [
+            coords.latitude,
+            coords.longitude,
+            coords.accuracy
+          ]);
+        };
+        navigator.geolocation.getCurrentPosition(geoCallback);
+      }, // TODO: implement
       cb: callback
     });
   },
