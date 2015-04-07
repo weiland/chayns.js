@@ -5,20 +5,10 @@
 
 import {apiCall} from './chayns_calls';
 import {getLogger, isFunction, isString, isNumber, isBLEAddress,
-  isDate, isObject, isArray, trim, DOM} from '../utils';
+  isDate, isObject, isArray, trim, DOM, defer} from '../utils';
 import {window, location} from '../utils/browser'; // due to window.open and location.href
 
 let log = getLogger('chayns_api_interface');
-
-/**
- * NFC Response Data Storage
- * @type {Object}
- */
-// TODO: can be removed since it is not used
-let NfcResponseData = {
-  RFId: 0,
-  PersonId: 0
-};
 
 /**
  * Beacon List
@@ -51,7 +41,6 @@ export var chaynsApiInterface = {
       params: [{'bool': allowPull}]
     });
   },
-  // TODO: rename to enablePullToRefresh
   allowRefreshScroll: function() {
     chaynsApiInterface.setPullToRefresh(true);
   },
@@ -82,11 +71,15 @@ export var chaynsApiInterface = {
   /**
    * Select different Tapp identified by TappID or InternalTappName
    *
-   * @param {String} tab Tapp Name or Tapp ID
-   * @param {String} (optional) param URL Parameter
+   * @param {String} tapp Tapp Name or Tapp ID
+   * @param {String} param (optional) param URL Parameter (ExecCommand=param)
    * @returns {Boolean}
    */
-  selectTapp: function(tab, param) {
+  selectTapp: function(tapp, param) {
+
+    if (!tapp) {
+      return defer.reject(new Error('Missing tapp parameter'));
+    }
 
     let cmd = 13; // selectTab with param ChaynsCall
 
@@ -103,10 +96,10 @@ export var chaynsApiInterface = {
       cmd: cmd,
       webFn: 'selectothertab',
       params: cmd === 13
-        ? [{'string': tab}, {'string': param}]
-        : [{'string': tab}],
+        ? [{'string': tapp}, {'string': param}]
+        : [{'string': tapp}],
       webParams: {
-        Tab: tab,
+        Tab: tapp,
         Parameter: param
       },
       support: { android: 2402, ios: 1383, wp: 2469 } // for native apps only
@@ -122,8 +115,7 @@ export var chaynsApiInterface = {
    */
   selectAlbum: function(id) {
     if (!isString(id) && !isNumber(id)) {
-      log.error('selectAlbum: invalid album name');
-      return false;
+      return defer.reject(new Error('invalid album name'));
     }
     return apiCall({
       cmd: 3,
@@ -143,8 +135,7 @@ export var chaynsApiInterface = {
    */
   openImage: function(url) {
     if (!isString(url) || !url.match(/jpg$|png$|gif$/i)) { // TODO: more image types?
-      log.error('openPicture: invalid url');
-      return false;
+      return defer.reject(new Error('openPicture: invalid url'));
     }
     return apiCall({
       cmd: 4,
@@ -169,9 +160,7 @@ export var chaynsApiInterface = {
   setCaptionButton: function(text, callback) {
 
     if (!isFunction(callback)) {
-      //log.error('There is no valid callback Function.');
-      throw new Error('There is no valid callback Function.');
-      //return false;
+      return defer.reject(new Error('There is no valid callback Function.'));
     }
     let callbackName = 'captionButtonCallback()';
 
@@ -246,7 +235,7 @@ export var chaynsApiInterface = {
 
   /**
    * Show BackButton.
-   *
+   * and set it's callback function
    * @param {Function} callback Callback Function when the back button was clicked
    * @returns {Boolean}
    */
@@ -312,6 +301,7 @@ export var chaynsApiInterface = {
       // TODO: remove console
       // TODO: allow empty callbacks when it is already set
       console.warn('no callback function');
+      //return defer.reject(new Error());
     }
 
     return apiCall({
@@ -343,8 +333,7 @@ export var chaynsApiInterface = {
    */
   openVideo: function(url) {
     if (!isString(url) || !url.match(/.*\..{2,}/)) { // TODO: WTF Regex
-      log.error('openVideo: invalid url');
-      return false;
+      return defer.reject(new Error('invalid url'));
     }
     return apiCall({
       cmd: 15,
@@ -356,14 +345,15 @@ export var chaynsApiInterface = {
 
   /**
    * Show Dialog
+   * @deprecated
    *
    * @param {Object} {content:{String} , headline: ,buttons:{Array}, noContentnPadding:, onLoad:}
    * @returns {boolean}
    */
   showDialog: function showDialog(obj) {
+    log.warn('method should not be used i assume');
     if (!obj || !isObject(obj)) {
-      log.warn('showDialog: invalid parameters');
-      return false;
+      return defer.reject(new Error('showDialog: invalid parameters'));
     }
     if (isString(obj.content)) {
       obj.content = trim(obj.content.replace(/<br[ /]*?>/g, '\n'));
@@ -381,7 +371,7 @@ export var chaynsApiInterface = {
     }
 
     return apiCall({
-      cmd: 16, // TODO: is slitte://
+      cmd: 16,
       params: [
         {'callback': callbackName},
         {'string': obj.headline},
@@ -409,19 +399,18 @@ export var chaynsApiInterface = {
   getGlobalData: function(forceReload) {
     if (!forceReload && globalData) {
       log.debug('getGlobalData: return cached data');
-      return Promise.resolve(globalData);
+      return defer.resolve(globalData);
+      //return Promise.resolve(globalData);
     }
-    return new Promise(function(resolve, reject) {
-
-      apiCall({
-        cmd: 18,
-        webFn: 'getAppInfos',
-        params: [{'callback': 'getGlobalData()'}], // callback param only on mobile
-        cb: resolve,
-        onError: reject
-      });
-
+    let deferred = defer();
+    apiCall({
+      cmd: 18,
+      webFn: 'getAppInfos',
+      params: [{'callback': 'getGlobalData()'}], // callback param only on mobile
+      cb: deferred.resolve,
+      onError: deferred.reject
     });
+    return deferred.promise;
   },
 
   /**
@@ -789,53 +778,47 @@ export var chaynsApiInterface = {
    * Scans QR Code and read it
    *
    * @param {Function} callback Function which receives the result
-   * @returns {Boolean}
+   * @returns {Promise}
    */
-  scanQRCode: function scanQRCode(callback) {
+  scanQRCode: function scanQRCode() {
 
-    if (!isFunction(callback)) {
-      log.warn('scanQRCode: the callback is no `Function`');
-      return false;
-    }
+    let deferred = defer();
 
     let callbackName = 'scanQRCodeCallback()';
-    return apiCall({
+    apiCall({
       cmd: 34,
       params: [{'callback': callbackName}],
       support: {android:  3220, ios: 1372, wp: 3106},
-      cb: callback
+      cb: deferred.resolve
     });
+    return deferred.promise;
   },
 
   /**
    * scan QR Code
    * Scans QR Code and read it
    *
-   * @param {Function} callback Function which receives the result
-   * @returns {Boolean}
+   * @param {Boolean} forceReload Function which receives the result
+   * @returns {Promise}
    */
-  getLocationBeacons: function getLocationBeacons(callback, forceReload) {
-
-    if (!isFunction(callback)) {
-      log.warn('getLocationBeacons: the callback is no `Function`');
-      return false;
-    }
-
+  getLocationBeacons: function getLocationBeacons(forceReload) {
+    let deferred = defer();
     let callbackName = 'getBeaconsCallBack()';
     if (beaconList && !forceReload) { // TODO: make sure it is good to cache the list
       log.debug('getLocationBeacons: there is already one beaconList');
-      return callback.call(null, beaconList);
+      return defer.resolve(beaconList);
     }
-    let callbackFn = function getLocationBeaconCallback(callback, list) {
+    let callbackFn = function getLocationBeaconCallback(list) {
       beaconList = list;
-      callback.call(null, list);
+      deferred.resolve(list);
     };
-    return apiCall({
+    apiCall({
       cmd: 39,
       params: [{'callback': callbackName}],
       support: {android:  4045, ios: 4048},
-      cb: callbackFn.bind(null, callback)
+      cb: callbackFn
     });
+    return deferred.promise;
   },
 
   /**
@@ -848,8 +831,7 @@ export var chaynsApiInterface = {
    */
   addToPassbook: function addToPassbook(url) {
     if (!isString(url)) {
-      log.warn('addToPassbook: url is invalid.');
-      return false;
+      return defer.reject(new Error('addToPassbook: url is invalid.'));
     }
 
     return apiCall({
@@ -890,11 +872,9 @@ export var chaynsApiInterface = {
   logout: function logout() {
     return apiCall({
       cmd: 56,
-      support: {ios: 4240, wp: 4099},
+      support: {ios: 4240, wp: 4099, android: 4670},
       webFn: 'logout'
     });
   }
-
-
 
 };

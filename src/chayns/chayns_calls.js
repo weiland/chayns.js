@@ -19,71 +19,65 @@ let osMap = {
  * Public Chayns Interface
  * Execute API Call
  *
- * @param url
- * @param params
- * @param debounce
+ * @param {Object} obj
  * // TODO: left of callback as promise
  */
 export function apiCall(obj) {
 
-  let debounce = obj.debounce || false;
+  // chayns call (native app)
+  if (environment.canChaynsCall && can(osMap.chaynsCall)) {
+    // TODO: consider callQueue and Interval to prevent errors
+    log.debug('executeCall: chayns call ', obj.cmd);
 
-  // TODO: check obj.os VERSION
-
-  function executeCall(chaynsCallObj) {
-
-    if (environment.canChaynsCall && can(osMap.chaynsCall)) {
-      // TODO: consider callQueue and Interval to prevent errors
-      log.debug('executeCall: chayns call ', chaynsCallObj.cmd);
-
-      if ('cb' in chaynsCallObj && isFunction(chaynsCallObj.cb)) {
-        setCallback(chaynsCallObj.callbackName || chaynsCallObj.params[0].callback, chaynsCallObj.cb, true);
-      }
-      if (isObject(chaynsCallObj.support) && !can(chaynsCallObj.support)) {
-        log.info('executeCall: the chayns version is not supported');
-        if (chaynsCallObj.fallbackCmd) {
-          log.info('executeCall: fallback chayns call will be invoked');
-          return chaynsCall(chaynsCallObj.fallbackCmd);
-        }
-        if (isFunction(chaynsCallObj.fallbackFn)) {
-          log.info('executeCall: fallbackFn will be invoked');
-          return chaynsCallObj.fallbackFn.call(null, chaynsCallObj.cb, chaynsCallObj.onError);
-        }
-        return false;
-      }
-      return chaynsCall(chaynsCallObj.cmd, chaynsCallObj.params);
-
-    } else if (environment.canChaynsWebCall) {
-
-      if ('cb' in chaynsCallObj && isFunction(chaynsCallObj.cb)) {
-        setCallback(chaynsCallObj.webFn, chaynsCallObj.cb);
-      }
-      if (!chaynsCallObj.webFn) {
-        log.info('executeCall: This Call has no webFn');
-        return false;
-      }
-
-      log.debug('executeCall: chayns web call ', chaynsCallObj.webFn.name || chaynsCallObj.webFn);
-
-      return chaynsWebCall(chaynsCallObj.webFn, chaynsCallObj.webParams);
-
-    } else {
-      log.info('executeCall: neither chayns call nor chayns web');
-      // TODO: don't use the fallbackFn since this is actually only for chaynCalls
-      if (isFunction(obj.fallbackFn)) {
-        log.info('executeCall: (no web nor native) fallbackFn will be invoked');
-        return chaynsCallObj.fallbackFn.call(null, chaynsCallObj.cb, chaynsCallObj.onError);
-      }
-      if (isFunction(obj.onError)) {
-        obj.onError.call(undefined, new Error('Neither in Chayns Web nor in Chayns App'));
-      }
+    // register callback function (should be a promise resolve)
+    if ('cb' in obj && isFunction(obj.cb)) {
+      setCallback(obj.callbackName || obj.params[0].callback, obj.cb, true);
     }
-  }
 
-  if (debounce) {
-    setTimeout(executeCall.bind(null, obj), 100); // TODO: error?
+    // if the browser cannot execute a chayns call
+    if (isObject(obj.support) && !can(obj.support)) {
+      log.info('executeCall: the chayns version is not supported');
+      if (obj.fallbackCmd) {
+        log.info('executeCall: fallback chayns call will be invoked');
+        return chaynsCall(obj.fallbackCmd);
+      }
+      if (isFunction(obj.fallbackFn)) {
+        log.info('executeCall: fallbackFn will be invoked');
+        return obj.fallbackFn.call(null, obj.cb, obj.onError);
+      }
+      return false;
+    }
+
+    // execute chayns call
+    return chaynsCall(obj.cmd, obj.params);
+
+  } else if (environment.canChaynsWebCall) {
+    // chayns web call (chayns web iframe communication)
+
+    // register callback (should be a promise)
+    if ('cb' in obj && isFunction(obj.cb)) {
+      setCallback(obj.webFn, obj.cb);
+    }
+    if (!obj.webFn) {
+      log.info('executeCall: This Call has no webFn');
+      return false;
+    }
+
+    log.debug('executeCall: chayns web call ', obj.webFn.name || obj.webFn);
+
+    return chaynsWebCall(obj.webFn, obj.webParams);
+
   } else {
-    return executeCall(obj);
+    // the user is in no chayns call environment
+    log.info('executeCall: neither chayns call nor chayns web');
+    // TODO: don't use the fallbackFn since this is actually only for chaynCalls
+    if (isFunction(obj.fallbackFn)) {
+      log.info('executeCall: (no web nor native) fallbackFn will be invoked');
+      return obj.fallbackFn.call(null, obj.cb, obj.onError);
+    }
+    if (isFunction(obj.onError)) {
+      obj.onError.call(undefined, new Error('Neither in Chayns Web nor in Chayns App'));
+    }
   }
 }
 
@@ -193,7 +187,7 @@ function chaynsWebCall(fn, params) {
     parent.postMessage(url, '*');
     return true;
   } catch (e) {
-    log.warn('chaynsWebCall: postMessgae failed');
+    log.error('chaynsWebCall: postMessgae failed', e);
   }
   return false;
 }

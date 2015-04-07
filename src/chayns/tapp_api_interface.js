@@ -2,42 +2,19 @@
  * Tapp API Interface
  * API to communicate with the TappAPI
  */
-/* gloabl fetch */
+/* global fetch */
 
 import {getLogger, isPresent, isObject, isArray, isDefined} from '../utils';
 import {environment} from './environment';
 //import {window} from '../utils/browser'; // due to window.open and location.href
 
-let log = getLogger('tapp_api');
+//let log = getLogger('tapp_api');
 
 console.debug(environment, 'evn');
 
 // TODO: force SSL?
+// TODO: write tests
 let tappApiRoot = '//chayns1.tobit.com/TappApi/';
-//let resultType = { // TODO: ResultEnum is not used, consider removing or adjusting the API
-//  error: -1,
-//  success: 0
-//};
-
-function parseUser(user) {
-  return {
-    userId: user.UserID,
-    facebookId: user.ID || user.FacebookID,
-    name: user.Name || user.UserFullName,
-    firstName: user.FirstName,
-    lastName: user.Lastname,
-    picture: 'https://graph.facebook.com/' + user.ID + '/picture',
-    chaynsLogin: user.ChaynsLogin
-  };
-}
-
-function parseGroup(group) {
-  return {
-    id: group.ID,
-    name: group.Name,
-    showName: group.ShowName
-  };
-}
 
 let uacGroupsCache;
 
@@ -278,4 +255,34 @@ function tappApi(endpoint) {
       }
       return obj;
     });
+}
+
+// helper parser methods
+
+/**
+ * Parse received User Object to a readable and formative format
+ * @param user
+ */
+function parseUser(user) {
+  return {
+    userId: user.UserID,
+    facebookId: user.ID || user.FacebookID,
+    name: user.Name || user.UserFullName,
+    firstName: user.FirstName,
+    lastName: user.Lastname,
+    picture: 'https://graph.facebook.com/' + user.ID + '/picture',
+    chaynsLogin: user.ChaynsLogin
+  };
+}
+
+/**
+ * Parse received Group Object to a readable and formative format
+ * @param user
+ */
+function parseGroup(group) {
+  return {
+    id: group.ID,
+    name: group.Name,
+    showName: group.ShowName
+  };
 }
