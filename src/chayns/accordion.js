@@ -4,7 +4,6 @@ export var accordion = (function(window, document) {
 
   function init(selector) {
     accordions = document.querySelectorAll(selector || '.accordion .accordion__head');
-
     var i, l;
     for (i = 0, l = accordions.length; i < l; i++) {
       var accordion = accordions[i];
@@ -51,6 +50,10 @@ export var accordion = (function(window, document) {
   }
 
   function closeAccordion(body, accordion, classList) {
+    if (classList.contains('accordion--fixed')) {
+      //log.debug('Accordion is fixed');
+      return;
+    }
     trigger(accordion, 'close');
     function listener() {
       body.removeEventListener('transitionend', listener);
