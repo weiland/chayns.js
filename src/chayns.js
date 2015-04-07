@@ -1,5 +1,5 @@
 /**
- * @name chayns API
+ * @name chayns API v3
  * @module chayns
  */
 
@@ -24,7 +24,8 @@ import {ready, register, setup} from './chayns/core';
 import {chaynsApiInterface}     from './chayns/chayns_api_interface';
 import {tappApiInterface}       from './chayns/tapp_api_interface';
 import {chaynsWebInterface}     from './chayns/chayns_web_interface';
-import {dialogs}                from './chayns/dialogs.js';
+import {dialogs}                from './chayns/dialogs';
+import {accordion}              from './chayns/accordion';
 
 
 // public chayns object
@@ -48,6 +49,7 @@ extend(chayns, chaynsApiInterface);
 extend(chayns, tappApiInterface);
 extend(chayns, chaynsWebInterface);
 extend(chayns, {dialog: dialogs});
+extend(chayns, {accordion}); // TODO: conisder: don't expose and autoinit accordion listeners
 
 // setup chayns
 setup();

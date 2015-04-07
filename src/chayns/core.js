@@ -3,6 +3,7 @@ import {Config} from './config';
 import {messageListener} from './callbacks';
 import {chaynsApiInterface} from './chayns_api_interface';
 import {chaynsWebInterface} from './chayns_web_interface';
+import {accordion} from './accordion';
 import {environment, setEnv} from './environment';
 
 // create new Logger instance
@@ -88,17 +89,12 @@ export function setup() {
   }
 
 
-  // run fastclick
-
+  // (run fastclick, too soldom usecase?)
   // (viewport setup)
-
-  // crate meta tags (colors, mobile icons etc)
-
-  // do some SEO stuff (canonical etc)
+  // (crate meta tags (colors, mobile icons etc))
+  // (do some SEO stuff (canonical etc))
 
   // detect user (logged in?)
-
-  // run chayns setup (colors based on environment)
 
   // DOM  ready promise
   chaynsReadyPromise = new Promise(function(resolve) {
@@ -228,6 +224,8 @@ export function setup() {
           reject('The App Information could not be received.');
           //return Promise.reject(new Error('The App Information could not be received.'));
         }).then(function() { // actually it is finally
+          // accordion listener
+          accordion.init();
           // resize listener
           let heightCache;
           if (environment.isChaynsWebDesktop) {

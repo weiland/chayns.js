@@ -32,7 +32,9 @@ export * from './utils/logger';
 // TODO: do we even need modernizer?
 //export * from './utils/modernizer';
 
-export * from './utils/http';
+export * from './utils/each';
+
+export * from './utils/http'; // TODO: consider to remove
 
 // Browser APIs (window, document, location)
 // TODO: consider to not bind browser to the utils `Object`
