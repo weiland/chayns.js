@@ -23,9 +23,6 @@ let uacGroupsCache;
  * @type {Object}
  */
 export var tappApiInterface = {
-  getIntroText: function getIntroText() {
-    throw new Error('deprecated');
-  },
 
   /**
    * Get Info

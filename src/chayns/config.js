@@ -26,7 +26,8 @@ var _config = {
   isPublished: true,       // only in internal tobit available
   debugMode: true,         // show console output, debug param for logging
   useAjax: false,
-  isInternal: false        // use internal routing
+  isInternal: false,        // use internal routing
+  callbackPrefix: '_chaynsCallbacks' // window.CallbackPrefix for chayns (web) calls cb
   //framework: ['Ember', 'Angular', 'Backbone', 'Ampersand', 'React', 'jQuery']
 };
 
@@ -41,6 +42,7 @@ var _config = {
 }*/
 
 // TODO: refactor to Map
+// TODO: remove? move to env and at least rename to config, count usage
 export class Config {
 
   /**

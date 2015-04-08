@@ -1,4 +1,4 @@
-import {getLogger, isFunction, isUndefined} from '../utils';
+import {getLogger, isFunction, isString, isDeferred} from '../utils';
 import {window} from '../utils/browser';
 let log = getLogger('chayns.callbacks');
 
@@ -9,40 +9,35 @@ let callbacks = {};
  *
  * @param {String} name
  * @param {Function} fn Callback Function to be invoked
- * @param {Boolean} isChaynsCall If true then the call will be assigned to `chayns._callbacks`
+ * @param {Boolean} registerGlobal If true then the call will be assigned to `chayns._chaynsCallbacks`
  * @returns {Boolean} True if parameters are valid and the callback was saved
  */
-export function setCallback(name, fn, isChaynsCall) {
+export function setCallback(name, fn, registerGlobal) {
 
-  if (isUndefined(name)) {
-    log.warn('setCallback: name is undefined');
+  if (!isString(name)) {
+    log.warn('setCallback: name is no string');
     return false;
   }
 
-  if (isFunction(name)) {
-    log.warn('setCallback: name is a function');
+  if (!isFunction(fn) && !isDeferred(fn)) {
+    log.warn('setCallback: fn is neither a Function nor a Deferred');
     return false;
   }
 
-  if (!isFunction(fn)) {
-    log.warn('setCallback: fn is no Function');
-    return false;
-  }
-
+  // TODO: can we get rid of this?
   if (name.indexOf('()') !== -1) { // strip '()'
     name = name.replace('()', '');
   }
 
-  log.debug('setCallback: set Callback: ' + name);
-  //if (name in callbacks) {
-  //  callbacks[name].push(fn); // TODO: reconsider Array support
-  //} else {
-    callbacks[name] = fn; // Attention: we save an Array
-  //}
+  //callbackName = 'c' + Math.random().toString(36).substring(3);
 
-  if (isChaynsCall) {
+  log.debug('setCallback: set Callback: ' + name);
+  callbacks[name] = fn;
+
+  // used when the native app invokes a callback
+  if (registerGlobal) {
     log.debug('setCallback: register fn as global callback');
-    window._chaynsCallbacks[name] = callback(name, 'ChaynsCall');
+    window._chaynsCallbacks[name] = callback(name);
   }
   return true;
 }
@@ -53,19 +48,21 @@ export function setCallback(name, fn, isChaynsCall) {
  *
  * @private
  * @param {string} callbackName Name of the Function
- * @param {string} type Either 'ChaynsWebCall' or 'ChaynsCall'
  * @returns {Function} handleData Receives callback data
  */
-function callback(callbackName, type) {
+function callback(callbackName) {
 
   return function handleData() {
 
     if (callbackName in callbacks) {
-      log.debug('invoke callback: ', callbackName, 'type:', type);
-      var fn = callbacks[callbackName];
+      log.debug('invoke callback: ', callbackName);
+      var fn = callbacks[callbackName]; // can be a Function or a Deferred
       if (isFunction(fn)) {
         fn.apply(null, arguments);
-        //delete callbacks[callbackName]; // TODO: cannot be like that, remove array?
+        //delete callbacks[callbackName]; // TODO: callback can be removed?
+      } else if (isDeferred(fn)) {
+        fn.resolve(arguments.length > 1 ? arguments : arguments[0]); // pass arguments as array since a Promise supports only one arg
+        // TODO: remove callback here from window._chaynsCallbacks since it is a resolved promise now
       } else {
         log.warn('callback is no function', callbackName, fn);
       }
@@ -92,8 +89,11 @@ window._chaynsCallbacks = {
 };
 
 
-// TODO: move to another file? core, chayns_calls
+// TODO: move to another file? core, chayns_calls, autostart with other listeners?
 var messageListening = false;
+/**
+ * Used when the chayns web (parent window) communicates with the tapp
+ */
 export function messageListener() {
   if (messageListening) {
     log.info('there is already one message listener on window');
@@ -104,12 +104,12 @@ export function messageListener() {
 
   window.addEventListener('message', function onMessage(e) {
 
-    log.debug('new message ');
+    log.debug('new message');
 
     var namespace = 'chayns.customTab.',
       data = e.data;
 
-    if (typeof data !== 'string') {
+    if (!isString(data)) {
       return;
     }
     // strip namespace from data
@@ -118,6 +118,7 @@ export function messageListener() {
     if (method && method.length > 0) {
       method = method[0];
 
+      // parse params
       var params = data.substr(method.length, data.length - method.length);
       if (params) {
         try {
@@ -125,11 +126,11 @@ export function messageListener() {
         } catch (e) {}
       }
 
-      // remove the last ')'
+      // remove the last ')' from the method name
       method = method.substr(0, method.length - 1);
 
       // the callback function can be invoked directly
-      callback(method, 'ChaynsWebCall')(params);
+      callback(method)(params);
     }
   });
 }

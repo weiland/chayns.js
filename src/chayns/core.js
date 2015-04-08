@@ -40,7 +40,7 @@ export function register(config) {
   return this;
 }
 
-// TODO: register `Function` or preChayns `Object`?
+// TODO: register `Function` only or also preChayns `Object`?
 export function preChayns() {
   if ('preChayns' in window && isObject(window.preChayns)) {
     Object.keys(window.preChayns).forEach(function(setting) {
@@ -58,10 +58,7 @@ export function preChayns() {
  *
  * @returns {Promise}
  */
-export function ready() {
-  log.debug('chayns.ready()');
-  return chaynsReadyDefer.promise;
-}
+export var ready =chaynsReadyDefer.promise;
 
 /**
  * @name prepare

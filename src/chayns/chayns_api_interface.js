@@ -7,14 +7,23 @@ import {apiCall} from './chayns_calls';
 import {getLogger, isFunction, isString, isNumber, isBLEAddress,
   isDate, isObject, isArray, trim, DOM, defer} from '../utils';
 import {window, location} from '../utils/browser'; // due to window.open and location.href
+import {Config} from './config';
 
 let log = getLogger('chayns_api_interface');
 
 /**
+ * chayns call callback obj name (is assigned to window)
+ * @type {string}
+ */
+let callbackPrefix = Config.get('callbackPrefix'); // TODO: Config required? even used?
+function callbackName(fnName) {
+  return `'window.${callbackPrefix}.${fnName}()'`;
+}
+/**
  * Beacon List
  * @type {Array|null}
  */
-let beaconList = null;
+//let beaconList = null;
 
 /**
  * Global Data Storage
@@ -30,43 +39,41 @@ export var chaynsApiInterface = {
 
   /**
    * Enable or disable PullToRefresh
+   * App only
    *
    * @param {Boolean} allowPull Allow PullToRefresh
    * @returns {Boolean} True if the call suceeded
    */
   setPullToRefresh: function(allowPull) {
     return apiCall({
-      cmd: 0,
-      webFn: false, // could be omitted
-      params: [{'bool': allowPull}]
-    });
+      app: {
+        cmd: 0,
+        params: [allowPull]
+      }
+    }).then(log.debug.bind(log), log.debug.bind(log));
   },
-  allowRefreshScroll: function() {
-    chaynsApiInterface.setPullToRefresh(true);
-  },
-  disallowRefreshScroll: function() {
-    chaynsApiInterface.setPullToRefresh(false);
-  },
+  allowRefreshScroll: () => chaynsApiInterface.setPullToRefresh(true),
+  disallowRefreshScroll: () => chaynsApiInterface.setPullToRefresh(false),
 
   /**
    *
-   * @param {Boolean} [showCursor] If true the waitcursor will be shown
+   * @param {Boolean} [showCursor] If true the waitCursor will be shown
    *                               otherwise it will be hidden
    * @returns {Boolean}
    */
   setWaitCursor: function(showCursor) {
     return apiCall({
-      cmd: 1,
-      webFn: (showCursor ? 'show' : 'hide') + 'LoadingCursor',
-      params: [{'bool': showCursor}]
-    });
+      app: {
+        cmd: 1,
+        params: [showCursor]
+      },
+      web: {
+        fnName: (showCursor ? 'show' : 'hide') + 'LoadingCursor'
+      }
+    }).then(log.debug.bind(log), log.debug.bind(log));
   },
-  showWaitCursor: function() {
-    return chaynsApiInterface.setWaitCursor(true);
-  },
-  hideWaitCursor: function() {
-    return chaynsApiInterface.setWaitCursor(false);
-  },
+  showWaitCursor: () => chaynsApiInterface.setWaitCursor(true),
+  hideWaitCursor: () => chaynsApiInterface.setWaitCursor(false),
 
   /**
    * Select different Tapp identified by TappID or InternalTappName
@@ -78,7 +85,7 @@ export var chaynsApiInterface = {
   selectTapp: function(tapp, param) {
 
     if (!tapp) {
-      return defer.reject(new Error('Missing tapp parameter'));
+      return Promise.reject(new Error('Missing Tapp parameter'));
     }
 
     let cmd = 13; // selectTab with param ChaynsCall
@@ -91,37 +98,46 @@ export var chaynsApiInterface = {
     } else { // no params, different ChaynsCall
       cmd = 2;
     }
-
+    let params = [`'${tapp}'`];
+    if (cmd === 13) {
+      params.push(`'${param}'`);
+    }
     return apiCall({
-      cmd: cmd,
-      webFn: 'selectothertab',
-      params: cmd === 13
-        ? [{'string': tapp}, {'string': param}]
-        : [{'string': tapp}],
-      webParams: {
-        Tab: tapp,
-        Parameter: param
+      app: {
+        cmd: cmd,
+        params: params,
+        support: { android: 2402, ios: 1383, wp: 2469 } // for native apps only
       },
-      support: { android: 2402, ios: 1383, wp: 2469 } // for native apps only
+      web: {
+        fnName: 'selectOtherTab',
+        params: {
+          Tab: tapp,
+          Parameter: param
+        }
+      }
     });
   },
 
   /**
    * Select Album
-   * TODO: rename to open
+   * TODO: get versions
    *
    * @param {id|string} id Album ID (Album Name will work as well, but do prefer IDs)
    * @returns {Boolean}
    */
   selectAlbum: function(id) {
     if (!isString(id) && !isNumber(id)) {
-      return defer.reject(new Error('invalid album name'));
+      return Promise.reject(new Error('Invalid album name'));
     }
     return apiCall({
-      cmd: 3,
-      webFn: 'selectAlbum',
-      params: [{'string': id}],
-      webParams: id
+      app: {
+        cmd: 3,
+        params: [`'${id}'`]
+      },
+      web: {
+        fnName: 'selectAlbum',
+        params: id
+      }
     });
   },
 
@@ -135,14 +151,18 @@ export var chaynsApiInterface = {
    */
   openImage: function(url) {
     if (!isString(url) || !url.match(/jpg$|png$|gif$/i)) { // TODO: more image types?
-      return defer.reject(new Error('openPicture: invalid url'));
+      return Promise.reject(new Error('Invalid image url'));
     }
     return apiCall({
-      cmd: 4,
-      webFn: 'showPicture',
-      params: [{'string': url}],
-      webParams: url,
-      support: { android: 2501, ios: 2636, wp: 2543 }
+      app: {
+        cmd: 4,
+        params: [`'${url}'`],
+        support: { android: 2501, ios: 2636, wp: 2543 }
+      },
+      web: {
+        fnName: 'showPicture',
+        params: url
+      }
     });
   },
 
@@ -155,22 +175,21 @@ export var chaynsApiInterface = {
    *
    * @param {String} text The Button's text
    * @param {Function} callback Callback Function when the caption button was clicked
-   * @returns {Boolean}
+   * @returns {Promise}
    */
-  setCaptionButton: function(text, callback) {
-
-    if (!isFunction(callback)) {
-      return defer.reject(new Error('There is no valid callback Function.'));
+  setCaptionButton: function(text, callbackFn) {
+    if (!isFunction(callbackFn)) {
+      callbackFn = Function.prototype;// TODO: ok or reject Promise?
     }
-    let callbackName = 'captionButtonCallback()';
-
     return apiCall({
-      cmd: 5,
-      params: [{string: text}, {callback: callbackName}],
-      support: { android: 1358, ios: 1366, wp: 2469 },
-      callbackName: callbackName,
-      cb: callback
-    });
+      app: {
+        cmd: 5,
+        params: [`'${text}'`, callbackName('captionButtonCallback')],
+        support: { android: 1358, ios: 1366, wp: 2469 }
+      },
+      callbackName: 'captionButtonCallback',
+      callbackFunction: callbackFn
+    }).then(log.debug.bind(log), log.debug.bind(log));
   },
 
   /**
@@ -179,64 +198,92 @@ export var chaynsApiInterface = {
    * The caption button is the text at the top right of the app.
    * (mainly used for login or the username)
    *
-   * @returns {Boolean}
+   * @returns {Promise}
    */
   hideCaptionButton: function() {
     return apiCall({
-      cmd: 6,
-      support: { android: 1358, ios: 1366, wp: 2469 }
+      app: {
+        cmd: 6,
+        support: { android: 1358, ios: 1366, wp: 2469 }
+      }
+    });
+  },
+
+  /**
+   * Facebook Connect with requesting permissions
+   * NOTE: prefer `chayns.login()` over this method to perform a user login.
+   *
+   * @param {string} [permissions = 'user_friends'] Facebook Permissions, separated by comma
+   * @param {string} [reloadParam = 'comment'] Reload Param
+   * @returns {Promise}
+   */
+  // TODO: test permissions
+  facebookRequestPermissions: function(permissions = 'user_friends', reloadParam = 'comment') {
+    reloadParam = reloadParam;
+    return apiCall({
+      app: {
+        cmd: 7,
+        params: [`'${permissions}'`, `'ExecCommand=${reloadParam}'`],
+        support: { android: 1359, ios: 1366, wp: 2469 },
+        fallbackFn: chaynsApiInterface.facebookConnect.bind(chaynsApiInterface)
+      },
+      web: {
+        fnName: 'facebookConnect',
+        params: {
+          ReloadParameter: 'ExecCommand=' + reloadParam,
+          Permissions: permissions
+        }
+      }
     });
   },
 
   /**
    * Facebook Connect
    * NOTE: prefer `chayns.login()` over this method to perform a user login.
+   * This should be used if certain facebook permission are required
    *
-   * @param {string} [permissions = 'user_friends'] Facebook Permissions, separated by comma
-   * @param {string} [reloadParam = 'comment'] Reload Param
-   * @returns {Boolean}
+   * @returns {Promise}
    */
-  // TODO: test permissions
-  facebookConnect: function(permissions = 'user_friends', reloadParam = 'comment') {
-    reloadParam = reloadParam;
+  facebookConnect: function() {
     return apiCall({
-      cmd: 7,
-      webFn: 'facebookConnect',
-      params: [{'string': permissions}, {'Function': 'ExecCommand="' + reloadParam + '"'}],
-      webParams: {
-        ReloadParameter: 'ExecCommand=' + reloadParam,
-        Permissions: permissions
-      },
-      support: { android: 1359, ios: 1366, wp: 2469 },
-      fallbackCmd: 8 // in case the above is not support the fallbackCmd will replace the cmd
+      app: {
+        cmd: 8
+        //,support: { android: 1359, ios: 1366, wp: 2469 } // TODO: test support
+      }
     });
   },
 
   /**
    * Open URL in Browser
+   * App: opens browser window on the smartphone
+   * ChaynsWeb: opens new Window/Tab
    *
    * @param {string} url URL
    * @returns {Boolean}
    */
   openUrlInBrowser: function(url) {
     return apiCall({
-      cmd: 9,
-      webFn: function() {
-        if (url.indexOf('://') === -1) {
-          url = '//' + url; // or add location.protocol prefix and // TODO: test
-        }
-        window.open(url, '_blank');
-        return true;
+      app: {
+        cmd: 9,
+        params: [`'${url}'`],
+        support: { android: 2405, ios: 2466, wp: 2543 }
       },
-      params: [{'string': url}],
-      support: { android: 2405, ios: 2466, wp: 2543 }
+      web: {
+        fn: function openPopup() {
+          if (url.indexOf('://') === -1) {
+            url = '//' + url; // or add location.protocol prefix and // TODO: test
+          }
+          window.open(url, '_blank');
+          return true;
+        }
+      }
     });
   },
 
   /**
    * Show BackButton.
    * and set it's callback function
-   * @param {Function} callback Callback Function when the back button was clicked
+   * @param {Function} callback Optional callback Function when the back button was clicked
    * @returns {Boolean}
    */
   showBackButton: function(callback) {
@@ -247,13 +294,15 @@ export var chaynsApiInterface = {
         chaynsApiInterface.hideBackButton();
       };
     }
-    let callbackName = 'backButtonCallback()';
 
     return apiCall({
-      cmd: 10,
-      params: [{'callback': callbackName}],
-      support: { android: 2405, ios: 2636, wp: 2469 },
-      cb: callback
+      app: {
+        cmd: 10,
+        params: [callbackName('backButtonCallback')],
+        support: { android: 2405, ios: 2636, wp: 2469 }
+      },
+      callbackName: 'backButtonCallback',
+      callbackFunction: callback
     });
   },
 
@@ -264,9 +313,11 @@ export var chaynsApiInterface = {
    */
   hideBackButton: function() {
     return apiCall({
-      cmd: 11,
-      support: { android: 2405, ios: 2636, wp: 2469 }
-    });
+      app: {
+        cmd: 11,
+        support: { android: 2405, ios: 2636, wp: 2469 }
+      }
+    }).then(log.debug.bind(log), log.debug.bind(log));
   },
 
 
@@ -278,10 +329,11 @@ export var chaynsApiInterface = {
    * @returns {Boolean} False on error, true if call succeeded
    */
   openInterCom: function() {
-    return apiCall({
-      cmd: 12,
-      support: { android: 2402, ios: 1383, wp: 2543 }
-    });
+    return Promise.reject(new Error('This function should not be used any longer'));
+    //return apiCall({
+    //  cmd: 12,
+    //  support: { android: 2402, ios: 1383, wp: 2543 }
+    //});
   },
 
   /**
@@ -289,13 +341,12 @@ export var chaynsApiInterface = {
    * native apps only (but could work in web as well, navigator.geolocation)
    *
    * TODO: continuousTracking was removed
+   * TOOD: does not wokr in iOS App
    *
    * @param {Function} callback Callback Function when the back button was clicked
    * @returns {Boolean}
    */
   getGeoLocation: function(callback) {
-
-    let callbackName = 'getGeoLocationCallback()';
 
     if (!isFunction(callback)) {
       // TODO: remove console
@@ -305,22 +356,33 @@ export var chaynsApiInterface = {
     }
 
     return apiCall({
-      cmd: 14,
-      params: [{'callback': callbackName}],
-      support: { android: 2501, ios: 2466, wp: 2469 },
-      webFn: function() {
-
-        let geoCallback = function(geoposition) {
-          let coords = geoposition.coords;
-          callback.apply(undefined, [
-            coords.latitude,
-            coords.longitude,
-            coords.accuracy
-          ]);
-        };
-        navigator.geolocation.getCurrentPosition(geoCallback);
-      }, // TODO: implement
-      cb: callback
+      app: {
+        cmd: 14,
+        params: [callbackName('getGeoLocationCallback')],
+        support: { android: 2501, ios: 2466, wp: 2469 }
+      },
+      web: {
+        fn: function() {
+          let deferred = defer();
+          let geoCallback = function(geoposition) {
+            let coords = geoposition.coords;
+            if (!isFunction(callback)) {
+              callback = deferred.resolve();
+            } else {
+              deferred.resolve();
+            }
+            callback([
+              coords.latitude,
+              coords.longitude,
+              coords.accuracy
+            ]);
+          };
+          navigator.geolocation.getCurrentPosition(geoCallback);
+          return deferred.promise;
+        }
+      },
+      callbackName: 'getGeoLocationCallback',
+      callbackFunction: callback
     });
   },
 
@@ -333,13 +395,17 @@ export var chaynsApiInterface = {
    */
   openVideo: function(url) {
     if (!isString(url) || !url.match(/.*\..{2,}/)) { // TODO: WTF Regex
-      return defer.reject(new Error('invalid url'));
+      return Promise.reject(new Error('invalid url'));
     }
     return apiCall({
-      cmd: 15,
-      webFn: 'showVideo',
-      params: [{'string': url}],
-      webParams: url
+      app: {
+        cmd: 15,
+        params: [`'${url}'`]
+      },
+      web: {
+        fnName: 'showVideo',
+        params: url
+      }
     });
   },
 
@@ -351,65 +417,75 @@ export var chaynsApiInterface = {
    * @returns {boolean}
    */
   showDialog: function showDialog(obj) {
-    log.warn('method should not be used i assume');
-    if (!obj || !isObject(obj)) {
-      return defer.reject(new Error('showDialog: invalid parameters'));
-    }
-    if (isString(obj.content)) {
-      obj.content = trim(obj.content.replace(/<br[ /]*?>/g, '\n'));
-    }
-    if (!isArray(obj.buttons) || obj.buttons.length === 0) {
-      obj.buttons = [(new PopupButton('OK')).toHTML()];
-    }
-
-    let callbackName = 'ChaynsDialogCallBack()';
-    function callbackFn(buttons, id) {
-      id = parseInt(id, 10) - 1;
-      if (buttons[id]) {
-        buttons[id].callback.call(null);
-      }
-    }
-
-    return apiCall({
-      cmd: 16,
-      params: [
-        {'callback': callbackName},
-        {'string': obj.headline},
-        {'string': obj.content},
-        {'string': obj.buttons[0].name} // TODO: needs encodeURI?
-        //{'string': obj.buttons[1].name}, // TODO: needs encodeURI?
-        //{'string': obj.buttons[2].name} // TODO: needs encodeURI?
-      ],
-      cb: callbackFn.bind(null, obj.buttons),
-      support: {android: 2606},
-      fallbackFn: function() {
-        console.log('fallback popup', arguments);
-      }
-    });
+    return Promise.reject(new Error('This function should not be used any longer'));
+    //log.warn('method should not be used i assume');
+    //if (!obj || !isObject(obj)) {
+    //  return defer.reject(new Error('showDialog: invalid parameters'));
+    //}
+    //if (isString(obj.content)) {
+    //  obj.content = trim(obj.content.replace(/<br[ /]*?>/g, '\n'));
+    //}
+    //if (!isArray(obj.buttons) || obj.buttons.length === 0) {
+    //  obj.buttons = [(new PopupButton('OK')).toHTML()];
+    //}
+    //
+    //let callbackName = 'ChaynsDialogCallBack()';
+    //function callbackFn(buttons, id) {
+    //  id = parseInt(id, 10) - 1;
+    //  if (buttons[id]) {
+    //    buttons[id].callback.call(null);
+    //  }
+    //}
+    //
+    //return apiCall({
+    //  cmd: 16,
+    //  params: [
+    //    {'callback': callbackName},
+    //    {'string': obj.headline},
+    //    {'string': obj.content},
+    //    {'string': obj.buttons[0].name} // TODO: needs encodeURI?
+    //    //{'string': obj.buttons[1].name}, // TODO: needs encodeURI?
+    //    //{'string': obj.buttons[2].name} // TODO: needs encodeURI?
+    //  ],
+    //  cb: callbackFn.bind(null, obj.buttons),
+    //  support: {android: 2606},
+    //  fallbackFn: function() {
+    //    console.log('fallback popup', arguments);
+    //  }
+    //});
   },
 
-
-  /**
-   * Formerly known as getAppInfos
-   *
-   * @param {Function} callback Callback function to be invoked with the AppData
-   * @returns {Promise} True if the call succeeded or is async, false on error
-   */
-    // TODO: use forceReload and cache AppData
+/**
+ * Formerly known as getAppInfos
+ *
+ * @param {Function} callback Callback function to be invoked with the AppData
+ * @returns {Promise} True if the call succeeded or is async, false on error
+ */
+  // TODO: use forceReload and cache AppData, let user cache the data
+  // This example uses a deferred and a callbackFunction to be able
+  // to cache the data
   getGlobalData: function(forceReload) {
     if (!forceReload && globalData) {
       log.debug('getGlobalData: return cached data');
-      return defer.resolve(globalData);
-      //return Promise.resolve(globalData);
+      return Promise.resolve(globalData);
     }
     let deferred = defer();
     apiCall({
-      cmd: 18,
-      webFn: 'getAppInfos',
-      params: [{'callback': 'getGlobalData()'}], // callback param only on mobile
-      cb: deferred.resolve,
-      onError: deferred.reject
-    });
+      app: {
+        cmd: 18,
+        params: [callbackName('getAppInfos')]
+      },
+      web: {
+        fnName: 'getAppInfos'
+      },
+      callbackName: 'getAppInfos',
+      callbackFunction: function(data) {
+        globalData = data;
+        deferred.resolve(data);
+        return 'test me';
+      }
+    })
+      .catch(deferred.reject);
     return deferred.promise;
   },
 
@@ -423,16 +499,20 @@ export var chaynsApiInterface = {
       duration = 150;
     }
     return apiCall({
-      cmd: 19,
-      params: [{'Integer': duration.toString()}],
-      webFn: function navigatorVibrate() {
-        try {
-          navigator.vibrate(100);
-        } catch (e) {
-          log.info('vibrate: the device does not support vibrate');
-        }
+      app: {
+        cmd: 19,
+        params: [duration],
+        support: {android: 2695, ios: 2596, wp: 2515}
       },
-      support: {android: 2695, ios: 2596, wp: 2515}
+      web: {
+        fn: function navigatorVibrate() {
+          try {
+            navigator.vibrate(100);
+          } catch (e) {
+            log.info('vibrate: the device does not support vibrate');
+          }
+        }
+      }
     });
   },
 
@@ -444,11 +524,15 @@ export var chaynsApiInterface = {
    */
   navigateBack: function() {
     return apiCall({
-      cmd: 20,
-      webFn: function() {
-        history.back();
+      app: {
+        cmd: 20,
+        support: {android: 2696, ios: 2600, wp: 2515}
       },
-      support: {android: 2696, ios: 2600, wp: 2515}
+      web: {
+        fn: function() {
+          history.back();
+        }
+      }
     });
   },
 
@@ -458,42 +542,74 @@ export var chaynsApiInterface = {
    * @param {Function} callback Callback Function to be invoked with image url after upload
    * @returns {Boolean} True if the call succeeded or is async, false on error
    */
-  uploadImage: function(callback) {
-    if (!isFunction(callback)) {
-      log.warn('uploadImage: no valid callback');
-      return false;
-    }
-    let callbackName = 'imageUploadCallback()';
+  uploadImage: function() {
     return apiCall({
-      cmd: 21,
-      params: [{'callback': callbackName}], // callback param only on mobile
-      cb: callback,
-      webFn: function() {
-        var input = DOM.createElement('input');
-        input.setAttribute('type', 'file');
-        input.setAttribute('value', '');
-        input.setAttribute('accept', 'image/*');
-        //input.setAttribute('id', 'chayns-image-upload-field);
-        input.setAttribute('onchange', 'imageChosen()');
-        input.setAttribute('class', 'chayns__upload-image');
-        DOM.query('#chayns-root').appendChild(input);
-        // TODO: solve with window.fetch()
-        //var fd = new FormData();
-        //fd.append("Image", file[0]);
-        //window.imageChosen = window.fetch({
-        //  type: "POST",
-        //  url: "//chayns1.tobit.com/TappApi/File/Image",
-        //  contentType: false,
-        //  processData: false,
-        //  cache: false,
-        //  data: fd
-        //}).then(function(data) {
-        //  delete window.imageChosen;
-        //  callback.call(null, data);
-        //});
-        //$("#ChaynsImageUpload").click();
+      app: {
+        cmd: 21,
+        params: [callbackName('imageUploadCallback')], // callback param only on mobile
+        support: {android: 2705, wp: 2538, ios: 2642}
       },
-      support: {android: 2705, wp: 2538, ios: 2642}
+      web: {
+        fn: function webUpload() {
+          let deferred = defer();
+
+          // create input file element
+          let input = DOM.createElement('input');
+          input.setAttribute('type', 'file');
+          input.setAttribute('value', '');
+          input.setAttribute('accept', 'image/*');
+          //input.setAttribute('id', 'chayns-image-upload-field);
+          input.setAttribute('onchange', 'imageChosen()');
+          input.setAttribute('class', 'chayns__upload-image');
+          DOM.query('#chayns-root').appendChild(input);
+          setTimeout(function() {
+            input = document.querySelector('input');
+            input.click();
+          }, 1000);
+
+          // get form data
+          var form = new FormData();
+          form.append('file', input.files[0]);
+
+          // define callback
+          window.imageChosen = function() {
+            window.fetch('//chayns1.tobit.com/TappApi/File/Image', {
+              method: 'post',
+              body: form
+            })
+              .then(function(response) {
+                return deferred.resolve(response.text());
+                // delete window.imageChosen
+              })
+              .catch(deferred.reject);
+          };
+
+          // trigger click event
+
+          //document.querySelector('input').click();
+          //var event = document.createEvent('MouseEvents');
+          //event.initEvent('click', true, true);
+          //event.synthetic = true;
+          //input.dispatchEvent(event, true);
+
+          return deferred.promise;
+          //var fd = new FormData();
+          //fd.append("Image", file[0]);
+          //window.imageChosen = window.fetch({
+          //  type: "POST",
+          //  url: "//chayns1.tobit.com/TappApi/File/Image",
+          //  contentType: false,
+          //  processData: false,
+          //  cache: false,
+          //  data: fd
+          //}).then(function(data) {
+          //  delete window.imageChosen;
+          //  callback.call(null, data);
+          //});
+          //$("#ChaynsImageUpload").click();
+        }
+      },
+      callbackName: 'imageUploadCallback'
     });
   },
 
@@ -503,30 +619,43 @@ export var chaynsApiInterface = {
    * TODO: why two calls?
    * Can we improve this shit? split into two methods
    * @param {Function} callback Callback Function for NFC
+   * @param {Boolean} isPersonData Callback Function for NFC
    * @returns {Boolean} True if the call succeeded or is async, false on error
    */
-  setNfcCallback: function(callback, response) {
+  setNfcCallback: function(callback, isPersonData) {
+    // if there is no callback function, the NFC callbacks will be reset
     if (!isFunction(callback)) {
-      return apiCall({
-        cmd: 37,
-        params: [{'Function': 'null'}],
-        support: {android: 3234, wp: 3121}
-      }) && apiCall({
-          cmd: 37,
-          params: [{'Function': 'null'}],
-          support: {android: 3234, wp: 3121}
-        });
+      chaynsApiInterface._setPersonDataCallback();
+      chaynsApiInterface._setRFIDNFCCallback();
+      return Promise.resolve();
     }
-    var cmd = (response === nfcResponseData.PersonId) ? 37 : 38;
+    if (isPersonData) {
+      chaynsApiInterface._setPersonDataCallback(callback);
+      chaynsApiInterface._setRFIDNFCCallback();
+    } else {
+      chaynsApiInterface._setPersonDataCallback();
+      chaynsApiInterface._setRFIDNFCCallback(callback);
+    }
+
+    return Promise.resolve();
+  },
+  _setPersonDataCallback: (callback) =>
+                            chaynsApiInterface._setNfcCallback(37, 'NfcCallbackPersonData', callback),
+  _setRFIDNFCCallback: (callback) =>
+                            chaynsApiInterface._setNfcCallback(38, 'NfcCallbackRfid', callback),
+  _setNfcCallback: function(cmd, cbName, callback) {
+    let params = ['null'];
+    if (isFunction(callback)) {
+      params = [callbackName(cbName)];
+    }
     return apiCall({
-        cmd: cmd === 37 ? 38 : 37,
-        params: [{'Function': 'null'}],
-        support: {android: 3234, wp: 3121}
-      }) && apiCall({
-      cmd: cmd,
-      params: [{'callback': 'NfcCallback'}], // callback param only on mobile
-      cb: callback,
-      support: { android: 3234, wp: 3121 }
+      app: {
+        cmd: cmd,
+        params: params,
+        support: { android: 3234, wp: 3121 }
+      },
+      callbackName: cbName,
+      callbackFunction: callback
     });
   },
 
@@ -539,55 +668,68 @@ export var chaynsApiInterface = {
   player: {
     useDefaultUrl: function useDefaultUrl() {
       return apiCall({
-        cmd: 22,
-        params: [{'Integer': 0}],
-        support: {android: 2752, ios: 2644, wp: 2543}
+        app: {
+          cmd: 22,
+          params: [0],
+          support: {android: 2752, ios: 2644, wp: 2543}
+        }
       });
     },
     changeUrl: function changeUrl(url) {
       return apiCall({
-        cmd: 22,
-        params: [{'String': url}],
-        support: {android: 2752, ios: 2644, wp: 2543}
+        app: {
+          cmd: 22,
+          params: [`'${url}'`],
+          support: {android: 2752, ios: 2644, wp: 2543}
+        }
       });
     },
     hideButton: function hideButton() {
       return apiCall({
-        cmd: 23,
-        params: [{'Integer': 0}],
-        support: {android: 2752, ios: 2644, wp: 2543}
+        app: {
+          cmd: 23,
+          params: [0],
+          support: {android: 2752, ios: 2644, wp: 2543}
+        }
       });
     },
     showButton: function showButton() {
       return apiCall({
-        cmd: 23,
-        params: [{'Integer': 1}],
-        support: {android: 2752, ios: 2644, wp: 2543}
+        app: {
+          cmd: 23,
+          params: [1],
+          support: {android: 2752, ios: 2644, wp: 2543}
+        }
       });
     },
     pause: function pauseVideo() {
       return apiCall({
-        cmd: 24,
-        params: [{'Integer': 0}],
-        support: {android: 2752, ios: 2644, wp: 2543}
+        app: {
+          cmd: 24,
+          params: [0],
+          support: {android: 2752, ios: 2644, wp: 2543}
+        }
       });
     },
     play: function playVideo() {
       return apiCall({
-        cmd: 24,
-        params: [{'Integer': 1}],
-        support: {android: 2752, ios: 2644, wp: 2543}
+        app: {
+          cmd: 24,
+          params: [1],
+          support: {android: 2752, ios: 2644, wp: 2543}
+        }
       });
     },
-    playbackStatus: function playbackStatus(callback) {
-
-      return chaynsApiInterface.getGlobalData(function(data) {
-        return callback.call(null, {
+    playbackStatus: function playbackStatus() {
+      return chaynsApiInterface
+        .getGlobalData(true)
+        .then(function(data) {
+        return {
           AppControlVisible: data.AppInfo.PlaybackInfo.IsAppControlVisible,
           Status: data.AppInfo.PlaybackInfo.PlaybackStatus,
           Url: data.AppInfo.PlaybackInfo.StreamUrl
-        });
-      }, true);
+        };
+      });
     }
   },
 
@@ -604,38 +746,41 @@ export var chaynsApiInterface = {
       Far: 3
     },
     scan: function LEScan(callback) {
-      if (!isFunction(callback)) {
-        log.warn('LEScan: no valid callback');
-        return false;
-      }
-      let callbackName = 'bleResponseCallback';
+      //if (!isFunction(callback)) {
+      //  log.warn('LEScan: no valid callback');
+      //  return Promise.reject(new Error(''));
+      //}
       return apiCall({
-        cmd: 26,
-        params: [{'callback': callbackName}],
-        cb: callback,
-        support: {android: 2771, ios: 2651}
+        app: {
+          cmd: 26,
+          params: [callbackName('bleResponseCallback')],
+          support: {android: 2771, ios: 2651}
+        },
+        callbackName: 'bleResponseCallback'
+        //cb: callback,
       });
     },
     connect: function LEConnect(address, callback, password) {
       if (!isString(address) || !isBLEAddress(address)) {
         log.warn('LEConnect: no valid address parameter');
-        return false;
+        return Promise.reject(new Error('Invalid bluetooth address'));
       }
-      if (!isFunction(callback)) {
-        log.warn('LEConnect: no valid callback');
-        return false;
-      }
+      //if (!isFunction(callback)) {
+      //  log.warn('LEConnect: no valid callback');
+      //  return Promise.reject(new Error('Invalid bluetooth address'));;
+      //}
       if (!isString(password) || !password.match(/^[0-9a-f]{6,12}$/i)) {
         password = '';
       }
-      let callbackName = 'bleResponseCallback';
 
       return apiCall({
-        cmd: 27,
-        params: [{'string': address}, {'string': password}],
-        cb: callback,
-        callbackName: callbackName,
-        support: {android: 2771, ios: 2651}
+        app: {
+          cmd: 27,
+          params: [`'${address}'`, `'${password}'`],
+          support: {android: 2771, ios: 2651}
+        },
+        callbackFunction: callback,
+        callbackName: 'bleResponseCallback'
       });
     },
     /**
@@ -644,10 +789,9 @@ export var chaynsApiInterface = {
      * @param {Integer} subId
      * @param {Integer} measurePower
      * @param {Integer} sendStrength
-     * @param {Function} callback
      * @constructor
      */
-    write: function LEWrite(address, subId, measurePower, sendStrength, callback) {
+    write: function LEWrite(address, subId, measurePower, sendStrength) {
       if (!isString(address) || !isBLEAddress(address)) {
         log.warn('LEWrite: no valid address parameter');
         return false;
@@ -661,31 +805,29 @@ export var chaynsApiInterface = {
       if (!isNumber(sendStrength) || sendStrength < 0 || sendStrength > 3) {
         sendStrength = 'null';
       }
-      if (!isFunction(callback)) {
-        callback = null;
-      }
 
-      let callbackName = 'bleResponseCallback',
-        uid = '7A07E17A-A188-416E-B7A0-5A3606513E57';
+      let uid = '7A07E17A-A188-416E-B7A0-5A3606513E57';
 
       return apiCall({
-        cmd: 28,
-        params: [
-          {'string': address},
-          {'string': uid},
-          {'Integer': subId},
-          {'Integer': measurePower},
-          {'Integer': sendStrength}
-        ],
-        cb: callback,
-        callbackName: callbackName,
-        support: {android: 2771, ios: 2651}
+        app: {
+          cmd: 28,
+          params: [
+            `'${address}'`,
+            `'${uid}'`,
+            subId,
+            measurePower,
+            sendStrength
+          ],
+          support: {android: 2771, ios: 2651}
+        },
+        callbackName: 'bleResponseCallback'
       });
     }
   },
 
   // TODO; use `Object` as params
   // TODO: what are optional params? validate name and location?
+  // TODO: maybe create .ical for web?
   /**
    *
    * @param {String} name Appointment's name
@@ -695,28 +837,31 @@ export var chaynsApiInterface = {
    * @param {Date} end Appointments's EndDate
    * @returns {Boolean}
    */
-  saveAppointment: function saveAppointment(name, location, description, start, end) {
+  saveAppointment: function saveAppointment(config) {
+    let {name, location, description, start, end} = config;
     if (!isString(name) || !isString(location)) {
       log.warn('saveAppointment: no valid name and/or location');
-      return false;
+      return Promise.reject(new Error('Invalid Name and/or Location'));
     }
     if (!isDate(start) || !isDate(end)) {
       log.warn('saveAppointment: start and/or endDate is no valid Date `Object`.');
-      return false;
+      return Promise.reject(new Error('Start and/or End-Date is invalid'));
     }
     start = parseInt(start.getTime() / 1000, 10);
     end = parseInt(end.getTime() / 1000, 10);
 
     return apiCall({
-      cmd: 29,
-      params: [
-        {'string': name},
-        {'string': location},
-        {'string': description},
-        {'Integer': start},
-        {'Integer': end}
-      ],
-      support: {android: 3054, ios: 3067, wp: 3030}
+      app: {
+        cmd: 29,
+        params: [
+          `'${name}'`,
+          `'${location}'`,
+          `'${description}'`,
+          start,
+          end
+        ],
+        support: {android: 3054, ios: 3067, wp: 3030}
+      }
     });
   },
 
@@ -728,48 +873,65 @@ export var chaynsApiInterface = {
    * @param {string} url Video URL should contain jpg,png or gif
    * @returns {Boolean}
    */
+    // TODO: web function has to set hegiht as well?
   openUrl: function openUrl(url, title) {
     if (!isString(url)) {
       log.error('openUrl: invalid url');
-      return false;
+      return Promise.reject(new Error('Invalid URL'));
     }
 
     return apiCall({
-      cmd: 31,
-      fallbackFn: function() {
-        location.href = url;
+      app: {
+        cmd: 31,
+        params: [`'${url}'`, `'${title}'`],
+        support: {android: 3110, ios: 3074, wp: 3063},
+        fallbackFn: function() {
+          location.href = url;
+        }
       },
-      params: [{'string': url}, {'string': title}],
-      webFn: 'overlay',
-      webParams: {src: url},
-      support: {android: 3110, ios: 3074, wp: 3063}
+      web: {
+        fnName: 'overlay',
+        params: {
+          src: url
+        }
+      }
     });
   },
 
   /**
    * create QR Code
    * TODO: show QR Code in Dialog when there is no callback
-   * @param {String|Object} data QR Code data
+   * @param {String} data QR Code data
    * @param {Function} callback Function which receives the base64 encoded IMG TODO: which type?
    * @returns {Boolean}
    */
-  createQRCode: function createQRCode(data, callback) {
-    if (!isString(data)) {
-      data = JSON.stringify(data);
+  createQRCode: function createQRCode(data) {
+    if (!isString(data)) { // TODO: no good idea, remove it
+      return Promise.reject(new Error('No data'));
     }
 
-    if (!isFunction(callback)) {
-      log.warn('createQRCode: the callback is no `Function`');
-      return false;
-    }
-
-    let callbackName = 'createQRCodeCallback()';
     return apiCall({
-      cmd: 33,
-      params: [{'string': data}, {'callback': callbackName}],
-      support: {android:  3220, ios: 1372, wp: 3106},
-      cb: callback,
-      callbackName: callbackName
+      app: {
+        cmd: 33,
+        params: [`'${data}'`, callbackName('createQRCodeCallback')],
+        support: {android:  3220, ios: 1372, wp: 3106}
+      },
+      web: {
+        fn: function createQrCode() {
+          let url = '//qr.tobit.com/?SizeStrategy=FIXEDCODESIZE&width=250&value=' + data;
+          window.chayns.dialog.html({
+            title: 'QR Code',
+            message: `<img src="${url}" style="width:100%" alt="qr code" />`,
+            buttons: [
+              {
+                name: 'Schließen', // TODO: i18n
+                value: 1
+              }
+            ]
+          });
+        }
+      },
+      callbackName: 'createQRCodeCallback'
     });
   },
 
@@ -781,17 +943,14 @@ export var chaynsApiInterface = {
    * @returns {Promise}
    */
   scanQRCode: function scanQRCode() {
-
-    let deferred = defer();
-
-    let callbackName = 'scanQRCodeCallback()';
-    apiCall({
-      cmd: 34,
-      params: [{'callback': callbackName}],
-      support: {android:  3220, ios: 1372, wp: 3106},
-      cb: deferred.resolve
+    return apiCall({
+      app: {
+        cmd: 34,
+        params: [callbackName('scanQRCodeCallback')],
+        support: {android:  3220, ios: 1372, wp: 3106}
+      },
+      callbackName: 'scanQRCodeCallback'
     });
-    return deferred.promise;
   },
 
   /**
@@ -802,23 +961,22 @@ export var chaynsApiInterface = {
    * @returns {Promise}
    */
   getLocationBeacons: function getLocationBeacons(forceReload) {
-    let deferred = defer();
-    let callbackName = 'getBeaconsCallBack()';
-    if (beaconList && !forceReload) { // TODO: make sure it is good to cache the list
-      log.debug('getLocationBeacons: there is already one beaconList');
-      return defer.resolve(beaconList);
-    }
-    let callbackFn = function getLocationBeaconCallback(list) {
-      beaconList = list;
-      deferred.resolve(list);
-    };
-    apiCall({
-      cmd: 39,
-      params: [{'callback': callbackName}],
-      support: {android:  4045, ios: 4048},
-      cb: callbackFn
+    //if (beaconList && !forceReload) { // TODO: make sure it is good to cache the list
+    //  log.debug('getLocationBeacons: there is already one beaconList');
+    //  return defer.resolve(beaconList);
+    //}
+    //let callbackFn = function getLocationBeaconCallback(list) {
+    //  beaconList = list;
+    //  deferred.resolve(list);
+    //};
+    return apiCall({
+      app: {
+        cmd: 39,
+        params: [callbackName('getBeaconsCallBack')],
+        support: {android: 4045, ios: 4048}
+      },
+      callbackName: 'getBeaconsCallBack'
     });
-    return deferred.promise;
   },
 
   /**
@@ -835,11 +993,15 @@ export var chaynsApiInterface = {
     }
 
     return apiCall({
-      cmd: 47,
-      params: [{'string': url}],
-      support: {ios: 4045},
-      webFn: chaynsApiInterface.openUrlInBrowser.bind(null, url),
-      fallbackFn: chaynsApiInterface.openUrlInBrowser.bind(null, url)
+      app: {
+        cmd: 47,
+        params: [`'${url}'`],
+        support: {ios: 4045},
+        fallbackFn: chaynsApiInterface.openUrlInBrowser.bind(null, url)
+      },
+      web: {
+        fn: chaynsApiInterface.openUrlInBrowser.bind(null, url)
+      }
     });
   },
 
@@ -854,12 +1016,16 @@ export var chaynsApiInterface = {
   login: function login(params) {
     params = 'ExecCommand=' + params;
     return apiCall({
-      cmd: 54,
-      params: [{'string': params}],
-      support: {ios: 4240, wp: 4099, android: 4670},
-      fallbackFn: chaynsApiInterface.facebookConnect.bind(null, 'user_friends', params),
-      webFn: 'tobitconnect',
-      webParams: params
+      app: {
+        cmd: 54,
+        params: [`'${params}'`],
+        support: {ios: 4240, wp: 4099, android: 4670},
+        fallbackFn: chaynsApiInterface.facebookConnect.bind(null, 'user_friends', params)
+      },
+      web: {
+        fnName: 'tobitConnect',
+        params: params
+      }
     });
   },
 
@@ -871,9 +1037,13 @@ export var chaynsApiInterface = {
    */
   logout: function logout() {
     return apiCall({
-      cmd: 56,
-      support: {ios: 4240, wp: 4099, android: 4670},
-      webFn: 'logout'
+      app: {
+        cmd: 56,
+        support: {ios: 4240, wp: 4099, android: 4670}
+      },
+      web: {
+        fnName: 'logout'
+      }
     });
   }
 

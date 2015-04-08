@@ -1,4 +1,4 @@
-import {getLogger, isPermitted, isFunction, isBlank, isArray, isObject, isDefined} from '../utils';
+import {getLogger, isPermitted, isFunction, isBlank, isArray, isObject, isDefined, defer, isString} from '../utils';
 import {window, parent} from '../utils/browser';
 import {environment} from './environment';
 import {setCallback} from './callbacks';
@@ -19,117 +19,121 @@ let osMap = {
  * Public Chayns Interface
  * Execute API Call
  *
- * @param {Object} obj
+ * @param {Object} obj ChaynsCall Object
+ * @returns
  * // TODO: left of callback as promise
  */
 export function apiCall(obj) {
 
   // chayns call (native app)
   if (environment.canChaynsCall && can(osMap.chaynsCall)) {
-    // TODO: consider callQueue and Interval to prevent errors
-    log.debug('executeCall: chayns call ', obj.cmd);
+    log.debug('apiCall: attempt chayns call ');
 
-    // register callback function (should be a promise resolve)
-    if ('cb' in obj && isFunction(obj.cb)) {
-      setCallback(obj.callbackName || obj.params[0].callback, obj.cb, true);
+    // make sure there is the app configuration
+    if (!obj.app || !isObject(obj.app)) {
+      return Promise.reject(new Error('There is no app config for the chayns call.'));
+    }
+    let appObj = obj.app;
+
+    // determines whether the current version is supported
+    if (isObject(appObj.support) && !can(appObj.support)) {
+      log.info('apiCall: the chayns version is not supported');
+      // if there is a fallback function
+      if (isFunction(appObj.fallbackFn)) {
+        log.info('apiCall: fallbackFn will be attempted to be invoked');
+        try {
+          return Promise.resolve(appObj.fallbackFn.call(undefined));
+        } catch (e) {
+          return Promise.reject(e);
+        }
+      }
+      return Promise.reject(new Error('This Action is not supported in this Chayns Version.'));
     }
 
-    // if the browser cannot execute a chayns call
-    if (isObject(obj.support) && !can(obj.support)) {
-      log.info('executeCall: the chayns version is not supported');
-      if (obj.fallbackCmd) {
-        log.info('executeCall: fallback chayns call will be invoked');
-        return chaynsCall(obj.fallbackCmd);
+    // set callback if there should be a reply of the app (globally registered)
+    let invokeChaynsCall = chaynsCall.bind(undefined, appObj.cmd, appObj.params);
+    if (obj.callbackName) {
+      if (isFunction(obj.callbackFunction)) {
+        setCallback(obj.callbackName, obj.callbackFunction, true);
+      } else {
+        let deferred = defer();
+        setCallback(obj.callbackName, deferred, true);
+        invokeChaynsCall();
+        return deferred.promise;
       }
-      if (isFunction(obj.fallbackFn)) {
-        log.info('executeCall: fallbackFn will be invoked');
-        return obj.fallbackFn.call(null, obj.cb, obj.onError);
-      }
-      return false;
     }
+    return invokeChaynsCall();
 
-    // execute chayns call
-    return chaynsCall(obj.cmd, obj.params);
 
   } else if (environment.canChaynsWebCall) {
     // chayns web call (chayns web iframe communication)
 
-    // register callback (should be a promise)
-    if ('cb' in obj && isFunction(obj.cb)) {
-      setCallback(obj.webFn, obj.cb);
+    log.debug('apiCall: chayns web call ');
+
+    if (!obj.web || !isObject(obj.web)) {
+      return Promise.reject(new Error('There is no web config for the chayns web call.'));
     }
-    if (!obj.webFn) {
-      log.info('executeCall: This Call has no webFn');
-      return false;
+    let webObj = obj.web;
+
+    // if there is a function registered, then it is no chayns web call but fn invoke
+    if (webObj.fn && isFunction(webObj.fn)) {
+      return Promise.resolve(webObj.fn.call(undefined));
     }
 
-    log.debug('executeCall: chayns web call ', obj.webFn.name || obj.webFn);
-
-    return chaynsWebCall(obj.webFn, obj.webParams);
+    // set callback if there should be a reply of the app
+    // TODO: refactor to one function (since the same code is above)
+    let invokeChaynsWebCall = chaynsWebCall.bind(undefined, webObj.fnName, webObj.params);
+    if (obj.callbackName) {
+      if (isFunction(obj.callbackFunction)) {
+        setCallback(obj.callbackName, obj.callbackFunction);
+      } else {
+        let deferred = defer();
+        setCallback(obj.callbackName, deferred);
+        invokeChaynsWebCall();
+        return deferred.promise;
+      }
+    }
+    return invokeChaynsWebCall();
 
   } else {
-    // the user is in no chayns call environment
-    log.info('executeCall: neither chayns call nor chayns web');
-    // TODO: don't use the fallbackFn since this is actually only for chaynCalls
-    if (isFunction(obj.fallbackFn)) {
-      log.info('executeCall: (no web nor native) fallbackFn will be invoked');
-      return obj.fallbackFn.call(null, obj.cb, obj.onError);
+    // no chayns env
+    log.info('apiCall: neither chayns call nor chayns web');
+
+    // if the obj.web.fn is set, we will use it as fallback
+    let webObj = obj.web;
+    if (webObj && webObj.fn && isFunction(webObj.fn)) {
+      log.debug('apiCall: invoking obj.web.fn as fallback');
+      return Promise.resolve(webObj.fn.call(undefined));
     }
-    if (isFunction(obj.onError)) {
-      obj.onError.call(undefined, new Error('Neither in Chayns Web nor in Chayns App'));
-    }
+
+    return Promise.reject(new Error('There is no chayns environment'));
   }
 }
 
 /**
  * Build Chayns Call (only for native Apps)
  * @private
+ * @param {Integer} cmd Chayns call command id
+ * @param {Array|undefined} params Optional Chayns call parameters Array
 
- * @returns {Boolean} True if chayns call succeeded, false on error (no url etc)
+ * @returns {Promise} Resolved if chayns call succeeded, rejected on error
  */
 function chaynsCall(cmd, params) {
 
-  if (isBlank(cmd)) { // 0 is a valid call, undefined and null are not
+  // TODO: implement call queue (with timeouts instead of interval) when location.href is used
+
+  if (isBlank(cmd)) { // blank: 0 is a valid call, undefined, true, false and null are not
     log.warn('chaynsCall: missing cmd for chaynsCall');
-    return false;
+    return Promise.reject(new Error('The chayns call is blank'));
   }
-  let url = null;
 
-  // if there is no param or 'none' which means no callback
-  if (!params) {
+  let url = 'chayns://chaynsCall(' + cmd; // url protocol, host and cmd
 
-    url = 'chayns://chaynsCall(' + cmd + ')';
-
-  } else {
-
-    // params exist however, it is no array
-    if (!isArray(params)) {
-      log.error('chaynsCall: params are no Array');
-      return false;
-    }
-
-    // add the params to the chayns call
-    let callbackPrefix = '_chaynsCallbacks.';
-    let callString = '';
-    if (params.length > 0) {
-      let callArgs = [];
-      params.forEach(function(param) {
-        let name = Object.keys(param)[0];
-        let value = param[name];
-        if (name === 'callback') {
-          callArgs.push('\'' + callbackPrefix + value + '\'');
-        } else if (name === 'bool' || name === 'Function' || name === 'Integer') {
-          callArgs.push(value);
-        } else if (isDefined(value)) {
-          callArgs.push('\'' + value + '\'');
-        }
-      });
-      callString = ',' + callArgs.join(',');
-    }
-
-    // add chayns protocol and host and join array
-    url = 'chayns://chaynsCall(' + cmd + callString + ')';
+  if (isArray(params) && params.length > 0) {
+    url +=  ',' + params.join(','); // extend with existing parameters
   }
+
+  url += ')'; // url suffix
 
   log.debug('chaynsCall: url: ', url);
 
@@ -146,12 +150,11 @@ function chaynsCall(cmd, params) {
     } else {
       window.location.href = url;
     }
-    return true;
+    return Promise.resolve();
   } catch (e) {
-    log.warn('chaynsCall: Error: could not execute ChaynsCall: ', e);
+    log.error('chaynsCall: Error: could not execute ChaynsCall: ', e);
+    return Promise.reject(new Error(e));
   }
-
-  return false;
 }
 
 /**
@@ -159,35 +162,30 @@ function chaynsCall(cmd, params) {
  * Execute a ChaynsWeb Call in the parent window.
  *
  * @param {String} fn Function name
- * @param {String} params Additional
- * @returns {boolean} True if chaynsWebbCall succeeded
+ * @param {String\Object} params Additional Object will be stringified
+ * @returns {Promise} True if chaynsWebbCall succeeded
  */
 function chaynsWebCall(fn, params) {
-  if (!fn) {
+  if (!fn || !isString(fn)) { // TODO: isString required? actually no
     log.info('chaynsWebCall: no ChaynsWebCall fn');
-    return null;
+    return Promise.reject(new Error('Missing or invalid chayns web call function name'));
   }
   if (!params) {
     params = '';
   }
-  if (isObject(params)) { // an Array is also seen as Object, however it will be reset before
+  if (isObject(params)) {
     params = JSON.stringify(params);
   }
 
-  if (isFunction(fn)) {
-    return fn.call(null);
-  }
-
-  var namespace = 'chayns.customTab.';
-  var url = namespace + fn + ':' + params;
+  var url = 'chayns.customTab.' + fn + ':' + params;
 
   log.debug('chaynsWabCall: ' + url);
 
   try {
     parent.postMessage(url, '*');
-    return true;
+    return Promise.resolve();
   } catch (e) {
-    log.error('chaynsWebCall: postMessgae failed', e);
+    log.error('chaynsWebCall: postMessage failed', e);
+    return Promise.reject(e);
   }
-  return false;
 }

@@ -207,7 +207,7 @@
         //var log = chayns.getLogger('pw.app');
 
         // chayns ready promise <3
-        chayns.ready().then(function(data) {
+        chayns.ready.then(function(data) {
 
           // chayns data
           log.info('chayns app info: ', data);
@@ -232,7 +232,9 @@
           setTimeout(chayns.hideWaitCursor, 500);
 
           // caption Button
-          chayns.setCaptionButton('API 3', console.log.bind(console));
+          chayns.setCaptionButton('API 3', log.info.bind(log, 'own cb'))
+            .then(log.info.bind(log, 'caption button callback'))
+            .catch(log.error.bind(log, 'caption button error'));
 
           // fetch API
 //          chayns.utils
@@ -250,12 +252,18 @@
           // resize exclusive container
 //          parent.dispatchEvent(new Event('resize'));
 
+          // Test player
+          // chayns.player.changeUrl('http://ads.radioffn.c.nmdn.net/ps-radioffn/livestream.mp3')
+          // chayns.player.play();
+
         }).catch( function rejected(e) {
           log.warn('Chayns Information could not be received\n', e);
 
           // still show tapp
           chayns.utils.DOM.removeAttribute(chayns.utils.DOM.query('[chayns-cloak]'), 'chayns-cloak');
         });
+
+
 
       })();
     </script>

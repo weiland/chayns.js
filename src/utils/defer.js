@@ -1,4 +1,8 @@
 export var defer = function() {
+  // TODO: test code below and verify it, no .defer() in polyfill
+  //if (Promise.defer) {
+  //  return Promise.defer;
+  //}
   let deferred = {};
   deferred.promise = new Promise(function(resolve, reject) {
     deferred.resolve = resolve;
@@ -6,16 +10,14 @@ export var defer = function() {
   });
   return deferred;
 };
-
+// TODO: better remove methods below since one should use Promise directly
 /**
  * Returns resolved Promise.
  * @param param
  * @returns {*}
  */
-defer.resolve = function(param) {
-  var dfd = defer();
-  dfd.resolve(param);
-  return dfd.promise;
+defer.resolve = function() {
+  return Promise.resolve(arguments);
 };
 
 /**
@@ -23,8 +25,6 @@ defer.resolve = function(param) {
  * @param param
  * @returns {*}
  */
-defer.reject = function(param) {
-  var dfd = defer();
-  dfd.reject(param);
-  return dfd.promise;
+defer.reject = function() {
+  return Promise.reject(arguments);
 };

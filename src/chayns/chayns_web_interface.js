@@ -15,8 +15,10 @@ export var chaynsWebInterface = {
    */
   setHeight: function setHeight(height) {
     return apiCall({
-      webFn: 'height',
-      webParams: height
+      web: {
+        fnName: 'height',
+        params: height
+      }
     });
   },
 
@@ -31,8 +33,10 @@ export var chaynsWebInterface = {
    */
   setFixedHeight: function setFixedHeight(height) {
     return apiCall({
-      webFn: 'forceHeight',
-      webParams: height
+      web: {
+        fnName: 'forceHeight',
+        params: height
+      }
     });
   },
 
@@ -47,7 +51,9 @@ export var chaynsWebInterface = {
    */
   setFullHeight: function setFullHeight() {
     return apiCall({
-      webFn: 'setiframefullheight'
+      web: {
+        fnName: 'setIFrameFullHeight'
+      }
     });
   }
 

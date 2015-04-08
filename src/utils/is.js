@@ -151,7 +151,7 @@ export function isDate(value) {
  * @kind function
  *
  * @description
- * Determnines if a reference is a promise.
+ * Determnines if a reference is promise like.
  *
  * @param {*} obj Object to check.
  * @returns {boolean} Returns true if `ob` is a promise or promise-like object.
@@ -160,7 +160,23 @@ export function isPromise(obj) {
   return obj && isFunction(obj.then);
 }
 
-// TODO: does not belong in here
+/**
+ * @name isDeferred
+ * @module utils
+ * @kind function
+ *
+ * @description
+ * Determnines if a reference is deferred like.
+ *
+ * @param {*} obj Object to check.
+ * @returns {boolean} Returns true if `ob` is a promise or deferred-like object.
+ */
+export function isDeferred(obj) {
+  return isObject(obj) && isFunction(obj.resolve) && isFunction(obj.reject);
+}
+
+// TODO: does not belong in here, create a private helper method?
+// TODO: is a normal String.prototype.trim() enough?
 /**
  * @name utils.trim
  * @module chayns.utils
