@@ -88,9 +88,9 @@ var is = {
   tv: /googletv|sonydtv/i.test(userAgent)
 };
 
-// TODO: Browser Version and OS Version detection
+// TODO(pascal): Browser Version and OS Version detection
 
-// TODO: add fallback
+// TODO(lucain/uwe): add fallback, update on change? no, the user can do this by itself
 var orientation = Math.abs(window.orientation % 180) === 0 ? 'portrait' : 'landscape';
 var viewport = window.innerWidth + 'x' + window.innerHeight;
 
@@ -135,11 +135,11 @@ environment.isChaynsWebMobile = (parameters.os === types.chaynsOS.webMobile) && 
 environment.isChaynsWebDesktop = (parameters.os === types.chaynsOS.web) && environment.isInFrame;
 environment.isChaynsWeb = environment.isChaynsWebDesktop || environment.isChaynsWebMobile;
 
-// internal TODO: make it private?
+// internal TODO(uwe/lucian): make it private? better not
 environment.canChaynsCall = environment.isApp;
 environment.canChaynsWebCall = environment.isChaynsWeb;
 
-environment.viewport = viewport; // TODO: update on resize? no, due performance
+//environment.viewport = viewport; // TODO: update on resize? no, due performance
 environment.orientation = orientation;
 environment.ratio = window.devicePixelRatio;
 
@@ -147,7 +147,7 @@ environment.debugMode = debugMode;
 
 environment.site = {};
 environment.site.colorScheme = parameters.colorscheme; // TODO: chayns web fix
-log.info(environment.site.colorScheme, parameters);
+log.info('colorscheme', environment.site.colorScheme, parameters);
 
 //environment.user = {
 //  name: 'Pacal Weiland',

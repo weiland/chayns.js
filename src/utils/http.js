@@ -1,3 +1,4 @@
+// TODO(pascal): remove, since we can use the window.fetch directly
 //import {window} from './browser';
 /* global fetch */
 import {

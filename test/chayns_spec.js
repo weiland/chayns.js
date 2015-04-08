@@ -38,9 +38,9 @@ describe('chayns', function() {
     expect(isFunction(chayns.register)).toBe(true);
   });
 
-  it('should have a ready function', function() {
+  it('should have a ready deferred', function() {
     expect(chayns.ready).toBeDefined();
-    expect(isFunction(chayns.ready)).toBe(true);
+    expect(isPromise(chayns.ready)).toBe(true);
   });
 
   // cannot work cause the ready promsie is not yet assigned

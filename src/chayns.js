@@ -6,13 +6,10 @@
 // helper
 // TODO: either index.js, utils.js or just the single files
 import * as utils               from './utils';
-var extend = utils.extend;
+let extend = utils.extend;
 
 // set logLevel to info
 utils.setLevel(4); // TODO: don't set the level here, refactor name
-
-// basic config
-import {config}                 from './chayns/config';
 
 // environment
 import {environment}            from './chayns/environment';
@@ -31,15 +28,13 @@ import {accordion}              from './chayns/accordion';
 // public chayns object
 export var chayns = {};
 
-// TODO: use extend method only one time
-
+// TODO(pascal): use extend method only one time
 extend(chayns, {getLogger: utils.getLogger}); // jshint ignore: line
 extend(chayns, {'$': utils.DOM}); // jshint ignore: line
 extend(chayns, {utils});
 extend(chayns, {VERSION: '0.1.0'});
-//extend(chayns, {config}); // TODO: the config `Object` should not be exposed
 
-extend(chayns, {env: environment}); // TODO: generally rename
+extend(chayns, {env: environment});
 
 extend(chayns, {register});
 extend(chayns, {ready});
@@ -49,12 +44,10 @@ extend(chayns, chaynsApiInterface);
 extend(chayns, tappApiInterface);
 extend(chayns, chaynsWebInterface);
 extend(chayns, {dialog: dialogs});
-extend(chayns, {accordion}); // TODO: conisder: don't expose and autoinit accordion listeners
+extend(chayns, {accordion}); // TODO(pascal): consider: don't expose and autoinit accordion listeners
 
 // setup chayns
 setup();
 
-
 // chayns publish no UMD
-console.log('test14');
 global.chayns = chayns;

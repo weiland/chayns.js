@@ -4,6 +4,7 @@ let localStorage = win.localStorage;
 // TODO: write tests
 // TODO: add keys, values, map methods
 // TODO: consider cookie fallback? no
+// TODO: import app name
 export var ls = {};
 
 ls.set = function(key, value) {

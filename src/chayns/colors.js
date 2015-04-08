@@ -1,3 +1,4 @@
+// TODO(pascal): is this even used?
 /**
  * ColorScheme Enum
  * @type {Object}

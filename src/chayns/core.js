@@ -58,7 +58,10 @@ export function preChayns() {
  *
  * @returns {Promise}
  */
-export var ready =chaynsReadyDefer.promise;
+export var ready = chaynsReadyDefer.promise;
+
+let html = document.documentElement; // html document
+let prefix = 'chayns-'; // chayns css prefix
 
 /**
  * @name prepare
@@ -74,12 +77,17 @@ export var ready =chaynsReadyDefer.promise;
 export function setup() {
   log.info('start chayns setup');
 
-  let html = document.documentElement;
-  let body = document.body;
   // chayns is running
-  DOM.addClass(body, 'chayns');
-  DOM.addClass(body, 'js');
+  DOM.addClass(html, 'chayns');
+  DOM.addClass(html, 'js');
   DOM.removeClass(html, 'no-js');
+
+  // add vendor classes (OS, Browser, ColorScheme) which is alreay in chayns.env
+  DOM.addClass(html, prefix + 'os--' + (environment.os));
+  DOM.addClass(html, prefix + 'browser--' + environment.browser);
+  if (environment.site.colorScheme) {
+    DOM.addClass(html, prefix + 'color--' + (environment.site.colorScheme));
+  }
 
   // if there is already a colorScheme (via GET parameters)
   //if (environment.site && isNumber(parseInt(environment.site.colorScheme))) {
@@ -94,19 +102,15 @@ export function setup() {
   // detect user (logged in?)
 
   // DOM  ready promise
-  let domReadyDefer = defer();
   if (document.readyState === 'complete') {
-    domReadyDefer.resolve();
+    domReadySetup();
   } else {
     var domReady = function domReady() {
-      domReadyDefer.resolve();
+      domReadySetup();
       window.removeEventListener('DOMContentLoaded', domReady, true);
     };
     window.addEventListener('DOMContentLoaded', domReady, true);
   }
-
-  // setup when DOM is ready
-  domReadyDefer.promise.then(domReadySetup);
 }
 
 /**
@@ -116,40 +120,33 @@ export function setup() {
 function domReadySetup() {
 
   log.debug('DOM ready');
-  let suffix = 'chayns-';
-  let html = document.documentElement;
-  let body = document.body;
 
   // dom-ready class
-  DOM.addClass(body, 'dom-ready');
+  DOM.addClass(html, 'dom-ready');
 
-  // add vendor classes (OS, Browser, ColorScheme)
-  DOM.addClass(html, suffix + 'os--' + (environment.os || 0));
-  DOM.addClass(html, suffix + 'browser--' + environment.browser);
-  DOM.addClass(html, suffix + 'color--' + (environment.site.colorScheme || 0));
 
   // Environment
   if (environment.isChaynsWeb) {
-    DOM.addClass(html, suffix + '-' + 'web');
+    DOM.addClass(html, prefix + '-' + 'web');
   }
   if (environment.isChaynsWebMobile) {
-    DOM.addClass(html, suffix + '-' + 'mobile');
+    DOM.addClass(html, prefix + '-' + 'mobile');
   }
   if (environment.isChaynsWebDesktop) {
-    DOM.addClass(html, suffix + '-' + 'desktop');
+    DOM.addClass(html, prefix + '-' + 'desktop');
   }
   if (environment.isApp) {
-    DOM.addClass(html, suffix + '-' + 'app');
+    DOM.addClass(html, prefix + '-' + 'app');
   }
   if (environment.isInFrame) {
-    DOM.addClass(html, suffix + '-' + 'frame');
+    DOM.addClass(html, prefix + '-' + 'frame');
   }
 
   // start window.on('message') listener for iFrame Communication
   messageListener();
 
   // get chayns data (either from Chayns Web (parent frame) or chayns app)
-  // get the App Information (TODO: has to be done when document ready?)
+  // get the App Information (TODO(lucian/uwe): has to be done when document ready? yes, should be the best)
   chaynsApiInterface.getGlobalData()
     .then(chaynsReadySetup)
     .catch(function rejected() {
@@ -157,7 +154,7 @@ function domReadySetup() {
       chaynsReadyDefer.reject('The App Information could not be received.');
   }).then(function always() {
     accordion.init();
-    if (environment.isChaynsWebDesktop) {
+    if (environment.isChaynsWebDesktop) { // TODO(lucian/uwe): desktop only or also mobile?
       resizeListener();
     }
   });
@@ -166,7 +163,7 @@ function domReadySetup() {
 function resizeListener() {
   var heightCache;
   log.debug('start height observer interval ');
-  chaynsWebInterface.setFixedHeight(500); // default value is 500
+  chaynsWebInterface.setFixedHeight(500); // default value is 500, TODO(lucian/uwe): always 500?
   var resizeHandler = function resizeHandler() {
     window.requestAnimationFrame(function() {
       if (heightCache === document.body.offsetHeight) {
@@ -177,7 +174,7 @@ function resizeListener() {
       chaynsWebInterface.setHeight(heightCache);
     });
   };
-  setInterval(resizeHandler, 100); // :(
+  setInterval(resizeHandler, 200); // :(
 }
 
 /**
@@ -240,21 +237,20 @@ function chaynsReadySetup(data) {
   // add chayns root element
   // only used for popup fallback
   let chaynsRoot = DOM.createElement('div');
-  chaynsRoot.setAttribute('id', 'chayns-root');
+  chaynsRoot.setAttribute('id', prefix + 'root');
   chaynsRoot.setAttribute('class', 'chayns__root');
   DOM.appendChild(document.body, chaynsRoot);
 
   let html = document.documentElement;
-  let body = document.body;
   // chayns is ready
-  DOM.addClass(html, 'chayns-ready');
+  DOM.addClass(html, prefix + 'ready');
   DOM.removeAttribute(DOM.query('[chayns-cloak]'), 'chayns-cloak');
 
-  // update colorScheme again
-  DOM.addClass(html, 'chayns-os--' + (environment.os || 0));
+  // update colorScheme
+  DOM.addClass(html, prefix + 'color--' + (environment.site.colorScheme || 0));
 
   log.info('finished chayns setup');
 
-  // TODO: create custom model?
+  // TODO: create custom model?, no, dont use it, use env instead
   chaynsReadyDefer.resolve(data);
 }

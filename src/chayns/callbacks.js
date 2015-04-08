@@ -2,13 +2,14 @@ import {getLogger, isFunction, isString, isDeferred} from '../utils';
 import {window} from '../utils/browser';
 let log = getLogger('chayns.callbacks');
 
-let noop = Function.prototype;
+let noop = Function.prototype; // no operation
 
 let callbacks = {};
 /**
+ * Register a new callback function with it's name
  *
- * @param {String} name
- * @param {Function} fn Callback Function to be invoked
+ * @param {String} name Callbacks with the same name are overwritten
+ * @param {Function|Deferred} fn Callback Function to be invoked or Deferred
  * @param {Boolean} registerGlobal If true then the call will be assigned to `chayns._chaynsCallbacks`
  * @returns {Boolean} True if parameters are valid and the callback was saved
  */
@@ -29,12 +30,10 @@ export function setCallback(name, fn, registerGlobal) {
     name = name.replace('()', '');
   }
 
-  //callbackName = 'c' + Math.random().toString(36).substring(3);
-
   log.debug('setCallback: set Callback: ' + name);
   callbacks[name] = fn;
 
-  // used when the native app invokes a callback
+  // expose globally, used when the native app invokes a callback
   if (registerGlobal) {
     log.debug('setCallback: register fn as global callback');
     window._chaynsCallbacks[name] = callback(name);
@@ -44,7 +43,7 @@ export function setCallback(name, fn, registerGlobal) {
 
 /**
  * @description
- * Register callbacks for ChaynsCalls and ChaynsWebCalls
+ * Returns the callback function fot the matching callbackName
  *
  * @private
  * @param {string} callbackName Name of the Function
@@ -59,10 +58,8 @@ function callback(callbackName) {
       var fn = callbacks[callbackName]; // can be a Function or a Deferred
       if (isFunction(fn)) {
         fn.apply(null, arguments);
-        //delete callbacks[callbackName]; // TODO: callback can be removed?
       } else if (isDeferred(fn)) {
         fn.resolve(arguments.length > 1 ? arguments : arguments[0]); // pass arguments as array since a Promise supports only one arg
-        // TODO: remove callback here from window._chaynsCallbacks since it is a resolved promise now
       } else {
         log.warn('callback is no function', callbackName, fn);
       }
@@ -78,21 +75,18 @@ function callback(callbackName) {
  *
  * @description
  * Chayns Call Callbacks
- * will be assigned to the `chayns._callbacks` object
+ * will be assigned to the `chayns._chaynsCallbacks` object
  *
  * @type {Object} chaynsCallsCallbacks
  */
 window._chaynsCallbacks = {
-  //// TODO: wrap callback function (DRY)
-  //getGlobalData: callback('getGlobalData', 'ChaynsCall') // example
-  getGeoLocationCallback: noop
+  getGeoLocationCallback: noop // has to exist due to weird GEO function behaviour
 };
 
-
-// TODO: move to another file? core, chayns_calls, autostart with other listeners?
 var messageListening = false;
 /**
  * Used when the chayns web (parent window) communicates with the tapp
+ * Will invoke the callback() method with the event's methodName and params
  */
 export function messageListener() {
   if (messageListening) {

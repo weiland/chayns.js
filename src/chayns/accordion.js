@@ -1,8 +1,11 @@
 import {forEach} from '../utils';
 export var accordion = (function(window, document) {
-  var accordions;
+  var accordions = [];
 
   function init(selector) {
+    if (accordions.length > 0) {
+      dispose();
+    }
     accordions = document.querySelectorAll(selector || '.accordion .accordion__head');
     var i, l;
     for (i = 0, l = accordions.length; i < l; i++) {
