@@ -1,11 +1,11 @@
-// inspired by Angular2's DOM
+// TODO(pascal): useful refactoring
 
 import {document} from './browser';
 import {isUndefined} from './is';
 
 export class DOM {
 
-  // NOTE: always returns an array
+  // NOTE: always returns an NodeList
   static $(selector) {
     return document.querySelectorAll.bind(document);
   }
