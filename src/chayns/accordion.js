@@ -1,9 +1,9 @@
-import {forEach, live} from '../utils';
+import {forEach, delegate} from '../utils';
 export var accordion = (function(window, document) {
 
   function init(selector) {
     selector = selector || '.accordion .accordion__head';
-    live('click', selector, handleClickEvent);
+    delegate(document, selector, 'click',  handleClickEvent);
   }
 
   function handleClickEvent(e) {

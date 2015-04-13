@@ -44,7 +44,6 @@ export * from './utils/dom';
 // CSS Vendor prefix
 export * from './utils/browser_prefix';
 
-
 // Analytics
 //export * from './utils/analytics';
 
@@ -83,7 +82,7 @@ export * from './utils/datetime';
 
 
 // language API i18n langres
-//export * from './utils/language';
+export * from './utils/language';
 
 // critical css
 
