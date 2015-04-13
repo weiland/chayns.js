@@ -1,5 +1,5 @@
 export var defer = function() {
-  // TODO: test code below and verify it, no .defer() in polyfill
+  // TODO(pascal): test code below and verify it, no .defer() in polyfill
   //if (Promise.defer) {
   //  return Promise.defer;
   //}
@@ -10,21 +10,21 @@ export var defer = function() {
   });
   return deferred;
 };
-// TODO: better remove methods below since one should use Promise directly
-/**
- * Returns resolved Promise.
- * @param param
- * @returns {*}
- */
-defer.resolve = function() {
-  return Promise.resolve(arguments);
-};
-
-/**
- * Returns rejected Promise.
- * @param param
- * @returns {*}
- */
-defer.reject = function() {
-  return Promise.reject(arguments);
-};
+// TODO(pascal): better remove methods below since one should use Promise directly
+///**
+// * Returns resolved Promise.
+// * @param param
+// * @returns {*}
+// */
+//defer.resolve = function() {
+//  return Promise.resolve(arguments);
+//};
+//
+///**
+// * Returns rejected Promise.
+// * @param param
+// * @returns {*}
+// */
+//defer.reject = function() {
+//  return Promise.reject(arguments);
+//};

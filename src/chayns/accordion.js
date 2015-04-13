@@ -1,29 +1,26 @@
-import {forEach} from '../utils';
+import {forEach, live} from '../utils';
 export var accordion = (function(window, document) {
-  var accordions = [];
 
   function init(selector) {
-    if (accordions.length > 0) {
-      dispose();
-    }
-    accordions = document.querySelectorAll(selector || '.accordion .accordion__head');
-    var i, l;
-    for (i = 0, l = accordions.length; i < l; i++) {
-      var accordion = accordions[i];
-      accordion.addEventListener('click', handleClickEvent);
-    }
+    selector = selector || '.accordion .accordion__head';
+    live('click', selector, handleClickEvent);
   }
 
   function handleClickEvent(e) {
-    var accordion = e.currentTarget.parentElement;
-    toggleAccordion(accordion);
+    let accordion = this.parentElement;
+    let target = e.target; // is equal to this
+    toggleAccordion(accordion, target);
     e.preventDefault();
     e.stopPropagation();
   }
 
-  function toggleAccordion(accordion) {
+  function toggleAccordion(accordion, target) {
     var body = accordion.querySelector('.accordion__body');
     var classList = accordion.classList;
+    // skip choosebutton and box fields
+    if (target.classList.contains('choosebutton') || target.classList.contains('box')) {
+      return;
+    }
     if (!classList.contains('accordion--open')) {
       let groupId = accordion.dataset.group;
       if (groupId) {
@@ -73,14 +70,8 @@ export var accordion = (function(window, document) {
     return !element.dispatchEvent(event); // returns cancelled
   }
 
-  function dispose() {
-    accordions.forEach(function(listener) {
-      listener.removeEventListener('click', handleClickEvent);
-    });
-  }
 
   return {
-    init: init,
-    dispose: dispose
+    init: init
   };
 })(window, document);

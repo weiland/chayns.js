@@ -29,7 +29,6 @@ let logger = window.console;
 /**
  * Set the current log Level
  * use `setLevel(newLogLevel)` to overwrite this value.
- * TODO: each logger gets an own logLevel
  */
 let logLevel = levels.none;
 
@@ -43,7 +42,7 @@ function log(level, args, prefix) {
   let slice = Array.prototype.slice;
   if (prefix) {
     args = slice.call(args);
-    //args.unshift(time); // TODO: consider toggleable time
+    //args.unshift(time);
     args.unshift(prefix);
   }
   logger[level || 'log'].apply(console, args);

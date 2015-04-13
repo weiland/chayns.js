@@ -1,12 +1,9 @@
-import {window, document, navigator} from './browser';
-//import {DOM} from './dom';
-
 // TODO: do we need this?
 // var support3d = 'WebKitCSSMatrix' in window || 'MozPerspective' in document.body.style;
 // var isTouch = 'ontouchstart' in window;
 
 // Borrowed from http://www.codechewing.com/library/check-for-css-transition-support-in-the-browser-with-javascript/
-(function(){
+(function() {
   if ('WebkitTransition' in document.body.style ||
     'MozTransition' in document.body.style ||
     'OTransition' in document.body.style ||

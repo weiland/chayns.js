@@ -1,8 +1,6 @@
 import {apiCall} from './chayns_calls';
-import {getLogger, isObject, isArray, isNumber, isDate, isFunction} from '../utils';
+import {getLogger, isObject, isArray, isNumber, isDate, isFunction, defer} from '../utils';
 import {environment} from './environment';
-import {chaynsRoot} from '../utils/browser';
-//import {window, location} from '../utils/browser'; // due to window.open and location.href
 
 let log = getLogger('chayns_dialogs');
 
@@ -19,9 +17,6 @@ let dialogType = {
   FACEBOOK: 3,
   DATE: 4
 };
-
-// Boolean, true if a dialog is opened
-let openDialog = false;
 
 /**
  * Dialogs - American notation
@@ -137,44 +132,35 @@ export var dialogs = {
     }
 
     let callbackName = 'selectDateCallback';
-    function callbackFn(callback, preSelect, time) {
-      // TODO: important validate Date
-      // TODO: choose right date by dateTypeEnum
-      log.debug(preSelect);
-      callback.call(null, time ? new Date(time) : -1);
-    }
 
     return apiCall({
-      cmd: 30,
-      params: [
-        {'callback': callbackName},
-        {'Integer': 1},
-        {'Integer': preSelect + dateRange}
-      ],
-      webFn: 'datepicker',
-      webParams: ['datepicker', preSelect],
-      cb: callbackFn.bind(null, callback, preSelect),
-      callbackName: callbackName,
-      support: {android: 3072, ios: 3062, wp: 3030}
+      app: {
+        cmd: 30,
+        params: [
+          `'window._chaynsCallbacks.${callbackName}'`,
+          `1`,
+          `'${preSelect + dateRange}'`
+        ],
+        support: {android: 3072, ios: 3062, wp: 3030}
+      },
+      web: {
+        fnName: 'datepicker',
+        params: ['datepicker', preSelect]
+      },
+      callbackName: callbackName
     });
   },
 
   html: function html(config) {
-    var promise = new Promise(function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
       return fallbackDialog(config, resolve, reject);
     });
-    return promise;
   },
 
   close: function close() {
-    document.querySelector('.chayns__dialog').classList.remove('chayns__dialog--visible');
-    window._chaynsCallbacks.closeCb.apply(window._chaynsCallbacks, arguments);
+    Dialog.hide();
+    window._chaynsCallbacks.closeCb(arguments);
   }
-
-  //,reset: function reset() {
-  //  document.querySelector('.chayns__dialog').style.display = 'none';
-  //  window._chaynsCallbacks.closeCbError.apply(window._chaynsCallbacks, arguments);
-  //}
 
 };
 
@@ -229,34 +215,28 @@ function chaynsSelectDialog(config) {
   }
 
   let fnName = isFacebook ? 'selectfacebookfriends' : 'multiselectdialog';
-  var thenable = function(resolve, reject) {
 
-    return apiCall({
+  return apiCall({
+    app: {
       cmd: isFacebook ? 51 : 50, // 50 is standard, 51 FB Dialog
       params: [
-        {'callback': fnName + '()'},
-        {'string': JSON.stringify(setup)},
-        {'string': JSON.stringify(list)}
+        `'window._chaynsCallbacks.${fnName}()'`,
+        `'${JSON.stringify(setup)}'`,
+        `'${JSON.stringify(list)}'`
       ],
-      cb: resolve,
-      onError: reject,
-      webFn: fnName,
-      webParams: [fnName, setup, list],
       support: { android: 4651, ios: 4238 }, // new
-      // TODO: select has no fallback dialog yet
-      fallbackFn: fallbackDialog.bind(undefined, {title: config.title, message: config.message}, resolve)
-    });
-  };
-
-  var promise = new Promise(thenable);
-
-  return promise;
+      fallbackFn: fallbackDialog.bind(undefined, {title: config.title, message: config.message})
+    },
+    web: {
+      fnName: fnName,
+      params: [fnName, setup, list],
+      fn: fallbackDialog.bind(undefined, {title: config.title, message: config.message})
+    },
+    callbackName: fnName
+  });
 }
 
 function chaynsDialog(config) {
-
-
-  var thenable = function(resolve, reject) {
 
     let buttons = [
       {
@@ -273,10 +253,10 @@ function chaynsDialog(config) {
     ];
 
     let params = [
-      {'callback': 'multiselectdialog'},
-      {'string': config.title},
-      {'string': config.message},
-      {'string': config.buttons[0].title} // TODO: needs encodeURI?
+      `'window._chaynsCallbacks.multiselectdialog()'`,
+      `'${config.title}'`,
+      `'${config.message}'`,
+      `'${config.buttons[0].title}'` // TODO: needs encodeURI?
     ];
 
     if (config.buttons[1]) {
@@ -294,43 +274,40 @@ function chaynsDialog(config) {
     }
 
     return apiCall({
-      cmd: 16, // 16 works also on older devices, but shows old dialog
-      params: params,
-      cb: resolve,
-      onError: reject,
-      webFn: 'multiselectdialog',
-      webParams: ['multiselectdialog', {
-        Headline: config.title,
-        Text: config.message,
-        Buttons: buttons
-      }],
-      support: { android: 4649, ios: 4119, wp: 4076 },
-      // support: {android: 2606}, // old dialog
-      fallbackFn: fallbackDialog.bind(undefined, {title: config.title, message: config.message, buttons:fallbackButtons}, resolve)
-      //fallbackFn: resolve
+      app: {
+        cmd: 16, // 16 works also on older devices, but shows old dialog
+        params: params,
+        support: { android: 4649, ios: 4119, wp: 4076 },
+        fallbackFn: fallbackDialog.bind(undefined, {title: config.title, message: config.message, buttons:fallbackButtons})
+      },
+      web: {
+        fnName: 'multiselectdialog',
+        params: ['multiselectdialog', {
+          Headline: config.title,
+          Text: config.message,
+          Buttons: buttons
+        }]
+      },
+      callbackName: 'multiselectdialog'
     });
-  };
 
-  var promise = new Promise(thenable);
-
-  return promise;
 }
 
-function fallbackDialog(config, resolve, reject) {
+function fallbackDialog(config) {
   log.info('fallback popup', arguments);
 
   // create callbacks
-  window._chaynsCallbacks.closeCb = resolve;
-  window._chaynsCallbacks.closeCbError = reject; // is not used
+  let deferred = defer();
+  window._chaynsCallbacks.closeCb = deferred.resolve;
+  window._chaynsCallbacks.closeCbError = deferred.reject; // is not used
 
   // create Dialog Object
   let dialog = new Dialog(config.title, config.message, config.buttons);
-  let chaynsRoot = document.getElementById('chayns-root');
-  chaynsRoot.innerHTML = dialog.toHTML(); // assign the Dialog's HTML to the chayns-root
-  // show the dialog
-  chaynsRoot.querySelector('.chayns__dialog').classList.add('chayns__dialog--visible');
+  dialog.render();
+  dialog.show();
+
   // get the dialog's height
-  let dialogHeight = chaynsRoot.querySelector('.dialog__content').offsetHeight || 55;
+  let dialogHeight = dialog.contentBox().offsetHeight || 55;
   let viewportHeight = window.innerHeight; // the users browser's viewport
   let bannerHeight = 0;
   log.debug('test', environment.isChaynsWebDesktop);
@@ -342,8 +319,9 @@ function fallbackDialog(config, resolve, reject) {
   // adjust the top position
   let topPosition = viewportHeight / 2 - dialogHeight - bannerHeight;
   topPosition = topPosition > 50 ? topPosition : 50;
-  chaynsRoot.querySelector('.dialog__content').style.top = topPosition + 'px';
+  dialog.contentBox().style.top = topPosition + 'px';
 
+  return deferred.promise;
 }
 
 // Chayns Dialog HTML setup
@@ -356,10 +334,11 @@ class Dialog {
    * Dialog Constructor
    * @param {String} name Popup Button name
    */
-  constructor(title, message, buttons) {
+  constructor(title, message, buttons, customChaynsRoot) {
     this.title = title || '';
     this.message = message || '';
     this.buttons = buttons || [{name:'Ok',value:1}];
+    this.chaynsRoot = customChaynsRoot || document.getElementById('chayns-root');
   }
 
   getButtons() {
@@ -368,6 +347,18 @@ class Dialog {
       html.push( `<button class="button button--dialog" onclick="chayns.dialog.close({name: '${button.name}', value: '${button.value}'});">${button.name}</button>` );
     });
     return html.join('');
+  }
+
+  show() {
+    this.chaynsRoot.querySelector('.chayns__dialog').classList.add('chayns__dialog--visible');
+  }
+
+  contentBox() {
+    return this.chaynsRoot.querySelector('.dialog__content');
+  }
+
+  render() {
+    this.chaynsRoot.innerHTML = this.toHTML();
   }
 
   toHTML() {
@@ -382,6 +373,15 @@ class Dialog {
       </div>
    </div>
   </div>`;
+  }
+
+  /**
+   * public static method hide()
+   * TODO(pascal): remove element from DOM
+   */
+  static hide() {
+    // TODO(pascal): support custom selector and multiple dialogs
+    document.querySelector('.chayns__dialog').classList.remove('chayns__dialog--visible');
   }
 }
 

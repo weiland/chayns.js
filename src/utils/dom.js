@@ -1,6 +1,5 @@
 // TODO(pascal): useful refactoring
 
-import {document} from './browser';
 import {isUndefined} from './is';
 
 export class DOM {

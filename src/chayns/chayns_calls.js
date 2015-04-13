@@ -75,8 +75,8 @@ export function apiCall(obj) {
     }
     let webObj = obj.web;
 
-    // if there is a function registered, then it is no chayns web call but fn invoke
-    if (webObj.fn && isFunction(webObj.fn)) {
+    // if there is a function registered and no fnName, then it is no chayns web call but fn invoke
+    if (!webObj.fnName && webObj.fn && isFunction(webObj.fn)) {
       return Promise.resolve(webObj.fn.call(undefined));
     }
 

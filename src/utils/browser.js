@@ -2,21 +2,21 @@
  * This module contains the Browser APIs
  *
  */
-// TODO: move out of utils
+// TODO(pascal): remove entirely
 var win = window;
 
 // using node global (mainly for testing, dependency management)
 var _global = typeof window === 'undefined' ? global : window;
-export {_global as global};
+var _global = global;
 
-export {win as window};
-export var document = window.document;
-export var location = window.location;
-export var navigator = window.navigator;
-export var chayns = window.chayns;
-export var chaynsCallbacks = window._chaynsCallbacks;
-export var chaynsRoot = document.getElementById('chayns-root');
-export var parent = window.parent;
-export var console = window.console; // NOTE: should not be used. use logger instead
-export var gc = window.gc ? () => window.gc() : () => null;
+var win  = window;
+var document = window.document;
+var location = window.location;
+var navigator = window.navigator;
+var chayns = window.chayns;
+var chaynsCallbacks = window._chaynsCallbacks;
+var chaynsRoot = document.getElementById('chayns-root');
+var parent = window.parent;
+var console = window.console; // NOTE: should not be used. use logger instead
+var gc = window.gc ? () => window.gc() : () => null;
 

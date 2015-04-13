@@ -5,8 +5,7 @@
 
 import {apiCall} from './chayns_calls';
 import {getLogger, isFunction, isString, isNumber, isBLEAddress,
-  isDate, isObject, isArray, trim, DOM, defer} from '../utils';
-import {window, location} from '../utils/browser'; // due to window.open and location.href
+  isDate, DOM, defer} from '../utils';
 import {Config} from './config';
 
 let log = getLogger('chayns_api_interface');
@@ -15,7 +14,7 @@ let log = getLogger('chayns_api_interface');
  * chayns call callback obj name (is assigned to window)
  * @type {string}
  */
-let callbackPrefix = Config.get('callbackPrefix'); // TODO: Config required? even used?
+let callbackPrefix = Config.get('callbackPrefix'); // TODO(pascal): Config required? even used?
 function callbackName(fnName) {
   return `'window.${callbackPrefix}.${fnName}()'`;
 }
@@ -120,7 +119,7 @@ export var chaynsApiInterface = {
 
   /**
    * Select Album
-   * TODO: get versions
+   * TODO(pascal/v2): get versions
    *
    * @param {id|string} id Album ID (Album Name will work as well, but do prefer IDs)
    * @returns {Boolean}
@@ -146,11 +145,11 @@ export var chaynsApiInterface = {
    * (old ShowPicture)
    * Android does not support gifs :(
    *
-   * @param {string} url Image URL should cotain jpg,png or gif
+   * @param {string} url Image URL should contain jpg,png or gif
    * @returns {Boolean}
    */
   openImage: function(url) {
-    if (!isString(url) || !url.match(/jpg$|png$|gif$/i)) { // TODO: more image types?
+    if (!isString(url) || !url.match(/jpg$|png$|gif$/i)) { // TODO(pascal/uwe): more image types?
       return Promise.reject(new Error('Invalid image url'));
     }
     return apiCall({
@@ -171,7 +170,7 @@ export var chaynsApiInterface = {
    * Works only in native apps.
    * The caption button is the text at the top right of the app.
    * (mainly used for login or the username)
-   * TODO: implement into Chayns Web?
+   * TODO(uwe): implement into Chayns Web? (not really possible)
    *
    * @param {String} text The Button's text
    * @param {Function} callback Callback Function when the caption button was clicked
@@ -179,7 +178,7 @@ export var chaynsApiInterface = {
    */
   setCaptionButton: function(text, callbackFn) {
     if (!isFunction(callbackFn)) {
-      callbackFn = Function.prototype;// TODO: ok or reject Promise?
+      callbackFn = Function.prototype;// TODO(pascal/uwe): ok or reject Promise?
     }
     return apiCall({
       app: {
@@ -217,7 +216,7 @@ export var chaynsApiInterface = {
    * @param {string} [reloadParam = 'comment'] Reload Param
    * @returns {Promise}
    */
-  // TODO: test permissions
+  // TODO(pascal/v2): test permissions
   facebookRequestPermissions: function(permissions = 'user_friends', reloadParam = 'comment') {
     reloadParam = reloadParam;
     return apiCall({
@@ -244,11 +243,17 @@ export var chaynsApiInterface = {
    *
    * @returns {Promise}
    */
-  facebookConnect: function() {
+  facebookConnect: function(reloadParam) {
     return apiCall({
       app: {
         cmd: 8
-        //,support: { android: 1359, ios: 1366, wp: 2469 } // TODO: test support
+        //,support: { android: 1359, ios: 1366, wp: 2469 } // TODO(pascal/v2): test support
+      },
+      web: {
+        fnName: 'facebookConnect',
+        params: {
+          ReloadParameter: 'ExecCommand=' + (reloadParam || '')
+        }
       }
     });
   },
@@ -271,7 +276,7 @@ export var chaynsApiInterface = {
       web: {
         fn: function openPopup() {
           if (url.indexOf('://') === -1) {
-            url = '//' + url; // or add location.protocol prefix and // TODO: test
+            url = '//' + url; // or add location.protocol prefix and // TODO(pascal/uwe): parent.location.href due to popup blocker?
           }
           window.open(url, '_blank');
           return true;
@@ -324,7 +329,7 @@ export var chaynsApiInterface = {
   /**
    * Open InterCom.
    * Works only in native apps.
-   * TODO: deprecated
+   * TODO(pascal): remove since deprecated
    *
    * @returns {Boolean} False on error, true if call succeeded
    */
@@ -340,8 +345,8 @@ export var chaynsApiInterface = {
    * Get Geolocation.
    * native apps only (but could work in web as well, navigator.geolocation)
    *
-   * TODO: continuousTracking was removed
-   * TOOD: does not wokr in iOS App
+   * NOTE: continuousTracking was removed
+   * TODO(pascal): does not work in iOS App
    *
    * @param {Function} callback Callback Function when the back button was clicked
    * @returns {Boolean}
@@ -349,10 +354,8 @@ export var chaynsApiInterface = {
   getGeoLocation: function(callback) {
 
     if (!isFunction(callback)) {
-      // TODO: remove console
-      // TODO: allow empty callbacks when it is already set
-      console.warn('no callback function');
-      //return defer.reject(new Error());
+      log.warn('no callback function');
+      return Promise.reject(new Error('There is no callback function.'));
     }
 
     return apiCall({
@@ -394,7 +397,7 @@ export var chaynsApiInterface = {
    * @returns {Boolean}
    */
   openVideo: function(url) {
-    if (!isString(url) || !url.match(/.*\..{2,}/)) { // TODO: WTF Regex
+    if (!isString(url) || !url.match(/.*\..{2,}/)) { // anyCharExceptNewLine . AnyCharExceptNewLine more than 2 times
       return Promise.reject(new Error('invalid url'));
     }
     return apiCall({
@@ -413,10 +416,13 @@ export var chaynsApiInterface = {
    * Show Dialog
    * @deprecated
    *
+   * NOTE: chayns.dialogs
+   * TODO(pascal): remove this method
+   *
    * @param {Object} {content:{String} , headline: ,buttons:{Array}, noContentnPadding:, onLoad:}
    * @returns {boolean}
    */
-  showDialog: function showDialog(obj) {
+  showDialog: function showDialog() {
     return Promise.reject(new Error('This function should not be used any longer'));
     //log.warn('method should not be used i assume');
     //if (!obj || !isObject(obj)) {
@@ -443,9 +449,9 @@ export var chaynsApiInterface = {
     //    {'callback': callbackName},
     //    {'string': obj.headline},
     //    {'string': obj.content},
-    //    {'string': obj.buttons[0].name} // TODO: needs encodeURI?
-    //    //{'string': obj.buttons[1].name}, // TODO: needs encodeURI?
-    //    //{'string': obj.buttons[2].name} // TODO: needs encodeURI?
+    //    {'string': obj.buttons[0].name}
+    //    //{'string': obj.buttons[1].name},
+    //    //{'string': obj.buttons[2].name}
     //  ],
     //  cb: callbackFn.bind(null, obj.buttons),
     //  support: {android: 2606},
@@ -458,10 +464,9 @@ export var chaynsApiInterface = {
 /**
  * Formerly known as getAppInfos
  *
- * @param {Function} callback Callback function to be invoked with the AppData
- * @returns {Promise} True if the call succeeded or is async, false on error
+ * @param {Boolean} [forceReload True if cached data should be skipped]
+ * @returns {Promise}
  */
-  // TODO: use forceReload and cache AppData, let user cache the data
   // This example uses a deferred and a callbackFunction to be able
   // to cache the data
   getGlobalData: function(forceReload) {
@@ -491,8 +496,8 @@ export var chaynsApiInterface = {
 
   /**
    * Vibrate
-   * @param {Integer} duration Time in milliseconds
-   * @returns {Boolean} True if the call succeeded or is async, false on error
+   * @param {Integer} Duration time in milliseconds
+   * @returns {Promise}
    */
   vibrate: function(duration) {
     if (!isNumber(duration) || duration < 2) {
@@ -520,7 +525,7 @@ export var chaynsApiInterface = {
    * Navigate Back.
    * Works only in native apps.
    *
-   * @returns {Boolean} False on error, true if call succeeded
+   * @returns {Promise}
    */
   navigateBack: function() {
     return apiCall({
@@ -539,9 +544,9 @@ export var chaynsApiInterface = {
   /**
    * Image Upload
    *
-   * @param {Function} callback Callback Function to be invoked with image url after upload
-   * @returns {Boolean} True if the call succeeded or is async, false on error
+   * @returns {Promise}
    */
+  // TODO(pascal): Fix Browser click
   uploadImage: function() {
     return apiCall({
       app: {
@@ -615,9 +620,7 @@ export var chaynsApiInterface = {
 
   /**
    * Set NFC Callback
-   * TODO: refactor and test
-   * TODO: why two calls?
-   * Can we improve this shit? split into two methods
+   * TODO(pascal): test why RFID does not work on Android
    * @param {Function} callback Callback Function for NFC
    * @param {Boolean} isPersonData Callback Function for NFC
    * @returns {Boolean} True if the call succeeded or is async, false on error
@@ -662,8 +665,6 @@ export var chaynsApiInterface = {
   /**
    * Video Player Controls
    * Acutally native only
-   * TODO: could theoretically work in Chayns Web
-   * TODO: example? where does this work?
    */
   player: {
     useDefaultUrl: function useDefaultUrl() {
@@ -736,10 +737,10 @@ export var chaynsApiInterface = {
   /**
    * Bluetooth
    * Only in native Apps (ios and android)
-   * TODO: add modern bluetooth chayns calls
+   * TODO(pascal/georg/v3.1): add modern bluetooth chayns calls
    */
   bluetooth: {
-    LESendStrength: { // TODO: what is that?
+    LESendStrength: {
       Adjacent: 0,
       Nearby: 1,
       Default: 2,
@@ -784,7 +785,7 @@ export var chaynsApiInterface = {
       });
     },
     /**
-     * TODO: consider Object as parameter
+     * TODO(pascal/unimportant): consider Object as parameter
      * @param {string} address
      * @param {Integer} subId
      * @param {Integer} measurePower
@@ -825,9 +826,7 @@ export var chaynsApiInterface = {
     }
   },
 
-  // TODO; use `Object` as params
-  // TODO: what are optional params? validate name and location?
-  // TODO: maybe create .ical for web?
+
   /**
    *
    * @param {String} name Appointment's name
@@ -837,6 +836,8 @@ export var chaynsApiInterface = {
    * @param {Date} end Appointments's EndDate
    * @returns {Boolean}
    */
+  // TODO(pascal/uwe): what are optional params? validate name and location?
+  // TODO(pascal/uwe): maybe create .ical for web?
   saveAppointment: function saveAppointment(config) {
     let {name, location, description, start, end} = config;
     if (!isString(name) || !isString(location)) {
@@ -870,16 +871,14 @@ export var chaynsApiInterface = {
    * (old ShowURLInApp)
    * not to confuse with openUrlInBrowser
    *
-   * @param {string} url Video URL should contain jpg,png or gif
-   * @returns {Boolean}
+   * @param {string} url
+   * @returns {Promise}
    */
-    // TODO: web function has to set hegiht as well?
   openUrl: function openUrl(url, title) {
     if (!isString(url)) {
       log.error('openUrl: invalid url');
       return Promise.reject(new Error('Invalid URL'));
     }
-
     return apiCall({
       app: {
         cmd: 31,
@@ -900,16 +899,14 @@ export var chaynsApiInterface = {
 
   /**
    * create QR Code
-   * TODO: show QR Code in Dialog when there is no callback
    * @param {String} data QR Code data
-   * @param {Function} callback Function which receives the base64 encoded IMG TODO: which type?
+   * @param {Boolean} [preventDialog=undefined] True to not show a dialog
    * @returns {Boolean}
    */
-  createQRCode: function createQRCode(data) {
-    if (!isString(data)) { // TODO: no good idea, remove it
+  createQRCode: function createQRCode(data, preventDialog) {
+    if (!isString(data)) {
       return Promise.reject(new Error('No data'));
     }
-
     return apiCall({
       app: {
         cmd: 33,
@@ -919,12 +916,15 @@ export var chaynsApiInterface = {
       web: {
         fn: function createQrCode() {
           let url = '//qr.tobit.com/?SizeStrategy=FIXEDCODESIZE&width=250&value=' + data;
-          window.chayns.dialog.html({
+          if (preventDialog) {
+            return Promise.resolve(url);
+          }
+          return window.chayns.dialog.html({
             title: 'QR Code',
             message: `<img src="${url}" style="width:100%" alt="qr code" />`,
             buttons: [
               {
-                name: 'Schließen', // TODO: i18n
+                name: 'Schließen', // TODO(pascal): i18n
                 value: 1
               }
             ]
@@ -961,7 +961,7 @@ export var chaynsApiInterface = {
    * @returns {Promise}
    */
   getLocationBeacons: function getLocationBeacons(forceReload) {
-    //if (beaconList && !forceReload) { // TODO: make sure it is good to cache the list
+    //if (beaconList && !forceReload) { // TODO(pascal/v3.1): make sure it is good to cache the list
     //  log.debug('getLocationBeacons: there is already one beaconList');
     //  return defer.resolve(beaconList);
     //}
@@ -982,14 +982,14 @@ export var chaynsApiInterface = {
   /**
    * Add to Passbook
    * iOS only
-   * TODO: consider removal
+   * TODO(pascal): consider removal since it only opens a URL on iOS
    *
    * @param {String} url Path to Passbook file
    * @returns {Boolean}
    */
   addToPassbook: function addToPassbook(url) {
     if (!isString(url)) {
-      return defer.reject(new Error('addToPassbook: url is invalid.'));
+      return Promise.reject(new Error('addToPassbook: url is invalid.'));
     }
 
     return apiCall({
@@ -1008,7 +1008,7 @@ export var chaynsApiInterface = {
   /**
    * Tobit Login
    * With FacebookConnect Fallback
-   * TODO: support
+   * TODO(pascal/lucas/timo): test and check support
    *
    * @param {String} params Reload Parameter
    * @returns {Boolean}
@@ -1031,7 +1031,7 @@ export var chaynsApiInterface = {
 
   /**
    * Tobit Logout
-   * TODO: find out app support
+   * TODO(pascal/development): find out app support
    *
    * @returns {Boolean}
    */

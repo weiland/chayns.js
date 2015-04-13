@@ -22,8 +22,6 @@ import {chaynsApiInterface}     from './chayns/chayns_api_interface';
 import {tappApiInterface}       from './chayns/tapp_api_interface';
 import {chaynsWebInterface}     from './chayns/chayns_web_interface';
 import {dialogs}                from './chayns/dialogs';
-import {accordion}              from './chayns/accordion';
-
 
 // public chayns object
 export var chayns = {};
@@ -44,7 +42,6 @@ extend(chayns, chaynsApiInterface);
 extend(chayns, tappApiInterface);
 extend(chayns, chaynsWebInterface);
 extend(chayns, {dialog: dialogs});
-extend(chayns, {accordion}); // TODO(pascal): consider: don't expose and autoinit accordion listeners
 
 // setup chayns
 setup();

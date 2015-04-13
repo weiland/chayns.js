@@ -1,17 +1,15 @@
-import {document} from './browser';
-
 /**
  * @description
- * Add the matching browser prefix to a css Property
+ * Add the matching browser prefix to a CSS property
  * @param propName
  * @returns {*}
  */
 export function getBrowserPrefix(propName) {
 
-  var prefixes = ['Moz','Webkit','ms']; // also O and Khtml
+  var prefixes = ['Moz','Webkit','ms']; // also possible: O and Khtml
 
-  for (var len = prefixes.length; len--; ) {
-    if (( prefixes[len] + 'Transform' ) in document.body.style) {
+  for (var len = prefixes.length; len--;) {
+    if ((prefixes[len] + 'Transform') in document.body.style) {
       return '-' + prefixes[len].toLowerCase() + '-' + propName;
     }
   }

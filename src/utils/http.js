@@ -1,5 +1,4 @@
 // TODO(pascal): remove, since we can use the window.fetch directly
-//import {window} from './browser';
 /* global fetch */
 import {
   getLogger,
@@ -10,11 +9,6 @@ import {
   } from '../utils';
 
 let log = getLogger('chayns.utils.http');
-//let Promise = window.Promise; // otherwise import Promise
-//let fetch = window.fetch; // otherwise TODO: import fetch
-
-
-
 
 /**
  * Fetch JSON via GET
@@ -58,7 +52,7 @@ export function post(url, data) {
     data = JSON.stringify(data);
   } else if (!isString(data)) {
     log.warn('postJSON: invalid data');
-    throw new Error('Invalid post data');
+    Promise.reject(new Error('Invalid post data'));
   }
   return fetch(url, {
     method: 'post',

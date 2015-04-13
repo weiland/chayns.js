@@ -2,7 +2,7 @@
  * @module config
  * @private
  */
-
+// TODO(pascal): is this config even required?
 import {isPresent, isBlank, isUndefined, isArray, extend} from '../utils';
 
 /**
@@ -13,13 +13,13 @@ import {isPresent, isBlank, isUndefined, isArray, extend} from '../utils';
 var _config = {
   appName: 'Chayns App',   // app Name
   appVersion: 1,           // app Version
-  preventErrors: true,        // error handler can hide errors (can be overwtitten by isProduction)
+  preventErrors: true,        // error handler can hide errors (can be overwritten by isProduction)
   isProduction: true,      // production, development and test ENV
   loadModernizer: true,    // load modernizer
   loadPolyfills: true,     // load polyfills
   useFetch: true,          // use window.fetch and it's polyfills
-  promises: 'q',           // promise Service: Q is standard
-  useOfflineCaching: false,// is offline caching used? inlcude offline helper
+  promises: 'polyfill',    // promise Service (e.g. bluebird, Q)
+  useOfflineCaching: false,// is offline caching used? include offline helper
   useLocalStorage: false,  // is localStorage used? include helper
   hasAdmin: false,         // does this app/page have an admin?
   multiLingual: true,      // enable i18n?
@@ -31,18 +31,8 @@ var _config = {
   //framework: ['Ember', 'Angular', 'Backbone', 'Ampersand', 'React', 'jQuery']
 };
 
-// TODO: remove
-/*export function config() {
-  if (arguments.length === 2) {
-    return Config.set(arguments[0], arguments[1]); // TODO: refactor this
-  } else if (arguments.length === 1) {
-    return Config.get(arguments);
-  }
-  return Config.get();
-}*/
-
-// TODO: refactor to Map
-// TODO: remove? move to env and at least rename to config, count usage
+// TODO(pascal): refactor to Map
+// TODO(pascal): remove? move to env and at least rename to config, count usage
 export class Config {
 
   /**
@@ -71,7 +61,6 @@ export class Config {
     if (isBlank(key) || isUndefined(value)) {
       return false;
     }
-    // TODO: good idea? one should be careful i suppose
     if (isArray(value)) {
       extend(_config, value);
     }

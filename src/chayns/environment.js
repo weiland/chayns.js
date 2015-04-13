@@ -4,10 +4,9 @@
  * Chayns Environment
  */
 
-import {getLogger, extend} from '../utils';
+import {getLogger} from '../utils';
 let log = getLogger('chayns.environment');
 
-// TODO: import dependencies
 var types = {};
 
 types.browser = [
@@ -34,39 +33,30 @@ types.chaynsOS = {
   app: 'webshadowmobile'
 };
 
-// TODO: hide internal parameters from the others
-// TODO: offer user an `Object` with URL Parameters
 // location query string
-var query = location.search.substr(1);
-var parameters = {};
-query.split('&').forEach(function(part) {
-  var item = part.split('=');
-  parameters[item[0].toLowerCase()] = decodeURIComponent(item[1]).toLowerCase();
-});
+let internalParameters= ['appversion', 'os', 'tappid', 'colorscheme'];
+let query = location.search.substr(1).split('&');
+let parameters = {};
+let publicParameters = {};
+if (query[0] !== '') {
+  query.forEach(function(part) {
+    let item = part.split('=');
+    let key = item[0];
+    let value = decodeURIComponent(item[1]);
+    if (internalParameters.indexOf(key.toLowerCase()) === -1) {
+      publicParameters[key] = value;
+    }
+    parameters[key.toLowerCase()] = value.toLowerCase();
+  });
+}
 
-// verify by chayns required parameters exist
-if (!parameters.appversion) {
-  log.warn('no app version parameter');
-}
-if (!parameters.os) {
-  log.warn('no os parameter');
-}
 
 let debugMode = !!parameters.debug;
 
-// TODO: further params and colorscheme
-// TODO: discuss role of URL params and try to replace them and only use AppData
-
-
-//function getFirstMatch(regex) {
-//  var match = ua.match(regex);
-//  return (match && match.length > 1 && match[1]) || '';
-//}
-
 // user agent detection
-var userAgent = (window.navigator && navigator.userAgent) || '';
+let userAgent = (window.navigator && navigator.userAgent) || '';
 
-var is = {
+let is = {
   ios: /iPhone|iPad|iPod/i.test(userAgent),
   android: /Android/i.test(userAgent),
   wp: /windows phone/i.test(userAgent),
@@ -90,24 +80,21 @@ var is = {
 
 // TODO(pascal): Browser Version and OS Version detection
 
-// TODO(lucain/uwe): add fallback, update on change? no, the user can do this by itself
-var orientation = Math.abs(window.orientation % 180) === 0 ? 'portrait' : 'landscape';
-var viewport = window.innerWidth + 'x' + window.innerHeight;
+//let orientation = Math.abs(window.orientation % 180) === 0 ? 'portrait' : 'landscape';
+//let viewport = window.innerWidth + 'x' + window.innerHeight;
 
 export var environment = {
-
   osVersion: 1,
-
   browser: 'cc',
   browserVersion: 1
-
 };
 
-environment.parameters = parameters; // TODO strip 'secret params'
+environment.parameters = publicParameters;
+environment._parameters = parameters;
 environment.hash = location.hash.substr(1);
 
 // WATCH OUT the OS is set by parameter (unfortunately)
-environment.os = parameters.os || 'noOS'; // TODO: refactor OS
+environment.os = parameters.os || 'noOS';
 if (is.mobile && ['android', 'ios', 'wp'].indexOf(parameters.os) !== -1) {
   parameters.os = types.chaynsOS.app;
 }
@@ -118,10 +105,9 @@ environment.isAndroid = is.android;
 environment.isWP = is.wp;
 environment.isBB = is.bb;
 
-// TODO: make sure that this always works! (TSPN, create iframe test page)
 environment.isInFrame = (window !== window.top);
 
-environment.isApp = (parameters.os === types.chaynsOS.app && is.mobile && !environment.isInFrame); // TODO: does this always work?
+environment.isApp = (parameters.os === types.chaynsOS.app && is.mobile && !environment.isInFrame);
 environment.appVersion = parameters.appversion;
 
 environment.isBrowser = !environment.isApp;
@@ -131,23 +117,41 @@ environment.isDesktop = (!is.mobile && !is.tablet);
 environment.isMobile = is.mobile;
 environment.isTablet = is.tablet;
 
-environment.isChaynsWebMobile = (parameters.os === types.chaynsOS.webMobile) && environment.isInFrame;
-environment.isChaynsWebDesktop = (parameters.os === types.chaynsOS.web) && environment.isInFrame;
+environment.isChaynsParent = !!window.ChaynsInfo && !environment.isInFrame;
+
+// if chayns runs directly in the Chayns Web
+let chaynsInfo = window.ChaynsInfo;
+if (chaynsInfo) {
+  environment.isChaynsWebMobile = chaynsInfo.IsMobile;
+  environment.isChaynsWebDesktop = !chaynsInfo.IsMobile;
+} else {
+  environment.isChaynsWebMobile = (parameters.os === types.chaynsOS.webMobile) && environment.isInFrame;
+  environment.isChaynsWebDesktop = (parameters.os === types.chaynsOS.web) && environment.isInFrame;
+  // verify by chayns required parameters exist
+  if (!parameters.appversion) {
+    log.warn('no app version parameter');
+  }
+  if (!parameters.os) {
+    log.warn('no os parameter');
+  }
+}
+
 environment.isChaynsWeb = environment.isChaynsWebDesktop || environment.isChaynsWebMobile;
 
-// internal TODO(uwe/lucian): make it private? better not
 environment.canChaynsCall = environment.isApp;
 environment.canChaynsWebCall = environment.isChaynsWeb;
 
-//environment.viewport = viewport; // TODO: update on resize? no, due performance
-environment.orientation = orientation;
-environment.ratio = window.devicePixelRatio;
+//environment.viewport = viewport;
+//environment.orientation = orientation;
+//environment.ratio = window.devicePixelRatio;
 
 environment.debugMode = debugMode;
 
 environment.site = {};
-environment.site.colorScheme = parameters.colorscheme; // TODO: chayns web fix
-log.info('colorscheme', environment.site.colorScheme, parameters);
+environment.site.colorScheme = parameters.colorscheme;
+if (chaynsInfo && !environment.site.colorScheme) {
+  environment.site.colorScheme = chaynsInfo.ColorScheme.ID;
+}
 
 //environment.user = {
 //  name: 'Pacal Weiland',
@@ -158,7 +162,7 @@ log.info('colorscheme', environment.site.colorScheme, parameters);
 //  isAdmin: true,
 //  uacGroups: [],
 //  language: 'de_DE',
-//  token: 'token' // TODO: exclude token?
+//  token: 'token'
 //};
 
 

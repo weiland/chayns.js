@@ -1,5 +1,5 @@
 import {getLogger, isFunction, isString, isDeferred} from '../utils';
-import {window} from '../utils/browser';
+//import {window} from '../utils/browser';
 let log = getLogger('chayns.callbacks');
 
 let noop = Function.prototype; // no operation
@@ -117,11 +117,14 @@ export function messageListener() {
       if (params) {
         try {
           params = JSON.parse(params);
-        } catch (e) {}
+        } catch (e) {
+          log.error('onMessage: params could not be parsed', e);
+        }
       }
 
       // remove the last ')' from the method name
       method = method.substr(0, method.length - 1);
+      log.debug('method name:', method);
 
       // the callback function can be invoked directly
       callback(method)(params);

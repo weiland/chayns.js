@@ -1,4 +1,4 @@
-// TODO(pascal): is this even used?
+// TODO(pascal): remvoe, since this is solved in the chayns.css
 /**
  * ColorScheme Enum
  * @type {Object}

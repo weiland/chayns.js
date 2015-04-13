@@ -36,19 +36,14 @@ export * from './utils/each';
 
 export * from './utils/http'; // TODO: consider to remove
 
-// Browser APIs (window, document, location)
-// TODO: consider to not bind browser to the utils `Object`
-/* jshint -W116 */
-/* jshint -W033 */
-// jscs:disable parseError
-import * as browser from './utils/browser'; //noinspection BadExpressionStatementJS jshint ignore: line
-// jscs:enable parseError
-/* jshint +W033 */
-/* jshint +W116 */
-export {browser};
+export * from './utils/live';
 
 // DOM
 export * from './utils/dom';
+
+// CSS Vendor prefix
+export * from './utils/browser_prefix';
+
 
 // Analytics
 //export * from './utils/analytics';
@@ -84,7 +79,7 @@ export * from './utils/events';
 //export * from './utils/page_visibility';
 
 // DateTime helper (converts dates, C# date, timestamps, i18n, time ago)
-//export * from './utils/datetime';
+export * from './utils/datetime';
 
 
 // language API i18n langres

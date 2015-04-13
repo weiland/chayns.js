@@ -1,4 +1,3 @@
-// TODO(pascal): move to is utils
 import {getLogger, isObject} from '../utils';
 let log = getLogger('chayns.utils.is_permitted');
 

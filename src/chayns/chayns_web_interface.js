@@ -27,7 +27,7 @@ export var chaynsWebInterface = {
    *
    * Sets the height of the iframe
    *
-   * TODO: does the name match?
+   * TODO(pascal/development): does the name match?
    * @params [height = 500]
    * @returns {*}
    */
@@ -46,7 +46,7 @@ export var chaynsWebInterface = {
    * Always sets full height of iframe and sends event to us
    * adds scroll and resize listener so use seldomly :(
    *
-   * TODO: does the name match?
+   * TODO(pascal/development): does the name match?
    * @returns {*}
    */
   setFullHeight: function setFullHeight() {

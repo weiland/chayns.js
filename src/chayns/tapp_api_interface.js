@@ -6,14 +6,9 @@
 
 import {getLogger, isPresent, isObject, isArray, isDefined} from '../utils';
 import {environment} from './environment';
-//import {window} from '../utils/browser'; // due to window.open and location.href
 
-//let log = getLogger('tapp_api');
+let log = getLogger('tapp_api');
 
-console.debug(environment, 'evn');
-
-// TODO: force SSL?
-// TODO: write tests
 let tappApiRoot = '//chayns1.tobit.com/TappApi/';
 
 let uacGroupsCache;
@@ -33,6 +28,7 @@ export var tappApiInterface = {
    */
   getUser: function getUserBasicInfo(obj) {
     if (!obj || !isObject(obj)) {
+      log.warn('Error while getting basic information');
       return Promise.reject(new Error('There was no parameter Object'));
     }
     let data = '';
@@ -77,9 +73,9 @@ export var tappApiInterface = {
   /**
    * Get UAC Groups
    *
-   * TODO: remove caching? yes, it does not really belong in here
-   * TODO: Backend bug http://chayns1.tobit.com/TappApi/Tapp/GetUACGroups?SiteID= not empty
-   * TODO: rename to getGroups? (using UAC only internally, there are no other groups either)
+   * TODO(pascal): remove caching? yes, it does not really belong in here
+   * TODO(pascal): Backend bug http://chayns1.tobit.com/TappApi/Tapp/GetUACGroups?SiteID= not empty
+   * TODO(pascal): rename to getGroups? (using UAC only internally, there are no other groups either)
    * @param {Boolean} [updateCache=undefined] True to force to receive new UAC Groups
    * @returns {Promise} resolve with  UAC Groups Array otherwise reject with Error
    */
@@ -95,8 +91,8 @@ export var tappApiInterface = {
   },
 
   /**
-   * TODO: use userId instead of the facebookId?
-   * TODO: refactor name? cause Location and SiteId
+   * TODO(pascal): use userId instead of the facebookId?
+   * TODO(pascal): refactor name? cause Location and SiteId
    * @param userId Facebook UserId
    * @returns {Promise}
    */
@@ -179,12 +175,11 @@ export var tappApiInterface = {
  * @param obj
  * @returns {Promise}
  */
-// TODO: refactor to JSON instead of www-form-urlencoded
+// TODO(pascal/development): refactor to JSON instead of www-form-urlencoded
 function sendMessage(obj) {
   if (!isObject(obj) || !obj.message || !obj.url) {
     return Promise.reject(Error('Invalid parameters'));
   }
-  console.debug(obj, environment,'asdf');
   obj.siteId = obj.siteId || environment.site.siteId;
   obj.accessToken = obj.accessToken || environment.user.accessToken;
   let map = {
@@ -227,8 +222,8 @@ function sendMessage(obj) {
 /**
  * Tapp API request
  *
- * TODO: use POST instead of GET
- * TODO: posting JSON with {credentials: 'cors'}
+ * TODO(development): use POST instead of GET
+ * TODO(pascal): posting JSON with {credentials: 'cors'}
  * @private
  * @param endpoint
  * @returns {Promise} with json data
