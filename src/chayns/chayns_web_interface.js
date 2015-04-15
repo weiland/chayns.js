@@ -55,6 +55,18 @@ export var chaynsWebInterface = {
         fnName: 'setIFrameFullHeight'
       }
     });
+  },
+
+  getWindowMetrics: function getWindowMetrics() {
+    return apiCall({
+      web: {
+        fnName: 'getWindowMetrics',
+        fn: function getHeight() {
+          console.info('getHeight fallback');
+        }
+      },
+      callbackName
+    });
   }
 
 };

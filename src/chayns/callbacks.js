@@ -1,5 +1,4 @@
 import {getLogger, isFunction, isString, isDeferred} from '../utils';
-//import {window} from '../utils/browser';
 let log = getLogger('chayns.callbacks');
 
 let noop = Function.prototype; // no operation

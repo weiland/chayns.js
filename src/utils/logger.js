@@ -76,7 +76,7 @@ export class Logger {
    * @param {string} name Name of the logger (e.g. `chayns.core`)
    */
   constructor(name) {
-    this.name = '[' + name + ']: ';
+    this.name = `[${name || 'chayns.tapp'}]: `;
   }
 
   /**

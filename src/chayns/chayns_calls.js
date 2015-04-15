@@ -1,5 +1,5 @@
-import {getLogger, isPermitted, isFunction, isBlank, isArray, isObject, isDefined, defer, isString} from '../utils';
-import {window, parent} from '../utils/browser';
+import {getLogger, isPermitted, isFunction, isBlank, isArray,
+          isObject, defer, isString} from '../utils';
 import {environment} from './environment';
 import {setCallback} from './callbacks';
 let log = getLogger('chayns.core.chayns_calls');
@@ -140,6 +140,7 @@ function chaynsCall(cmd, params) {
   try {
     // TODO: create an easier identification of the right environment
     // TODO: consider to execute the browser fallback in here as well
+    // TODO(pascal): windows phone support
     if ('chaynsCall' in window && isFunction(window.chaynsCall.href)) {
       window.chaynsCall.href(url);
     } else if ('webkit' in window
@@ -147,6 +148,8 @@ function chaynsCall(cmd, params) {
       && window.webkit.messageHandlers.chaynsCall
       && window.webkit.messageHandlers.chaynsCall.postMessage) {
       window.webkit.messageHandlers.chaynsCall.postMessage(url);
+    } else if ('external' in window && 'notify' in window.external && can({wp: 4085})) {
+      window.external.notify(url);
     } else {
       window.location.href = url;
     }
@@ -182,7 +185,7 @@ function chaynsWebCall(fn, params) {
   log.debug('chaynsWabCall: ' + url);
 
   try {
-    parent.postMessage(url, '*');
+    window.parent.postMessage(url, '*');
     return Promise.resolve();
   } catch (e) {
     log.error('chaynsWebCall: postMessage failed', e);

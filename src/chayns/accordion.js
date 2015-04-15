@@ -2,13 +2,16 @@ import {forEach, delegate} from '../utils';
 export var accordion = (function(window, document) {
 
   function init(selector) {
-    selector = selector || '.accordion .accordion__head';
+    selector = selector || '.accordion .accordion__head, .accordion .accordion__head .arrow';
     delegate(document, selector, 'click',  handleClickEvent);
   }
 
   function handleClickEvent(e) {
-    let accordion = this.parentElement;
-    let target = e.target; // is equal to this
+    let target = e.target; // `e` is equal to `this`
+    if (target.classList.contains('arrow')) { // also include the arrow as a trigger
+      target = target.parentElement.parentElement; // .arrow is in .right
+    }
+    let accordion = target.parentElement;
     toggleAccordion(accordion, target);
     e.preventDefault();
     e.stopPropagation();

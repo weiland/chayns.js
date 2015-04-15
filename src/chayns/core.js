@@ -129,6 +129,9 @@ function domReadySetup() {
   if (environment.isChaynsWebDesktop) {
     DOM.addClass(html, prefix + '-' + 'desktop');
   }
+  if (environment.isChaynsParent) {
+    DOM.addClass(html, prefix + '-' + 'parent');
+  }
   if (environment.isApp) {
     DOM.addClass(html, prefix + '-' + 'app');
   }
@@ -174,14 +177,14 @@ function chaynsReadySetup(data) {
   if (isObject(data.AppInfo)) {
     let appInfo = data.AppInfo;
     let site = {
-      siteId: appInfo.SiteID,
+      id: appInfo.SiteID,
       title: appInfo.Title,
-      tapps: appInfo.Tapps,
+      tapps: appInfo.Tapps.map(parseTapp),
       facebookAppId: appInfo.FacebookAppID,
       facebookPageId: appInfo.FacebookPageID,
       colorScheme: appInfo.ColorScheme || environment.site.colorScheme || 0,
       version: appInfo.Version,
-      tapp: appInfo.TappSelected
+      tapp: parseTapp(appInfo.TappSelected)
     };
     setEnv('site', site);
   }
@@ -194,7 +197,7 @@ function chaynsReadySetup(data) {
       personId: appUser.PersonID,
       accessToken: appUser.TobitAccessToken,
       facebookAccessToken: appUser.FacebookAccessToken,
-      groups: appUser.UACGroups
+      groups: (appUser.UACGroups || []).map(parseGroup)
     };
     setEnv('user', user);
   }
@@ -254,4 +257,24 @@ function resizeListener() {
     });
   };
   setInterval(resizeHandler, 200); // :(
+}
+
+// helper parser methods
+function parseGroup(group) {
+  return {
+    id: group.GroupID,
+    name: group.Name,
+    isSystemGroup: group.IsSystemGroup,
+    joinDate: group.JoiningDate // TODO(pascal): parse to Date() Object?
+  };
+}
+
+function parseTapp(tapp) {
+  return {
+    showName: tapp.ShowName,
+    internalName: tapp.InternalName,
+    exclusiveMode: tapp.ExclusiveMode,
+    sortId: tapp.SortID,
+    userGroupIds: tapp.UserGroupIds
+  };
 }

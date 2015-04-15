@@ -7,8 +7,6 @@
  * Helper library supporting the Chayns API
  */
 
-// TODO: move all to helper.js or tobi/jams
-// TODO: helper.js with ES6 and jasmine (and or tape)
 // include helper as main module
 
 import Promise from  './lib/promise_polyfill';

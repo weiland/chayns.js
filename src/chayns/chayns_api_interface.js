@@ -570,7 +570,7 @@ export var chaynsApiInterface = {
           setTimeout(function() {
             input = document.querySelector('input');
             input.click();
-          }, 1000);
+          }, 10);
 
           // get form data
           var form = new FormData();

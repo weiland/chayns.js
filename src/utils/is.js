@@ -291,3 +291,54 @@ export function isFormData(obj) {
 export function isFormElement(obj) {
   return toString.call(obj) === '[object HTMLFormElement]';
 }
+
+/**
+ * @name utils.isJwt
+ * @module utils
+ * @kind function
+ *
+ * @description
+ * Determines if a reference is JWT like.
+ *
+ * @param {*} obj Reference to check.
+ * @returns {boolean} True if `value` is a `JWT`.
+ */
+export function isJwt(value) {
+  var parts = value.split('.');
+
+  if (parts.length !== 3) {
+    return false;
+  }
+
+  var input = parts[1].replace('-', '+').replace('_', '/');
+  switch (input.length % 4) {
+    case 0:
+    {
+      break;
+    }
+    case 2:
+    {
+      input += '==';
+      break;
+    }
+    case 3:
+    {
+      input += '=';
+      break;
+    }
+    default:
+    {
+      return false;
+    }
+  }
+  var decoded;
+  try {
+    decoded = window.atob(input);
+  } catch (e) {}
+
+  if (!decoded) {
+    return false;
+  }
+
+  return !!JSON.parse(decoded);
+}
