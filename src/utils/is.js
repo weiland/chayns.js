@@ -339,6 +339,9 @@ export function isJwt(value) {
   if (!decoded) {
     return false;
   }
-
-  return !!JSON.parse(decoded);
+  try {
+    return !!JSON.parse(decoded);
+  } catch (e) {
+    return false;
+  }
 }
