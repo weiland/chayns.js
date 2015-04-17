@@ -9,7 +9,7 @@ import * as utils               from './utils';
 let extend = utils.extend;
 
 // set logLevel to info
-let logLevel = window.preChayns ? (window.preChayns.logLevel || 1) : 4;
+let logLevel = window.preChayns ? (window.preChayns.logLevel || 4) : 4;
 utils.setLevel(logLevel); // TODO: don't set the level here, refactor name
 
 // environment

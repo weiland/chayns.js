@@ -63,6 +63,7 @@ export var chaynsWebInterface = {
         fnName: 'getWindowMetrics',
         fn: function getHeight() {
           console.info('getHeight fallback');
+          return Promise.resolve('test resolved');
         }
       },
       callbackName: 'getWindowMetrics'

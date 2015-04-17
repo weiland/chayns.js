@@ -2,14 +2,14 @@
  * LogLevel Enum
  * none is 0
  * debug is 4
- * @type Enum
+ * @type Object
  */
 export var levels = {
   none: 0,
-  error:1,
-  warn:2,
-  info:3,
-  debug:4
+  error: 1,
+  warn: 2,
+  info: 3,
+  debug: 4
 };
 
 /**
@@ -30,7 +30,7 @@ let logger = window.console;
  * Set the current log Level
  * use `setLevel(newLogLevel)` to overwrite this value.
  */
-let logLevel = levels.none;
+let logLevel = levels.debug;
 
 /**
  *
@@ -55,6 +55,10 @@ function log(level, args, prefix) {
  */
 export function setLevel(level) {
   logLevel = level;
+}
+
+export function getLevel() {
+  return logLevel;
 }
 
 /**
