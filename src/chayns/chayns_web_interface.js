@@ -65,7 +65,7 @@ export var chaynsWebInterface = {
           console.info('getHeight fallback');
         }
       },
-      callbackName
+      callbackName: 'getWindowMetrics'
     });
   }
 

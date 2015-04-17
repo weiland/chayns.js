@@ -177,7 +177,7 @@
         // the preChayns `Object` can be defined before chayns is loaded
       window.preChayns = {
         debugMode: true, // enables debugMode and sets logging to 4 (debug)
-        logLevel: 1, // sets the logLevel. will overwrite debugMode's logLevel
+//        logLevel: 1, // sets the logLevel. will overwrite debugMode's logLevel
         dontSetup: true // (be carefully) disables the setup function
       };
     </script>
@@ -196,7 +196,7 @@
         chayns.register({
           appName: 'Pascals',
           loggerName: 'pw.app', // additional, the appName will be used as default
-          debugMode: false
+          debugMode: true
         });
 
         // chayns logger
