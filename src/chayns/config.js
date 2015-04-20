@@ -5,7 +5,7 @@
 // TODO(pascal): is this config even required?
 import {isPresent, isBlank, isUndefined, isArray, extend} from '../utils';
 
-export var config = new Map();
+//export var config = new Map();
 
 /**
  * Store internal chayns configuration

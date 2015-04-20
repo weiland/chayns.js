@@ -6,12 +6,10 @@ let log = getLogger('chayns.utils.language');
 
 let langUrl = 'https://chayns-res.tobit.com/LangStrings/';
 let projectName = 'Global';
-let language = 'en';
+let language = 'de'; // default language: German (English would be cooler)
 let middle = 'Res';
 let prefix = 'txt_';
 let html = false; // text strings should not be html
-
-let domScope = document.body;
 
 let langMap = {};
 
@@ -85,8 +83,8 @@ function languagesEndpointUrl(lang) {
  * @param {String} [attrName = 'lang'] e.g. <span data-lang='hello'><span>
  * @param {HTMLElement} [customScope = document.body]
  */
-function translateDomStrings(attrName, customScope) {
-  let nodes = DOM.querySelectorAll(customScope || domScope, `[data-${attrName || 'lang'}]`);
+function translateDomStrings(attrName, customScope = document.body) {
+  let nodes = DOM.querySelectorAll(customScope, `[data-${attrName || 'lang'}]`);
   let domElements = Array.prototype.slice.call(nodes);
   domElements.forEach(function(node) {
     let name = node.dataset['lang'];
@@ -122,6 +120,15 @@ function get(strName, lang) {
   }
 }
 
+function set(config, lang) {
+  if (isString(lang)) {
+    language = lang;
+  }
+  if (isObject(config)) {
+    storeLangStrings(config);
+  }
+}
+
 /**
  * Get matching language string
  *
@@ -142,4 +149,4 @@ function resolveLangString(str, lang) {
  * lang.get
  *
  */
-export var lang = {init, translateDomStrings, get};
+export var lang = {init, translateDomStrings, get, set};
