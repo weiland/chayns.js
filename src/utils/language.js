@@ -7,7 +7,9 @@ let log = getLogger('chayns.utils.language');
 let langUrl = 'https://chayns-res.tobit.com/LangStrings/';
 let projectName = 'Global';
 let language = 'en';
+let middle = 'Res';
 let prefix = 'txt_';
+let html = false; // text strings should not be html
 
 let domScope = document.body;
 
@@ -33,7 +35,9 @@ function init(config) {
   }
   projectName = config.projectName || projectName;
   language = config.language || language;
+  middle = config.middle || middle;
   prefix = config.prefix || prefix;
+  html = config.html || html;
   return fetchStrings();
 }
 
@@ -73,7 +77,7 @@ function storeLangStrings(strings) {
  * optional possible parameters: projectName and language
  */
 function languagesEndpointUrl(lang) {
-  return langUrl + projectName + '/' + projectName + 'LangRes_' + langStringMap[lang] + '.json';
+  return langUrl + projectName + '/' + projectName + middle + '_' + langStringMap[lang] + '.json';
 }
 
 /**
@@ -88,7 +92,11 @@ function translateDomStrings(attrName, customScope) {
     let name = node.dataset['lang'];
     let value = resolveLangString(name, language);
     if (isPresent(value)) {
-      node.textContent = value;
+      if (html) {
+        node.innerHTML = value;
+      } else {
+        node.textContent = value;
+      }
     }
   });
 }

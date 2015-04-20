@@ -5,6 +5,8 @@
 // TODO(pascal): is this config even required?
 import {isPresent, isBlank, isUndefined, isArray, extend} from '../utils';
 
+export var config = new Map();
+
 /**
  * Store internal chayns configuration
  * @type {{appName: string, appVersion: number, loadModernizer: boolean, loadPolyfills: boolean, useFetch: boolean, promises: string, useOfflineCaching: boolean, useLocalStorage: boolean, hasAdmin: boolean, multiLingual: boolean, isPublished: boolean, debugMode: boolean, useAjax: boolean}}

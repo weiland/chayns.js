@@ -1,6 +1,5 @@
-import {window as win} from './browser';
-
-let localStorage = win.localStorage;
+import Config from '../chayns/config';
+let localStorage = window.localStorage;
 // TODO: write tests
 // TODO: add keys, values, map methods
 // TODO: consider cookie fallback? no
@@ -15,7 +14,7 @@ ls.set = function(key, value) {
 };
 
 ls.get = function(key) {
-  var value = localStorage[key];
+  let value = localStorage[key];
   if (!value) {
     return;
   }
@@ -26,12 +25,9 @@ ls.remove = function(key) {
   if (!localStorage[key]) {
     return;
   }
-  delete localStorage[key];
+  localStorage.removeItem(key);
 };
 
 ls.removeAll = function() {
-  for (var key in localStorage) {
-    // TODO: hasOwnProperty
-    ls.remove(key);
-  }
+  localStorage.clear();
 };
