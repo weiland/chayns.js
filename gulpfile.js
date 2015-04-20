@@ -10,6 +10,7 @@ var reload = browserSync.reload;
 var del = require('rimraf');
 
 var karma = require('karma').server;
+var jsdoc = require('gulp-jsdoc');
 
 function bundler() {
   return watchify(browserify('./src/chayns.js', {debug: true}))
@@ -31,7 +32,7 @@ gulp.task('build', ['watch-build'], function() {
   process.exit(0);
 });
 
-gulp.taks('test', function(cb) {
+gulp.task('test', function(cb) {
   karma.start({
     configFile: __dirname + '/../test/karma.conf.js',
     files: [
@@ -64,4 +65,9 @@ gulp.task('dev', ['watch-build'], function() {
 
 gulp.task('clean', function(cb) {
   del('dist', cb);
+});
+
+gulp.task('jsdoc', function() {
+  gulp.src(['./src/*.js'])
+  .pipe(jsdoc('./docs'));
 });
