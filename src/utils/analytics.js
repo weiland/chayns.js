@@ -36,3 +36,8 @@ export function initTrack() {
     );
   }
 }
+
+export function send(name, data) {
+  let evt = {name, data};
+  navigator.sendBeacon('https://res-chayns.tobit.com/tracking/', JSON.stringify(evt));
+}
