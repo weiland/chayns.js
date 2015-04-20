@@ -90,7 +90,9 @@
           <button class="button" onclick="chayns.dialog.facebook({title:'dhello.fx',preSelected:['4462600500641']}).then(console.debug.bind(console, 'selectResolved'),console.error.bind(console, 'selectRejected'))">FB preselected</button>
         </div>
         <div>
-          <button class="button" onclick="chayns.dialog.date(Date.now(),console.log.bind(console))">DateSelect</button>
+          <button class="button" onclick="chayns.dialog.date({dateType: 1, preSelect: Date.now()}).then(console.debug.bind(console, 'selectResolved'),console.error.bind(console, 'selectRejected'))">DateSelect</button>
+          <button class="button" onclick="chayns.dialog.date({dateType: 2, preSelect: Date.now()}).then(console.debug.bind(console, 'selectResolved'),console.error.bind(console, 'selectRejected'))">TimeSelect</button>
+          <button class="button" onclick="chayns.dialog.date({dateType: 3, preSelect: Date.now()}).then(console.debug.bind(console, 'selectResolved'),console.error.bind(console, 'selectRejected'))">DateTimeSelect</button>
         </div>
 
         <div>
@@ -269,7 +271,7 @@
         });
 
         // lang test
-        let lang = chayns.utils.lang;
+        var lang = chayns.utils.lang;
         lang.init({
           projectName: 'tobitShop', // TODO(pascal): should be taken from chayns.register()
           middle: 'LangRes',

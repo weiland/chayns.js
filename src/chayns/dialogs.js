@@ -105,14 +105,14 @@ export var dialogs = {
    * @param {Number|Date} minDate Minimum StartDate
    * @param {Number|Date} maxDate Maximum EndDate
    */
-  date: function selectDate() {
-    let [ preSelect, callback, minDate, maxDate] = arguments;
-    //let {dateType, preSelect, callback, minDate, maxDate} = arguments;
+  date: function selectDate(options) {
+    //let [ preSelect, callback, minDate, maxDate] = arguments;
+    let {dateType, preSelect, minDate, maxDate} = options;
 
-    if (!isFunction(callback)) {
-      log.warn('selectDate: callback is no `Function`.');
-      return false;
-    }
+    //if (!isFunction(callback)) {
+    //  log.warn('selectDate: callback is no `Function`.');
+    //  return false;
+    //}
     function validateValue(value) {
       if (!isNumber(value)) {
         if (isDate(value)) {
@@ -138,14 +138,14 @@ export var dialogs = {
         cmd: 30,
         params: [
           `'window._chaynsCallbacks.${callbackName}'`,
-          `1`,
+          dateType,
           `'${preSelect + dateRange}'`
         ],
         support: {android: 3072, ios: 3062, wp: 3030}
       },
       web: {
         fnName: 'datepicker',
-        params: ['datepicker', preSelect]
+        params: ['datepicker', dateType, preSelect]
       },
       callbackName: callbackName
     });

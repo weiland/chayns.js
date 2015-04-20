@@ -1,4 +1,4 @@
-import Config from '../chayns/config';
+//import Config from '../chayns/config';
 let localStorage = window.localStorage;
 // TODO: write tests
 // TODO: add keys, values, map methods
