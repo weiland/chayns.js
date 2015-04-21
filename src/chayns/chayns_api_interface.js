@@ -557,20 +557,29 @@ export var chaynsApiInterface = {
       web: {
         fn: function webUpload() {
           let deferred = defer();
-
-          // create input file element
-          let input = DOM.createElement('input');
-          input.setAttribute('type', 'file');
-          input.setAttribute('value', '');
-          input.setAttribute('accept', 'image/*');
-          //input.setAttribute('id', 'chayns-image-upload-field);
-          input.setAttribute('onchange', 'imageChosen()');
-          input.setAttribute('class', 'chayns__upload-image');
-          DOM.query('#chayns-root').appendChild(input);
+          let chaynsRoot = document.querySelector('#chayns-root');
+          let input = chaynsRoot.querySelector('.chayns__upload-image');
+          if (!input) {
+            // create input file element
+            input = DOM.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('value', '');
+            input.setAttribute('accept', 'image/*');
+            //input.setAttribute('id', 'chayns-image-upload-field);
+            input.setAttribute('onchange', 'imageChosen()');
+            input.setAttribute('class', 'chayns__upload-image');
+            chaynsRoot.appendChild(input);
+          }
+          input.click();
           setTimeout(function() {
-            input = document.querySelector('input');
+            input = chaynsRoot.querySelector('.chayns__upload-image');
+            input.click();
             input.click();
           }, 10);
+          setTimeout(function() {
+            input = document.querySelector('.chayns__upload-image');
+            input.click();
+          }, 1000);
 
           // get form data
           var form = new FormData();
