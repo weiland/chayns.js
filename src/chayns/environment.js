@@ -103,7 +103,6 @@ if (is.mobile && ['android', 'ios', 'wp'].indexOf(parameters.os) !== -1) {
 environment.isIOS = is.ios;
 environment.isAndroid = is.android;
 environment.isWP = is.wp;
-environment.isBB = is.bb;
 
 environment.isInFrame = (window !== window.top);
 

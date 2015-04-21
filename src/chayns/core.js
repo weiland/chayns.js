@@ -195,7 +195,7 @@ function chaynsReadySetup(data) {
       id: appUser.TobitUserID, // TODO(pascal/uwe): or .userId?
       facebookId: appUser.FacebookID,
       personId: appUser.PersonID,
-      accessToken: appUser.TobitAccessToken,
+      tobitAccessToken: appUser.TobitAccessToken,
       facebookAccessToken: appUser.FacebookAccessToken,
       groups: (appUser.UACGroups || []).map(parseGroup)
     };
