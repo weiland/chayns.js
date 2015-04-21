@@ -871,13 +871,28 @@ export var chaynsApiInterface = {
    * (old ShowURLInApp)
    * not to confuse with openUrlInBrowser
    *
-   * @param {string} url
+   * @param {String} url
+   * @param {String} title
+   * @param {Boolean} isExclusive (chayns web only)
    * @returns {Promise}
    */
-  openUrl: function openUrl(url, title) {
+  openUrl: function openUrl(url, title, isExclusive) {
     if (!isString(url)) {
       log.error('openUrl: invalid url');
       return Promise.reject(new Error('Invalid URL'));
+    }
+    let web = {
+      fn:function() {
+        location.href = url;
+      }
+    };
+    if (isExclusive) {
+      web = {
+        fnName: 'overlay',
+          params: {
+            src: url
+          }
+      };
     }
     return apiCall({
       app: {
@@ -888,12 +903,7 @@ export var chaynsApiInterface = {
           location.href = url;
         }
       },
-      web: {
-        fnName: 'overlay',
-        params: {
-          src: url
-        }
-      }
+      web: web
     });
   },
 
