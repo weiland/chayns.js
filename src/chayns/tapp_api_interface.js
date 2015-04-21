@@ -181,7 +181,7 @@ function sendMessage(obj) {
     return Promise.reject(Error('Invalid parameters'));
   }
   obj.siteId = obj.siteId || environment.site.siteId;
-  obj.accessToken = obj.accessToken || environment.user.accessToken;
+  obj.accessToken = obj.accessToken || environment.user.tobitAccessToken;
   let map = {
     message: 'Message',
     accessToken: 'AccessToken',
