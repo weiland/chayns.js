@@ -93,7 +93,14 @@ export var dialogs = {
     });
   },
 
-
+  /**
+   * 
+   */
+  dateType: {
+    date: 1,
+    time: 2,
+    dateTime: 3
+  },
   /**
    * Select Date
    * Old: DateSelect

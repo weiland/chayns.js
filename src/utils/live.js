@@ -24,6 +24,7 @@
 //  });
 //}
 
+// TODO(pascal): move to delegate.js, refactor internal usage and remove this file
 export function delegate(target, selector, type, handler) {
   function dispatchEvent(event) {
     var targetElement = event.target;

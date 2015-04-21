@@ -19,9 +19,55 @@ let osMap = {
  * Public Chayns Interface
  * Execute API Call
  *
+ * ## examples
+ *
+ * Native App Call and Chayns Web Call
+ * ```js
+  apiCall({
+      app: {
+        cmd: 8,
+        support: { android: 1359, ios: 1366, wp: 2469 }
+      },
+      web: {
+        fnName: 'facebookConnect',
+        params: {
+          ReloadParameter: 'ExecCommand=' + reloadParam
+        }
+      }
+    });
+ * ```
+ * With custom web function (which can be used as fallback as well)
+ * ```js
+   apiCall({
+      app: {
+        cmd: 9,
+        params: [`'${url}'`],
+        support: { android: 2405, ios: 2466, wp: 2543 }
+      },
+      web: {
+        fn: function openPopup() {
+
+          return Promise();
+        }
+      }
+ * ```
+ *
+ * With callback function (will be invoked multiple times)
+ * ```js
+   let callback = function() {};
+   apiCall({
+      app: {
+        cmd: 10,
+        params: [callbackName('backButtonCallback')],
+        support: { android: 2405, ios: 2636, wp: 2469 }
+      },
+      callbackName: 'backButtonCallback',
+      callbackFunction: callback
+    });
+ * ```
+ *
  * @param {Object} obj ChaynsCall Object
- * @returns
- * // TODO: left of callback as promise
+ * @returns {Promise}
  */
 export function apiCall(obj) {
 
@@ -111,7 +157,8 @@ export function apiCall(obj) {
 }
 
 /**
- * Build Chayns Call (only for native Apps)
+ * Execute Chayns Call (only for native Apps)
+ *
  * @private
  * @param {Integer} cmd Chayns call command id
  * @param {Array|undefined} params Optional Chayns call parameters Array
@@ -161,9 +208,9 @@ function chaynsCall(cmd, params) {
 }
 
 /**
- * @description
  * Execute a ChaynsWeb Call in the parent window.
  *
+ * @private
  * @param {String} fn Function name
  * @param {String\Object} params Additional Object will be stringified
  * @returns {Promise} True if chaynsWebbCall succeeded

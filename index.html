@@ -265,6 +265,8 @@
 
         }).catch( function rejected(e) {
           log.warn('Chayns Information could not be received\n', e);
+          var chaynsEnvElement = chayns.utils.DOM.query('.chayns-env');
+          chayns.utils.DOM.setText(chaynsEnvElement, 'is not in a Chayns env');
 
           // still show tapp
           chayns.utils.DOM.removeAttribute(chayns.utils.DOM.query('[chayns-cloak]'), 'chayns-cloak');
