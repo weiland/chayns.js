@@ -67,6 +67,12 @@ export var chaynsWebInterface = {
         }
       },
       callbackName: 'getWindowMetrics'
+    }).then(function(data) {
+      return {
+        height: data.AvailHeight,
+        scrollTop: data.WindowScrollTop,
+        windowHeight: data.WindowInnerHeight
+      };
     });
   }
 

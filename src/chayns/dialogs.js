@@ -94,7 +94,7 @@ export var dialogs = {
   },
 
   /**
-   * 
+   *
    */
   dateType: {
     date: 1,
@@ -302,31 +302,43 @@ function chaynsDialog(config) {
 
 function fallbackDialog(config) {
   log.info('fallback popup', arguments);
-
-  // create callbacks
   let deferred = defer();
-  window._chaynsCallbacks.closeCb = deferred.resolve;
-  window._chaynsCallbacks.closeCbError = deferred.reject; // is not used
+  // get window metrics
+  let metrics;
+  chayns
+    .getWindowMetrics()
+    .then(function onSuccess(data) {
+      metrics = data;
+    })
+    .catch(function onError() {
+      // we are not on chayns web desktop
+    }).then(function always() {
 
-  // create Dialog Object
-  let dialog = new Dialog(config.title, config.message, config.buttons);
-  dialog.render();
-  dialog.show();
+      // create callbacks
+      window._chaynsCallbacks.closeCb = deferred.resolve;
+      window._chaynsCallbacks.closeCbError = deferred.reject; // is not used
 
-  // get the dialog's height
-  let dialogHeight = dialog.contentBox().offsetHeight || 55;
-  let viewportHeight = window.innerHeight; // the users browser's viewport
-  let bannerHeight = 0;
-  log.debug('test', environment.isChaynsWebDesktop);
-  if (environment.isChaynsWebDesktop) {
-    bannerHeight = 450;
-  }
-  //let documentHeight = window.outerHeight; // entire document
-  log.debug('dialog height', dialogHeight);
-  // adjust the top position
-  let topPosition = viewportHeight / 2 - dialogHeight - bannerHeight;
-  topPosition = topPosition > 50 ? topPosition : 50;
-  dialog.contentBox().style.top = topPosition + 'px';
+      // create Dialog Object
+      let dialog = new Dialog(config.title, config.message, config.buttons);
+      dialog.render();
+      dialog.show();
+
+      // get the dialog's height
+      let dialogHeight = dialog.contentBox().offsetHeight || 55;
+      let viewportHeight = window.innerHeight; // the users browser's viewport
+
+      //let documentHeight = window.outerHeight; // entire document
+      log.debug('dialog height', dialogHeight);
+      log.debug('window metrics', metrics);
+      // adjust the top position
+      let topPosition = viewportHeight / 2 - dialogHeight;
+      // subtract the banner-height on desktop TODO(pascal): always 450?
+      if (environment.isChaynsWebDesktop) {
+        topPosition = topPosition - 450;
+      }
+      topPosition = topPosition > 50 ? topPosition : 50;
+      dialog.contentBox().style.top = topPosition + 'px';
+    });
 
   return deferred.promise;
 }
