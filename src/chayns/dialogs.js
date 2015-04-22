@@ -23,10 +23,12 @@ let dialogType = {
  */
 export var dialogs = {
 
+  buttonType,
+
   alert: function alert(title, message) {
     return chaynsDialog({
       type: dialogType.ALERT,
-      title: title || 'Alert Modal Dialog',
+      title: title || '',
       message: message || '',
       buttons: [{
         type: buttonType.SUCCESS,
@@ -38,7 +40,7 @@ export var dialogs = {
   confirm: function confirm(title, message) {
     return chaynsDialog({
       type: dialogType.CONFIRM,
-      title: title || 'Confirm Modal Dialog',
+      title: title || '',
       message: message || '',
       buttons: [{
         type: buttonType.CANCEL,
@@ -55,7 +57,7 @@ export var dialogs = {
       return Promise.reject(new Error('Invalid Parameters'));
     }
     return chaynsSelectDialog({
-      title: config.title || 'Select Modal Dialog',
+      title: config.title || '',
       message: config.message || '',
       buttons: [ {
         title: 'Cancel',
@@ -75,7 +77,7 @@ export var dialogs = {
       return Promise.reject(new Error('Invalid Parameters'));
     }
     return chaynsSelectDialog({
-      title: config.title || 'Friends Select Modal Dialog',
+      title: config.title || '',
       message: config.message || '',
       // TODO: right order of buttons, in app only the second is visible
       buttons: [{
