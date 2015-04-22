@@ -25,6 +25,7 @@
     "karma-phantomjs-launcher": "^0.1.4",
     "karma-spec-reporter": "0.0.16",
     "rimraf": "^2.3.2",
+    "uglify-js": "^2.4.20",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^2.4.0"
   },
@@ -37,6 +38,7 @@
     "validate": "jshint src test && jscs src test",
     "build": "browserify -d -e src/chayns.js -t babelify --outfile dist/chayns.js",
     "build-new": "rimraf dist && mkdirp dist && browserify -d -e src/chayns.js -t babelify --outfile dist/chayns.js",
+    "release": "uglifyjs dist/chayns.js -o dist/chayns.min.js --source-map dist/chayns.js.min.map --source-map-url chayns.js.min.map -c -m",
     "mount": "open smb://pweiland@chayns1/SlitteRessource",
     "deploy": "cp -r ./dist/ /Volumes/SlitteRessource/API/v3/js && cp ./index.html /Volumes/SlitteRessource/API/v3/"
   },
