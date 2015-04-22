@@ -152,7 +152,7 @@ export var dialogs = {
       },
       web: {
         fnName: 'datepicker',
-        params: ['datepicker', dateType, preSelect]
+        params: [callbackName, dateType, preSelect]
       },
       callbackName: callbackName
     });
