@@ -162,7 +162,7 @@ export var tappApiInterface = {
       return sendMessage({
         message: message,
         groupId: groupId,
-        url: 'InterCom/group'
+        url: 'InterCom/Group'
       });
     }
   }
@@ -180,7 +180,7 @@ function sendMessage(obj) {
   if (!isObject(obj) || !obj.message || !obj.url) {
     return Promise.reject(Error('Invalid parameters'));
   }
-  obj.siteId = obj.siteId || environment.site.siteId;
+  obj.siteId = obj.siteId || environment.site.id;
   obj.accessToken = obj.accessToken || environment.user.tobitAccessToken;
   let map = {
     message: 'Message',
