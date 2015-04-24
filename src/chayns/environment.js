@@ -144,6 +144,8 @@ environment.canChaynsWebCall = environment.isChaynsWeb;
 //environment.orientation = orientation;
 //environment.ratio = window.devicePixelRatio;
 
+environment.language = navigator.language.substring(0,2); // maps en_US to en
+
 environment.debugMode = debugMode;
 
 environment.site = {};

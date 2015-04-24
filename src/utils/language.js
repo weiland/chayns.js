@@ -14,7 +14,7 @@ let html = false; // text strings should not be html
 let langMap = {};
 
 // this is really sad :(
-let langStringMap = {
+var langStringMap = {
   en: 'Eng',
   de: 'Ger',
   fr: 'Fra'
@@ -149,4 +149,4 @@ function resolveLangString(str, lang) {
  * lang.get
  *
  */
-export var lang = {init, translateDomStrings, get, set};
+export var lang = {init, translateDomStrings, langStringMap, get, set};
