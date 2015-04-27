@@ -40,6 +40,22 @@ function init(config) {
 }
 
 /**
+ * Returns the current language mapped to the chayns lang
+ * @returns {*}
+ */
+function getMappedLanguage(){
+  return langStringMap[language];
+}
+
+/**
+ * Returns the current prefix
+ * @returns {*}
+ */
+function getPrefix(){
+  return prefix;
+}
+
+/**
  * Fetches the Textstrings for the current language
  * @returns {*}
  */
@@ -149,4 +165,4 @@ function resolveLangString(str, lang) {
  * lang.get
  *
  */
-export var lang = {init, translateDomStrings, langStringMap, get, set};
+export var lang = {init, translateDomStrings, langStringMap, getMappedLanguage, getPrefix, get, set};
