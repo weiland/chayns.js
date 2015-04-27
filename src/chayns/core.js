@@ -144,14 +144,16 @@ function domReadySetup() {
 
   // get chayns data (either from Chayns Web (parent frame) or chayns app)
   // get the App Information (TODO(lucian/uwe): has to be done when document ready? yes, should be the best)
-  chaynsApiInterface.getGlobalData()
-    .then(chaynsReadySetup)
-    .catch(function rejected() {
-      log.debug('Error: The App Information could not be received.');
-      chaynsReadyDefer.reject('The App Information could not be received.');
-  }).then(function always() {
-    accordion.init();
-  });
+  setTimeout(function(){
+    chaynsApiInterface.getGlobalData()
+      .then(chaynsReadySetup)
+      .catch(function rejected() {
+        log.debug('Error: The App Information could not be received.');
+        chaynsReadyDefer.reject('The App Information could not be received.');
+      }).then(function always() {
+        accordion.init();
+      });
+  }, environment.isIOS ? 500 : 0);
 }
 
 /**
