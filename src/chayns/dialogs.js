@@ -44,10 +44,10 @@ export var dialogs = {
       message: message || '',
       buttons: [{
         type: buttonType.CANCEL,
-        title: 'No'
+        title: 'Nein'
       }, {
         type: buttonType.SUCCESS,
-        title: 'Yes'
+        title: 'Ja'
       }]
     });
   },
@@ -60,7 +60,7 @@ export var dialogs = {
       title: config.title || '',
       message: config.message || '',
       buttons: [ {
-        title: 'Cancel',
+        title: 'Abbrechen',
         type: buttonType.CANCEL
       }, {
         title: 'Ok',
@@ -81,7 +81,7 @@ export var dialogs = {
       message: config.message || '',
       // TODO: right order of buttons, in app only the second is visible
       buttons: [{
-        title: 'Cancel',
+        title: 'Abbrechen',
         type: buttonType.CANCEL
       },{
         title: 'Ok',
