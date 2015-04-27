@@ -2,7 +2,7 @@ import {forEach, delegate} from '../utils';
 export var accordion = (function(window, document) {
 
   function init(selector) {
-    selector = selector || '.accordion .accordion__head, .accordion .accordion__head .arrow';
+    selector = selector || '.accordion .accordion__head, .accordion .accordion__head .arrow, .accordion .accordion__head .accordion--trigger';
     delegate(document, selector, 'click',  handleClickEvent);
   }
 
@@ -10,6 +10,8 @@ export var accordion = (function(window, document) {
     let target = e.target; // `e` is equal to `this`
     if (target.classList.contains('arrow')) { // also include the arrow as a trigger
       target = target.parentElement.parentElement; // .arrow is in .right
+    } else if(target.classList.contains('accordion--trigger')){ //also include elements with .accordion--trigger
+      target = target.parentElement;
     }
     let accordion = target.parentElement;
     toggleAccordion(accordion, target);
