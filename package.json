@@ -40,7 +40,8 @@
     "build-new": "rimraf dist && mkdirp dist && browserify -d -e src/chayns.js -t babelify --outfile dist/chayns.js",
     "release": "uglifyjs dist/chayns.js -o dist/chayns.min.js --source-map dist/chayns.js.min.map --source-map-url chayns.js.min.map -c -m",
     "mount": "open smb://pweiland@chayns1/SlitteRessource",
-    "deploy": "cp -r ./dist/* //chayns1/SlitteRessource/API/v3/js && cp ./index.html //chayns1/SlitteRessource/API/v3/"
+    "deploy": "cp -r ./dist/* //chayns1/SlitteRessource/API/v3/js && cp ./index.html //chayns1/SlitteRessource/API/v3/",
+    "qa": "cp -r ./dist/* //chayns1/SlitteRessource/API/v3/js/qa && cp ./index.html //chayns1/SlitteRessource/API/v3/"
   },
   "author": "Pascal Weiland",
   "license": "MIT",

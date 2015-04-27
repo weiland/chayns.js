@@ -72,20 +72,30 @@ export class DOM {
 
   // class
   static classList(element) {
+    if(!element){
+      return element;
+    }
     return Array.prototype.slice.call(element.classList, 0);
   }
   static addClass(element, className) {
-    element.classList.add(className);
+    if(element){
+      element.classList.add(className);
+    }
   }
   static removeClass(element, className) {
-    element.classList.remove(className);
+    if(element){
+      element.classList.remove(className);
+    }
   }
   static hasClass(element, className) {
+    if(!element){
+      return element;
+    }
     return element.classList.contains(className);
   }
 
   // css
-  static css(element, styleName, styleVhasalue) {
+  static css(element, styleName, styleValue) {
     if(isUndefined(styleValue)) {
       return element.style[styleName];
     }
