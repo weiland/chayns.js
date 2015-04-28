@@ -211,12 +211,16 @@ function chaynsSelectDialog(config) {
   if (isArray(config.list) && config.list.length > 0) {
     list = [];
     config.list.forEach(function(item) {
-      list.push({
-        Text: item.name,
-        Value: item.value,
-        Preselect: !!item.isSelected,
-        Image: item.image
-      });
+      if(item.name || item.image){
+        list.push({
+          Text: item.name,
+          Value: item.value || item,
+          Preselect: !!item.isSelected,
+          Image: item.image
+        });
+      } else {
+        log.warn('Item needs to have at least a name or an image.', item);
+      }
     });
   }
   if (isArray(config.preSelected)) {
@@ -229,7 +233,7 @@ function chaynsSelectDialog(config) {
     app: {
       cmd: isFacebook ? 51 : 50, // 50 is standard, 51 FB Dialog
       params: [
-        `'window._chaynsCallbacks.${fnName}()'`,
+        `window._chaynsCallbacks.${fnName}()`,
         `'${JSON.stringify(setup)}'`,
         `'${JSON.stringify(list)}'`
       ],

@@ -72,6 +72,10 @@
         <h1 class="headline">chayns.js</h1>
 
         <div>
+          <button class="button" onclick="chayns.dialog.select({title:'dhello.fx',list:[{name:'test'}, {value:'test2'}]}).then(console.debug.bind(console, 'selectResolved'),console.error.bind(console, 'selectRejected'))">Select mit Fehler</button>
+        </div>
+
+        <div>
           <button class="button" onclick="chayns.dialog.alert('dhello.fx').then(console.debug.bind(console, 'alertResolved'),console.error.bind(console, 'alertRejected'))">Alert</button>
           <button class="button" onclick="chayns.dialog.confirm('dhello.fx').then(console.debug.bind(console, 'confirmResolved'),console.error.bind(console, 'confirmResjected'))">Confirm</button>
         </div>
