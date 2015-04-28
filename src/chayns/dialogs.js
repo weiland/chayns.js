@@ -31,8 +31,8 @@ export var dialogs = {
       title: title || '',
       message: message || '',
       buttons: [{
-        type: buttonType.SUCCESS,
-        title: 'OK'
+        title: 'OK',
+        type: buttonType.SUCCESS
       }]
     });
   },
@@ -43,11 +43,11 @@ export var dialogs = {
       title: title || '',
       message: message || '',
       buttons: [{
-        type: buttonType.CANCEL,
-        title: 'Nein'
+        title: 'Nein',
+        type: buttonType.CANCEL
       }, {
-        type: buttonType.SUCCESS,
-        title: 'Ja'
+        title: 'Ja',
+        type: buttonType.SUCCESS
       }]
     });
   },
@@ -59,10 +59,10 @@ export var dialogs = {
     return chaynsSelectDialog({
       title: config.title || '',
       message: config.message || '',
-      buttons: [ {
+      buttons: [/* {
         title: 'Abbrechen',
         type: buttonType.CANCEL
-      }, {
+      }, */{
         title: 'Ok',
         type: buttonType.SUCCESS
       }],
@@ -79,11 +79,11 @@ export var dialogs = {
     return chaynsSelectDialog({
       title: config.title || '',
       message: config.message || '',
-      // TODO: right order of buttons, in app only the second is visible
-      buttons: [{
+      // TODO: right order of buttons, in app only the second is visible (Lucas: Only 1 Button should be displayed)
+      buttons: [/*{
         title: 'Abbrechen',
         type: buttonType.CANCEL
-      },{
+      },*/{
         title: 'Ok',
         type: buttonType.OK
       }],
@@ -188,13 +188,13 @@ function chaynsSelectDialog(config) {
       Value: config.buttons[0].type
     }
   ];
-  // TODO: should only have one button?!
-  if (config.buttons[1]) {
+  // TODO: should only have one button?! (Lucas: Yep)
+  /*if (config.buttons[1]) {
     buttons.push({
       Text: config.buttons[1].title,
       Value: config.buttons[1].type
     });
-  }
+  }*/
 
   let setup = {
     Headline: config.title,
@@ -211,15 +211,15 @@ function chaynsSelectDialog(config) {
   if (isArray(config.list) && config.list.length > 0) {
     list = [];
     config.list.forEach(function(item) {
-      if(item.name || item.image){
+      if(item.name || item.image){ //Button needs to have something to display
         list.push({
           Text: item.name,
-          Value: item.value || item,
+          Value: item.value || item, //Android needs a value otherwise the dialog won't be displayed
           Preselect: !!item.isSelected,
           Image: item.image
         });
       } else {
-        log.warn('Item needs to have at least a name or an image.', item);
+        log.warn('Item needs to have at least a name or an image to be displayed.', item);
       }
     });
   }

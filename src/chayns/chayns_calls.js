@@ -213,7 +213,7 @@ function chaynsCall(cmd, params) {
  * @private
  * @param {String} fn Function name
  * @param {String\Object} params Additional Object will be stringified
- * @returns {Promise} True if chaynsWebbCall succeeded
+ * @returns {Promise} True if chaynsWebCall succeeded
  */
 function chaynsWebCall(fn, params) {
   if (!fn || !isString(fn)) { // TODO: isString required? actually no
