@@ -75,7 +75,7 @@ gulp.task('jsdoc', function() {
 
 gulp.task('qa', function() {
   gulp.src('./dist/*.*')
-    .pipe(gulp.dest('//chayns1/SlitteRessource/API/v3/js/qa/test'));
+    .pipe(gulp.dest('//chayns1/SlitteRessource/API/v3/js/qa'));
   gulp.src('./index.html')
     .pipe(gulp.dest('//chayns1/SlitteRessource/API/v3'));
 });
