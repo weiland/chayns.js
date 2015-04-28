@@ -3,12 +3,26 @@ import {getLogger, isObject, isArray, isNumber, isDate, isFunction, defer} from 
 import {environment} from './environment';
 
 let log = getLogger('chayns_dialogs');
-
+let buttonText = {
+    YES: {
+        'de': 'Ja',
+        'en': 'Yes',
+        'nl': 'Ja'
+    },
+    NO: {
+        'de': 'Nein',
+        'en': 'No',
+        'nl': 'Nee'
+    },
+    OK: 'OK'
+};
 let buttonType = {
-  SUCCESS: 1,
+    POSITIVE: 1,
+    NEGATIVE: 2
+ /* SUCCESS: 1,
   OK: 1,
   ERROR: 2,
-  CANCEL: 2
+  CANCEL: 2*/
 };
 let dialogType = {
   ALERT: 0,
@@ -17,6 +31,7 @@ let dialogType = {
   FACEBOOK: 3,
   DATE: 4
 };
+let defaultLanguage = 'en';
 
 /**
  * Dialogs - American notation
@@ -31,8 +46,8 @@ export var dialogs = {
       title: title || '',
       message: message || '',
       buttons: [{
-        title: 'OK',
-        type: buttonType.SUCCESS
+        title: 'Ok',
+        type: buttonType.POSITIVE
       }]
     });
   },
@@ -43,11 +58,11 @@ export var dialogs = {
       title: title || '',
       message: message || '',
       buttons: [{
-        title: 'Nein',
-        type: buttonType.CANCEL
+        title: buttonText.NO[environment.language] || buttonText.NO[defaultLanguage],
+        type: buttonType.NEGATIVE
       }, {
-        title: 'Ja',
-        type: buttonType.SUCCESS
+        title: buttonText.YES[environment.language] || buttonText.YES[defaultLanguage],
+        type: buttonType.POSITIVE
       }]
     });
   },
@@ -61,10 +76,10 @@ export var dialogs = {
       message: config.message || '',
       buttons: [/* {
         title: 'Abbrechen',
-        type: buttonType.CANCEL
+        type: buttonType.NEGATIVE
       }, */{
-        title: 'Ok',
-        type: buttonType.SUCCESS
+        title: buttonText.OK,
+        type: buttonType.POSITIVE
       }],
       list: config.list || [],
       multiselect: config.multiselect, // enable multiple selection
@@ -79,13 +94,13 @@ export var dialogs = {
     return chaynsSelectDialog({
       title: config.title || '',
       message: config.message || '',
-      // TODO: right order of buttons, in app only the second is visible (Lucas: Only 1 Button should be displayed)
+      // TODO: right order of buttons, in app only the second is visible (Lucas: Only one Button should be displayed)
       buttons: [/*{
         title: 'Abbrechen',
-        type: buttonType.CANCEL
+        type: buttonType.NEGATIVE
       },*/{
-        title: 'Ok',
-        type: buttonType.OK
+        title: buttonText.OK,
+        type: buttonType.POSITIVE
       }],
       preSelected: config.preSelected,
       multiselect: config.multiselect, // enable multiple selection
@@ -250,7 +265,6 @@ function chaynsSelectDialog(config) {
 }
 
 function chaynsDialog(config) {
-
     let buttons = [
       {
         Text: config.buttons[0].title,
@@ -277,9 +291,9 @@ function chaynsDialog(config) {
         Text: config.buttons[1].title,
         Value: config.buttons[1].type
       });
-      params.push({
-        'string': config.buttons[1].title
-      });
+
+      params.push(config.buttons[1].title); //directly push value and not an object
+
       fallbackButtons.push({
         name: config.buttons[1].title,
         value: config.buttons[1].type

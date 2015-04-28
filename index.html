@@ -76,8 +76,12 @@
         </div>
 
         <div>
-          <button class="button" onclick="chayns.dialog.alert('dhello.fx').then(console.debug.bind(console, 'alertResolved'),console.error.bind(console, 'alertRejected'))">Alert</button>
-          <button class="button" onclick="chayns.dialog.confirm('dhello.fx').then(console.debug.bind(console, 'confirmResolved'),console.error.bind(console, 'confirmResjected'))">Confirm</button>
+            <button class="button" onclick="chayns.dialog.alert('dhello.fx').then(console.debug.bind(console, 'alertResolved'),console.error.bind(console, 'alertRejected'))">Alert Headline</button>
+          <button class="button" onclick="chayns.dialog.alert('dhello.fx', 'Text').then(console.debug.bind(console, 'alertResolved'),console.error.bind(console, 'alertRejected'))">Alert H+M</button>
+            <button class="button" onclick="chayns.dialog.alert('', 'Text').then(console.debug.bind(console, 'alertResolved'),console.error.bind(console, 'alertRejected'))">Alert Message</button>
+            <button class="button" onclick="chayns.dialog.confirm('dhello.fx').then(console.debug.bind(console, 'confirmResolved'),console.error.bind(console, 'confirmResjected'))">Confirm Headline</button>
+          <button class="button" onclick="chayns.dialog.confirm('dhello.fx', 'Text').then(console.debug.bind(console, 'confirmResolved'),console.error.bind(console, 'confirmResjected'))">Confirm H+M</button>
+            <button class="button" onclick="chayns.dialog.confirm('', 'Text').then(console.debug.bind(console, 'confirmResolved'),console.error.bind(console, 'confirmResjected'))">Confirm Message</button>
         </div>
 
         <div>
