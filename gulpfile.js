@@ -71,3 +71,18 @@ gulp.task('jsdoc', function() {
   gulp.src(['./src/*.js'])
   .pipe(jsdoc('./docs'));
 });
+
+
+gulp.task('qa', function() {
+  gulp.src('./dist/*.*')
+    .pipe(gulp.dest('//chayns1/SlitteRessource/API/v3/js/qa/test'));
+  gulp.src('./index.html')
+    .pipe(gulp.dest('//chayns1/SlitteRessource/API/v3'));
+});
+
+gulp.task('deploy', function() {
+  gulp.src('./dist/*.*')
+    .pipe(gulp.dest('//chayns1/SlitteRessource/API/v3/js'));
+  gulp.src('./index.html')
+    .pipe(gulp.dest('//chayns1/SlitteRessource/API/v3'));
+});
