@@ -95,6 +95,9 @@ export * from './utils/language';
 // isPemitted App Version check
 export * from './utils/is_permitted';
 
+// equalizer for width and height
+export * from './utils/equalizer'
+
 
 // in Future
 // immutable

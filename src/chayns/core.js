@@ -1,4 +1,4 @@
-import {getLogger, isObject, DOM, defer} from '../utils';
+import {getLogger, isObject, DOM, defer, equalizer} from '../utils';
 import {Config} from './config';
 import {messageListener} from './callbacks';
 import {chaynsApiInterface} from './chayns_api_interface';
@@ -152,6 +152,7 @@ function domReadySetup() {
         chaynsReadyDefer.reject('The App Information could not be received.');
       }).then(function always() {
         accordion.init();
+        equalizer.init();
       });
   }, environment.isIOS ? 500 : 0);
 }

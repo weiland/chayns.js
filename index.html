@@ -66,10 +66,41 @@
     </style>
   </head>
   <body chayns-cloak class="chayns-cloak">
-
     <div class="tapp">
       <div class="tapp__intro">
         <h1 class="headline">chayns.js</h1>
+
+      <div data-equalize>
+          <button data-equalize-width>Test_0</button>
+          <button data-equalize-width>Test__1</button>
+          <button data-equalize-width>Test___2</button>
+          <button data-equalize-width>Test____3</button>
+          <button data-equalize-width>Test_____4</button>
+
+          <div data-equalize="test">
+              <button data-equalize-width="test">Test0</button>
+              <button data-equalize-width="test">Test_1</button>
+              <button data-equalize-width="test">Test__2</button>
+          </div>
+      </div>
+
+      <div data-equalize="test2">
+          <div style="background: blue; height: 50px; margin: 10px 0" data-equalize-height="test2"></div>
+          <div style="background: darkblue; height: 160px; margin: 10px 0" data-equalize-height="test2"></div>
+          <div style="background: blue; height: 90px; margin: 10px 0" data-equalize-height="test2">
+              <div data-equalize="3">
+                  <div style="background: orangered; height: 5px" data-equalize-height="3"></div>
+                  <div style="background: red; height: 16px" data-equalize-height="3"></div>
+                  <div style="background: orangered; height: 9px" data-equalize-height="3"></div>
+              </div>
+          </div>
+      </div>
+
+      <div data-equalize="test3">
+          <button style="height: 40px" data-equalize-both="test3">Test0</button>
+          <button data-equalize-both="test3">Test_1</button>
+          <button data-equalize-both="test3">Test__2</button>
+      </div>
 
         <div>
           <button class="button" onclick="chayns.dialog.select({title:'dhello.fx',list:[{name:'test'}, {value:'test2'}]}).then(function(data){chayns.dialog.alert('Success', JSON.stringify(data))}).catch(function(data){chayns.dialog.alert('Rejected', JSON.stringify(data))})">Select mit Fehler</button>
