@@ -23,6 +23,7 @@ import {chaynsApiInterface}     from './chayns/chayns_api_interface';
 import {tappApiInterface}       from './chayns/tapp_api_interface';
 import {chaynsWebInterface}     from './chayns/chayns_web_interface';
 import {dialogs}                from './chayns/dialogs';
+import {colors}                 from './chayns/colors';
 
 // public chayns object
 export var chayns = {};
@@ -34,6 +35,7 @@ extend(chayns, {utils});
 extend(chayns, {VERSION: '0.1.0'});
 
 extend(chayns, {env: environment});
+extend(chayns, {getSchemeColor: colors});
 
 extend(chayns, {register});
 extend(chayns, {ready});
