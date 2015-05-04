@@ -226,7 +226,7 @@ function chaynsReadySetup(data) {
 
   // chayns is ready
   DOM.addClass(html, prefix + 'ready');
-  //remove cloak to show content
+  // remove cloak to show content
   DOM.removeAttribute(DOM.query('[chayns-cloak]'), 'chayns-cloak');
   DOM.removeClass(DOM.query('.chayns-cloak'), 'chayns-cloak');
 

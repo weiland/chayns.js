@@ -50,22 +50,24 @@ let schemeColors = {
     '9': '#5E4883'
 };
 
-export var colors = function(saturation) {
-    var color = schemeColors[environment.site.colorScheme || '1'];
+export var getSchemeColor = function(saturation, colorScheme) {
 
-    if (typeof saturation === 'number' && saturation > 0 && saturation < 100) {
-        saturation = 1 - (saturation / 100);
-        let rgb = color.match(/[0-9A-F]{2}/gi),
-            retColor = '#';
-        for (var i = 0, l = rgb.length; i < l; i++) {
-            let colorPart = parseInt(rgb[i], 16);
-            let diff = 255 - colorPart;
-            diff = Math.floor(diff * saturation);
-            colorPart += diff;
-            retColor += colorPart.toString(16);
-        }
-        return retColor;
-    }
+  let colorSchemeId = colorScheme || environment.site.colorScheme || '1';
+  let color = schemeColors[colorSchemeId];
 
-    return color;
+  if (typeof saturation === 'number' && saturation > 0 && saturation < 100) {
+      saturation = 1 - (saturation / 100);
+      let rgb = color.match(/[0-9A-F]{2}/gi),
+          retColor = '#';
+      for (var i = 0, l = rgb.length; i < l; i++) {
+          let colorPart = parseInt(rgb[i], 16);
+          let diff = 255 - colorPart;
+          diff = Math.floor(diff * saturation);
+          colorPart += diff;
+          retColor += colorPart.toString(16);
+      }
+      return retColor;
+  }
+
+  return color;
 };

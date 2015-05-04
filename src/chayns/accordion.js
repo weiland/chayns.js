@@ -1,8 +1,14 @@
 import {forEach, delegate} from '../utils';
 export var accordion = (function(window, document) {
 
+  let clickTriggers = [
+    '.accordion .accordion__head',
+    '.accordion .accordion__head .arrow',
+    '.accordion .accordion__head .accordion--trigger'
+  ];
+
   function init(selector) {
-    selector = selector || '.accordion .accordion__head, .accordion .accordion__head .arrow, .accordion .accordion__head .accordion--trigger';
+    selector = selector || clickTriggers.join(', ');
     delegate(document, selector, 'click',  handleClickEvent);
   }
 

@@ -226,10 +226,10 @@ function chaynsSelectDialog(config) {
   if (isArray(config.list) && config.list.length > 0) {
     list = [];
     config.list.forEach(function(item) {
-      if(item.name || item.image){ //Button needs to have something to display
+      if (item.name || item.image) { // Button needs to have something to display
         list.push({
           Text: item.name,
-          Value: item.value || item, //Android needs a value otherwise the dialog won't be displayed
+          Value: item.value || item, // Android needs a value otherwise the dialog won't be displayed
           Preselect: !!item.isSelected,
           Image: item.image
         });
