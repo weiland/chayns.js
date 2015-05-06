@@ -72,17 +72,18 @@ gulp.task('jsdoc', function() {
   .pipe(jsdoc('./docs'));
 });
 
+var releasePath = process.platform === 'win32' ? '//chayns1/SlitteRessource/' : '/Volumes/SlitteRessource/';
 
 gulp.task('qa', function() {
   gulp.src('./dist/*.*')
-    .pipe(gulp.dest('//chayns1/SlitteRessource/API/v3/js/qa'));
+    .pipe(gulp.dest(releasePath + 'API/v3/js/qa'));
   gulp.src('./index.html')
-    .pipe(gulp.dest('//chayns1/SlitteRessource/API/v3'));
+    .pipe(gulp.dest(releasePath + 'API/v3'));
 });
 
 gulp.task('deploy', function() {
   gulp.src('./dist/*.*')
-    .pipe(gulp.dest('//chayns1/SlitteRessource/API/v3/js'));
+    .pipe(gulp.dest(releasePath + 'API/v3/js'));
   gulp.src('./index.html')
-    .pipe(gulp.dest('//chayns1/SlitteRessource/API/v3'));
+    .pipe(gulp.dest(releasePath + 'API/v3'));
 });
