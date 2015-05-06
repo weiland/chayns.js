@@ -58,7 +58,7 @@ export * from './utils/error';
 //export * from './utils/cookie_handler';
 
 // localStorage helper (which cookie fallback)
-//export * from './utils/local_storage';
+export * from './utils/local_storage';
 
 // micro event library
 export * from './utils/events';

@@ -22,7 +22,7 @@ var chaynsReadyDefer = defer();
  * @description
  * Run necessary operations to prepare chayns.
  *
- * @param obj
+ * @param {object} obj Reference passed
  * @returns {*}
  */
 export function register(config) {
