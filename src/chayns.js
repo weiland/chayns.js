@@ -32,13 +32,15 @@ export var chayns = {};
 extend(chayns, {getLogger: utils.getLogger}); // jshint ignore: line
 extend(chayns, {'$': utils.DOM}); // jshint ignore: line
 extend(chayns, {utils});
-extend(chayns, {VERSION: '0.1.0'});
+extend(chayns, {VERSION: '0.1.1'});
 
 extend(chayns, {env: environment});
 extend(chayns, {getSchemeColor});
 
 extend(chayns, {register});
 extend(chayns, {ready});
+extend(chayns, {setup});
+
 
 // add all chaynsApiInterface methods directly to the `chayns` Object
 extend(chayns, chaynsApiInterface);

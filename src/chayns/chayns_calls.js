@@ -1,5 +1,5 @@
 import {getLogger, isPermitted, isFunction, isBlank, isArray,
-          isObject, defer, isString} from '../utils';
+          isObject, defer, isString, defer} from '../utils';
 import {environment} from './environment';
 import {setCallback} from './callbacks';
 let log = getLogger('chayns.core.chayns_calls');
@@ -156,6 +156,7 @@ export function apiCall(obj) {
   }
 }
 
+let queue = [];
 /**
  * Execute Chayns Call (only for native Apps)
  *
@@ -175,19 +176,42 @@ function chaynsCall(cmd, params) {
   }
 
   let url = 'chayns://chaynsCall(' + cmd; // url protocol, host and cmd
-
   if (isArray(params) && params.length > 0) {
     url +=  ',' + params.join(','); // extend with existing parameters
   }
-
   url += ')'; // url suffix
 
-  log.debug('chaynsCall: url: ', url);
+  log.debug('chaynsCall: created url: ', url);
 
+  let deferred = defer();
+  queue.push({url, deferred});
+  invokeQueue();
+  return deferred.promise;
+}
+
+function invokeQueue() {
+  log.debug('invokeQueue: start new cycle');
+  let invoke = function() {
+    let call = queue.shift();
+    if (call) {
+      executeChaynsCall(call);
+      if (queue.length) {
+        invokeQueue();
+      } else {
+        log.debug('invokeQueue: finished cycle');
+      }
+    }
+  };
+  setTimeout(invoke, 50);
+}
+
+function executeChaynsCall(call) {
+  let {deferred, url} = call;
+  log.debug('executeChaynsCall: invoke: ', url, deferred);
   try {
     // TODO: create an easier identification of the right environment
-    // TODO: consider to execute the browser fallback in here as well
     // TODO(pascal): windows phone support
+    // TODO(pascal): new json struct
     if ('chaynsCall' in window && isFunction(window.chaynsCall.href)) {
       window.chaynsCall.href(url);
     } else if ('webkit' in window
@@ -200,10 +224,10 @@ function chaynsCall(cmd, params) {
     } else {
       window.location.href = url;
     }
-    return Promise.resolve();
+    return deferred.resolve();
   } catch (e) {
     log.error('chaynsCall: Error: could not execute ChaynsCall: ', e);
-    return Promise.reject(new Error(e));
+    return deferred.reject(new Error(e));
   }
 }
 

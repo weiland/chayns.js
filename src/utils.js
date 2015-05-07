@@ -96,7 +96,7 @@ export * from './utils/language';
 export * from './utils/is_permitted';
 
 // equalizer for width and height
-export * from './utils/equalizer'
+export * from './utils/equalizer';
 
 
 // in Future
